@@ -29,6 +29,9 @@ export function LoginPage() {
   const user = useAuthStore((state) => state.user)
   const sessionExpired = useAuthStore((state) => state.sessionExpired)
   const login = useAuthStore((state) => state.login)
+  const clearSessionExpired = useAuthStore((state) => state.clearSessionExpired)
+  // Keep the "login ran out" notice for this visit only; the store flag is reset below.
+  const [expiredOnOpen] = useState(() => useAuthStore.getState().sessionExpired)
   const { mutateAsync: loginWithLine, isPending } = useLineLoginMutation()
   const handledRef = useRef(false)
   // Read the LINE callback (if any) once, on the first render.
@@ -41,6 +44,11 @@ export function LoginPage() {
   const hasCallback = searchParams.has('code') || searchParams.has('error')
   const redirectParam = searchParams.get('redirect')
   const redirectTo = safeRedirect(redirectParam)
+
+  // The notice was read above, so the flag does not linger into later visits.
+  useEffect(() => {
+    if (expiredOnOpen) clearSessionExpired()
+  }, [expiredOnOpen, clearSessionExpired])
 
   // Finish the LINE callback once (the ref also guards the StrictMode double run).
   useEffect(() => {
@@ -61,6 +69,7 @@ export function LoginPage() {
   const handleLineLogin = () => {
     setStarting(true)
     setNotice(null)
+    clearSessionExpired()
     startLineLogin(redirectTo).catch(() => {
       setStarting(false)
       setNotice('failed')
@@ -98,7 +107,7 @@ export function LoginPage() {
     )
   }
 
-  const message = notice ?? (sessionExpired ? 'expired' : null)
+  const message = notice ?? (sessionExpired || (expiredOnOpen && !starting) ? 'expired' : null)
   const isError = message === 'failed' || message === 'expired'
 
   return (

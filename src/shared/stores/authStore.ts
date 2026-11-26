@@ -10,6 +10,7 @@ interface AuthState {
   sessionExpired: boolean
   login: (session: LoginResponse) => void
   logout: (options?: { expired?: boolean }) => void
+  clearSessionExpired: () => void
 }
 
 type SavedAuth = Pick<AuthState, 'accessToken' | 'expiresAt' | 'user'>
@@ -29,6 +30,8 @@ function toUser(value: unknown): AuthUser | null {
   }
 }
 
+const STORAGE_KEY = 'digiman.auth'
+
 // Only login state lives here. Server data belongs to TanStack Query.
 // The login is kept in localStorage ("digiman.auth") so a reload does not log the user out.
 export const useAuthStore = create<AuthState>()(
@@ -42,9 +45,10 @@ export const useAuthStore = create<AuthState>()(
         set({ accessToken, expiresAt, user, sessionExpired: false }),
       logout: ({ expired = false } = {}) =>
         set({ accessToken: null, expiresAt: null, user: null, sessionExpired: expired }),
+      clearSessionExpired: () => set({ sessionExpired: false }),
     }),
     {
-      name: 'digiman.auth',
+      name: STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: ({ accessToken, expiresAt, user }): SavedAuth => ({
         accessToken,
@@ -55,7 +59,11 @@ export const useAuthStore = create<AuthState>()(
       merge: (persisted, current) => {
         const saved = persisted as Partial<SavedAuth> | undefined
         if (typeof saved?.accessToken !== 'string') return current
-        if (isExpired(saved.expiresAt)) return { ...current, sessionExpired: true }
+        if (isExpired(saved.expiresAt)) {
+          // Drop the stale login from storage too, not only from memory.
+          localStorage.removeItem(STORAGE_KEY)
+          return { ...current, sessionExpired: true }
+        }
         return {
           ...current,
           accessToken: saved.accessToken,

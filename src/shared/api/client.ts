@@ -1,3 +1,4 @@
+import { queryClient } from '@/shared/api/queryClient'
 import { useAuthStore } from '@/shared/stores/authStore'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
@@ -24,6 +25,8 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
     // Skip if the user has logged in again with a new token in the meantime.
     if (response.status === 401 && token && useAuthStore.getState().accessToken === token) {
       useAuthStore.getState().logout({ expired: true })
+      // Same as LogoutButton: drop server data cached for the old login.
+      queryClient.clear()
     }
     throw new ApiError(response.status, await response.text())
   }
