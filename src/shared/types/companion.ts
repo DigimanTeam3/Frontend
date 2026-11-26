@@ -50,3 +50,10 @@ export interface CompanionListResponse {
   size: number
   total: number
 }
+
+/** Body for POST /events/{eventId}/companions. */
+export interface CreateCompanionBody {
+  meetAt: string
+  capacity: number
+  intro: string
+}
