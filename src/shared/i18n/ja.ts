@@ -188,6 +188,8 @@ export const ja = {
     mine: '自分の募集',
     requestStatus: { PENDING: '申込中', ACCEPTED: '参加確定', REJECTED: '見送り' },
     meetSuffix: '集合',
+    meetAt: (month: string, day: string, weekday: string, time: string) =>
+      `${month}/${day}（${weekday}）${time}`,
     members: (count: number, capacity: number) => `${count}/${capacity}人`,
     emptyOpen: 'いま募集中の同行はありません。',
     emptyAll: 'まだ同行募集がありません。',
@@ -327,6 +329,7 @@ export const ja = {
     backToList: '同行募集に戻る',
     notFound: '募集が見つかりません。',
     ticketLabel: '同行切符',
+    ticketNo: (id: number) => `No.${String(id).padStart(4, '0')}`,
     meet: '集合',
     place: '集合場所',
     seats: '座席',

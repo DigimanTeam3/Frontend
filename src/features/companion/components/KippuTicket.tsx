@@ -18,7 +18,7 @@ export function KippuTicket({ post }: { post: CompanionPostDetail }) {
       <div className="px-5 pt-4 pb-5">
         <p className="flex justify-between font-mono text-xs text-ink-muted">
           <span>{text.ticketLabel}</span>
-          <span>No.{String(post.id).padStart(4, '0')}</span>
+          <span>{text.ticketNo(post.id)}</span>
         </p>
         <h2 className="mt-1 text-lg leading-snug font-bold">
           {post.event.titleJa ?? post.event.title}
