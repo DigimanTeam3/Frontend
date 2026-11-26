@@ -4,21 +4,19 @@
 
 결정: **front는 Vercel, 백엔드는 EC2.** 브라우저는 Vercel 주소만 부르고, `/api/*`는 Vercel rewrites가 EC2 백엔드로 넘깁니다 (CORS 불필요).
 
-## 1. 배포 방식 — GitHub Actions + Vercel CLI
+## 1. 배포 방식 — Vercel CLI
 
-- 레포 `DigimanTeam3/Frontend`는 GitHub 조직 소유라 Vercel 무료(Hobby) 계정에 연결할 수 없습니다 (https://vercel.com/docs/limits). 그래서 레포를 연결하지 않고 GitHub Actions에서 Vercel CLI로 배포합니다 (비용 없음).
-- 워크플로: `.github/workflows/deploy.yml`
-  - `main`에 push(머지) → 운영 배포 (`vercel deploy --prebuilt --prod`)
-  - PR 열기·수정 → 미리보기 배포, 주소를 PR 댓글로 남김 (포크에서 온 PR은 secret이 없어 건너뜀)
-- 방식은 Vercel 공식 가이드를 따릅니다: https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+- 레포 `DigimanTeam3/Frontend`는 GitHub 조직 소유라 Vercel 무료(Hobby) 계정에 연결할 수 없습니다 (https://vercel.com/docs/limits). 그래서 레포를 연결하지 않고 Vercel CLI로 배포합니다 (비용 없음).
+- 지금은 `main`을 받은 뒤 로컬에서 `vercel --prod`로 배포합니다.
+- GitHub Actions 자동 배포는 아직 넣지 않았습니다. secret 없이 넣으면 모든 PR에서 실패 체크가 뜨기 때문입니다. 필요하면 C10에서 secret을 등록한 뒤 추가합니다 (공식 가이드: https://vercel.com/guides/how-can-i-use-github-actions-with-vercel).
 
 ### 처음 한 번 설정
 
 1. Vercel 계정에서 토큰 만들기 (Account Settings → Tokens) → `VERCEL_TOKEN`
 2. 로컬에서 `npx vercel link`로 프로젝트를 만들고, 생긴 `.vercel/project.json`의 `orgId`, `projectId` 확인 → `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` (`.vercel/`은 커밋하지 않음)
-3. 레포 Settings → Secrets and variables → Actions에 위 3개 등록 (레포 admin)
+3. (Actions 자동 배포를 넣을 때만) 레포 Settings → Secrets and variables → Actions에 위 3개 등록 (레포 admin)
 4. Vercel 프로젝트 설정에서 환경변수(3장) 등록
-5. 무료 계정에서 CLI 배포가 되는지 첫 배포로 확인. 안 되면 로컬에서 `vercel --prod`로 배포
+5. 로컬에서 `vercel --prod`로 첫 배포
 
 ## 2. vercel.json
 
@@ -59,7 +57,7 @@
 
 ## 6. 11/27 첫 배포 체크리스트
 
-- [ ] Vercel 프로젝트 생성, secret 3개 등록, 첫 배포가 Actions로 되는지 확인
+- [ ] Vercel 프로젝트 생성, 로컬 `vercel --prod`로 첫 배포
 - [ ] 환경변수 Production / Preview 설정
 - [ ] `vercel.json` 반영, 백엔드 주소(HTTPS) 확인
 - [ ] 운영 주소에서 새로고침 404 없는지 (예: `/map`에서 새로고침)
@@ -70,6 +68,6 @@
 
 ## 7. 11/29 당일
 
-- 마지막 배포는 프리즈 전에 여유를 둡니다. 문제가 생기면 Vercel에서 이전 배포로 되돌립니다 (방법은 첫 배포 때 확인). Actions가 막히면 로컬에서 `vercel --prod`로 배포합니다.
+- 마지막 배포는 프리즈 전에 여유를 둡니다. 문제가 생기면 Vercel에서 이전 배포로 되돌립니다 (방법은 첫 배포 때 확인). 배포는 로컬에서 `vercel --prod`로 합니다.
 - 지도 타일(OpenFreeMap)은 서비스 보장이 없습니다. 당일 아침 운영 주소에서 확인합니다.
 - 행사장 Wi-Fi가 느리면 폰 데이터로 데모합니다.
