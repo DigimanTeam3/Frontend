@@ -1,9 +1,22 @@
-// All UI text (Japanese). Keys are grouped by screen.
+// All UI text (Japanese). Rules and checklist: docs/copy.md.
+// - One section per screen or feature (camelCase, e.g. eventDetail). Do not edit other screens' sections.
+// - `common`: words two or more screens use.
+// - Text with numbers or names is a function, e.g. `companionCount: (count: number) => ...`.
+//   Do not join pieces of copy in components.
 export const ja = {
   common: {
     loading: '読み込み中…',
     error: 'エラーが発生しました。もう一度お試しください。',
     comingSoon: '準備中です。',
+    // Network failure (no answer from the server).
+    offline: '通信できませんでした。電波の良い場所でもう一度お試しください。',
+    retry: 'もう一度試す',
+    free: '無料',
+    // Original (Korean) text shown as is, with lang="ko".
+    noTranslation: '日本語訳なし',
+    autoTranslated: '自動翻訳',
+    showOriginal: '原文を見る',
+    showJapanese: '日本語で見る',
   },
   // Screen names by screen ID (S01–S18).
   screens: {
