@@ -39,14 +39,16 @@ export function SearchPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const filterButtonRef = useRef<HTMLButtonElement>(null)
 
-  // Every change goes through the URL, built from the latest URL (not this render's copy).
-  const update = useCallback(
-    (next: Partial<SearchConditions>) =>
-      setSearchParams((current) => writeConditions({ ...readConditions(current), ...next }), {
-        replace: true,
-      }),
-    [setSearchParams],
-  )
+  // Every change goes through the URL. It starts from the address bar as it is now, not from this
+  // render's copy: a late callback (position answer, timer) must not bring back old conditions.
+  const setParamsRef = useRef(setSearchParams)
+  useEffect(() => {
+    setParamsRef.current = setSearchParams
+  })
+  const update = useCallback((next: Partial<SearchConditions>) => {
+    const current = readConditions(new URLSearchParams(window.location.search))
+    setParamsRef.current(writeConditions({ ...current, ...next }), { replace: true })
+  }, [])
 
   // Keyword: typed text is sent 300 ms after the last key, or at once on Enter.
   const [draft, setDraft] = useState(conditions.keyword)
@@ -71,26 +73,35 @@ export function SearchPage() {
   const [startedByDistance] = useState(conditions.sort === 'distance')
   const location = useCurrentPosition(startedByDistance)
   const [locationNotice, setLocationNotice] = useState(false)
-  const fallBackToDate = useCallback(
-    (found: boolean) => {
-      if (found) return
-      setLocationNotice(true)
-      update({ sort: 'date' })
+  // Only the latest ask counts; an answer that comes after the user moved on is ignored.
+  const lastAsk = useRef(0)
+  const askPosition = useCallback(
+    (ask: () => Promise<boolean>) => {
+      const id = ++lastAsk.current
+      void ask().then((found) => {
+        if (found || id !== lastAsk.current) return
+        if (readConditions(new URLSearchParams(window.location.search)).sort !== 'distance') return
+        setLocationNotice(true)
+        update({ sort: 'date' })
+      })
     },
     [update],
   )
 
   // Opened with ?sort=distance (back button, shared link): ask for the position once.
   const { request } = location
+  const askedOnOpen = useRef(false)
   useEffect(() => {
-    if (startedByDistance) void request().then(fallBackToDate)
-  }, [startedByDistance, request, fallBackToDate])
+    if (!startedByDistance || askedOnOpen.current) return
+    askedOnOpen.current = true
+    askPosition(request)
+  }, [startedByDistance, request, askPosition])
 
   const changeSort = (sort: SortOrder) => {
     update({ sort })
     setLocationNotice(false)
-    if (sort === 'distance' && location.status !== 'ready')
-      void location.locate().then(fallBackToDate)
+    if (sort === 'date') lastAsk.current += 1
+    else if (location.status !== 'ready') askPosition(location.locate)
   }
 
   const waitingForPosition = conditions.sort === 'distance' && location.status !== 'ready'
@@ -125,26 +136,18 @@ export function SearchPage() {
   const resetAll = () => {
     setDraft('')
     setLocationNotice(false)
+    lastAsk.current += 1
     setSearchParams(new URLSearchParams(), { replace: true })
   }
 
   const filterCount = countFilters(conditions)
   const activeConditions = [
-    conditions.category && {
-      key: 'category',
-      label: categoryLabel(conditions.category),
-      remove: () => update({ category: undefined }),
-    },
+    conditions.category && { key: 'category' as const, label: categoryLabel(conditions.category) },
     conditions.date && {
-      key: 'date',
+      key: 'date' as const,
       label: isPreset(conditions.date) ? t.dates[conditions.date] : pickedDayLabel(conditions.date),
-      remove: () => update({ date: undefined }),
     },
-    conditions.area && {
-      key: 'area',
-      label: t.areas[conditions.area],
-      remove: () => update({ area: undefined }),
-    },
+    conditions.area && { key: 'area' as const, label: t.areas[conditions.area] },
   ].filter((item) => !!item)
 
   return (
@@ -209,7 +212,7 @@ export function SearchPage() {
             <li key={item.key}>
               <button
                 type="button"
-                onClick={item.remove}
+                onClick={() => update({ [item.key]: undefined })}
                 aria-label={t.removeCondition(item.label)}
                 className="flex min-h-9 items-center gap-1.5 rounded-full bg-ink py-1 pr-2.5 pl-3.5 text-[13px] font-bold text-surface active:opacity-85"
               >
