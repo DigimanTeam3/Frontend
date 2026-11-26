@@ -59,11 +59,13 @@ export function SearchPage() {
     if (draft.trim() !== conditions.keyword) setDraft(conditions.keyword)
   }
   const typedKeyword = draft.trim().slice(0, KEYWORD_MAX)
+  // While the IME is still converting (かな → 漢字) nothing is searched.
+  const [composing, setComposing] = useState(false)
   useEffect(() => {
-    if (typedKeyword === conditions.keyword) return
+    if (composing || typedKeyword === conditions.keyword) return
     const timer = window.setTimeout(() => update({ keyword: typedKeyword }), KEYWORD_DELAY)
     return () => window.clearTimeout(timer)
-  }, [typedKeyword, conditions.keyword, update])
+  }, [composing, typedKeyword, conditions.keyword, update])
 
   const [autoFocus] = useState(
     () => !conditions.keyword && countFilters(conditions) === 0 && conditions.sort === 'date',
@@ -165,6 +167,11 @@ export function SearchPage() {
             autoFocus={autoFocus}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
+            onCompositionStart={() => setComposing(true)}
+            onCompositionEnd={(event) => {
+              setComposing(false)
+              setDraft(event.currentTarget.value)
+            }}
             className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-faint [&::-webkit-search-cancel-button]:hidden"
           />
           {draft && (
