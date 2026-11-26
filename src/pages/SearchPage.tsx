@@ -265,16 +265,17 @@ export function SearchPage() {
         </label>
       </div>
 
-      {waitingForPosition && location.status === 'locating' && (
-        <p role="status" className="pb-3 text-xs text-ink-muted">
-          {t.locating}
-        </p>
-      )}
-      {locationNotice && (
-        <p role="status" className="pb-3 text-xs text-danger">
-          {t.locationUnavailable}
-        </p>
-      )}
+      {/* Always in the page so screen readers announce the text when it appears. */}
+      <p
+        role="status"
+        className={`text-xs empty:hidden ${locationNotice ? 'pb-3 text-danger' : 'pb-3 text-ink-muted'}`}
+      >
+        {locationNotice
+          ? t.locationUnavailable
+          : waitingForPosition && location.status === 'locating'
+            ? t.locating
+            : null}
+      </p>
 
       <ResultList query={query} events={events} onReset={resetAll} />
 
