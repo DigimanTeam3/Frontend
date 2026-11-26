@@ -1,6 +1,358 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useSearchParams } from 'react-router'
+import { useEventPagesQuery } from '@/features/events/api'
+import filterIcon from '@/features/events/assets/filter.svg'
+import searchIcon from '@/features/events/assets/search.svg'
+import xSmallIcon from '@/features/events/assets/x-small.svg'
+import { categoryLabel } from '@/features/events/lib/eventText'
+import { useNextPageTrigger } from '@/features/events/lib/useNextPageTrigger'
+import { FilterSheet } from '@/features/events/search/FilterSheet'
+import { SearchResultCard, SearchResultSkeleton } from '@/features/events/search/SearchResultCard'
+import {
+  DATE_PRESETS,
+  KEYWORD_MAX,
+  countFilters,
+  pickedDayLabel,
+  readConditions,
+  toListParams,
+  writeConditions,
+  type DatePreset,
+  type SearchConditions,
+  type SearchFilters,
+  type SortOrder,
+} from '@/features/events/search/searchConditions'
+import { useCurrentPosition } from '@/features/events/search/useCurrentPosition'
+import { ja } from '@/shared/i18n/ja'
+import type { EventListItem } from '@/shared/types/event'
 
-// S03. Replace the placeholder with the real screen.
+const PAGE_SIZE = 20
+const KEYWORD_DELAY = 300
+
+const isPreset = (value: string): value is DatePreset =>
+  (DATE_PRESETS as readonly string[]).includes(value)
+
+// S03 search and filter (Figma: S03 検索・絞り込み, restyled to the 切符 look).
 export function SearchPage() {
-  return <ScreenPlaceholder screenId="S03" />
+  const t = ja.search
+  const [searchParams, setSearchParams] = useSearchParams()
+  const conditions = readConditions(searchParams)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const filterButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Every change goes through the URL, built from the latest URL (not this render's copy).
+  const update = useCallback(
+    (next: Partial<SearchConditions>) =>
+      setSearchParams((current) => writeConditions({ ...readConditions(current), ...next }), {
+        replace: true,
+      }),
+    [setSearchParams],
+  )
+
+  // Keyword: typed text is sent 300 ms after the last key, or at once on Enter.
+  const [draft, setDraft] = useState(conditions.keyword)
+  const [syncedKeyword, setSyncedKeyword] = useState(conditions.keyword)
+  if (syncedKeyword !== conditions.keyword) {
+    // The URL changed from outside (reset, back): show its keyword in the field.
+    setSyncedKeyword(conditions.keyword)
+    if (draft.trim() !== conditions.keyword) setDraft(conditions.keyword)
+  }
+  const typedKeyword = draft.trim().slice(0, KEYWORD_MAX)
+  useEffect(() => {
+    if (typedKeyword === conditions.keyword) return
+    const timer = window.setTimeout(() => update({ keyword: typedKeyword }), KEYWORD_DELAY)
+    return () => window.clearTimeout(timer)
+  }, [typedKeyword, conditions.keyword, update])
+
+  const [autoFocus] = useState(
+    () => !conditions.keyword && countFilters(conditions) === 0 && conditions.sort === 'date',
+  )
+
+  // 近い順 needs the current position. Without it the list goes back to date order.
+  const [startedByDistance] = useState(conditions.sort === 'distance')
+  const location = useCurrentPosition(startedByDistance)
+  const [locationNotice, setLocationNotice] = useState(false)
+  const fallBackToDate = useCallback(
+    (found: boolean) => {
+      if (found) return
+      setLocationNotice(true)
+      update({ sort: 'date' })
+    },
+    [update],
+  )
+
+  // Opened with ?sort=distance (back button, shared link): ask for the position once.
+  const { request } = location
+  useEffect(() => {
+    if (startedByDistance) void request().then(fallBackToDate)
+  }, [startedByDistance, request, fallBackToDate])
+
+  const changeSort = (sort: SortOrder) => {
+    update({ sort })
+    setLocationNotice(false)
+    if (sort === 'distance' && location.status !== 'ready')
+      void location.locate().then(fallBackToDate)
+  }
+
+  const waitingForPosition = conditions.sort === 'distance' && location.status !== 'ready'
+  const query = useEventPagesQuery(
+    toListParams(conditions, location.position),
+    PAGE_SIZE,
+    !waitingForPosition,
+  )
+  const events = query.data?.pages.flatMap((page) => page.items) ?? []
+  const total = query.data?.pages[0]?.total
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault()
+    update({ keyword: typedKeyword })
+    // Close the on-screen keyboard so the results can be seen.
+    ;(document.activeElement as HTMLElement | null)?.blur()
+  }
+
+  const closeSheet = () => setSheetOpen(false)
+  // Back to the filter button once the sheet is gone (the page behind is inert until then).
+  const sheetWasOpen = useRef(false)
+  useEffect(() => {
+    if (sheetWasOpen.current && !sheetOpen) filterButtonRef.current?.focus()
+    sheetWasOpen.current = sheetOpen
+  }, [sheetOpen])
+
+  const applyFilters = (filters: SearchFilters) => {
+    update({ category: filters.category, date: filters.date, area: filters.area })
+    closeSheet()
+  }
+
+  const resetAll = () => {
+    setDraft('')
+    setLocationNotice(false)
+    setSearchParams(new URLSearchParams(), { replace: true })
+  }
+
+  const filterCount = countFilters(conditions)
+  const activeConditions = [
+    conditions.category && {
+      key: 'category',
+      label: categoryLabel(conditions.category),
+      remove: () => update({ category: undefined }),
+    },
+    conditions.date && {
+      key: 'date',
+      label: isPreset(conditions.date) ? t.dates[conditions.date] : pickedDayLabel(conditions.date),
+      remove: () => update({ date: undefined }),
+    },
+    conditions.area && {
+      key: 'area',
+      label: t.areas[conditions.area],
+      remove: () => update({ area: undefined }),
+    },
+  ].filter((item) => !!item)
+
+  return (
+    <section className="flex flex-col">
+      <form role="search" onSubmit={submit} className="pb-3">
+        <div className="flex h-12 items-center gap-2 rounded-full border border-line bg-surface pr-1.5 pl-4 focus-within:border-ink">
+          <img src={searchIcon} alt="" width={18} height={18} className="shrink-0" />
+          <input
+            type="search"
+            enterKeyHint="search"
+            aria-label={t.inputLabel}
+            placeholder={t.placeholder}
+            maxLength={KEYWORD_MAX}
+            // Only when the screen opens empty: coming back to results should not pop the keyboard.
+            autoFocus={autoFocus}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-faint [&::-webkit-search-cancel-button]:hidden"
+          />
+          {draft && (
+            <button
+              type="button"
+              onClick={() => {
+                setDraft('')
+                update({ keyword: '' })
+              }}
+              aria-label={t.clear}
+              className="flex size-9 shrink-0 items-center justify-center rounded-full active:bg-ink/10"
+            >
+              <span
+                aria-hidden="true"
+                className="flex size-5 items-center justify-center rounded-full bg-ink-faint"
+              >
+                <img src={xSmallIcon} alt="" width={10} height={10} />
+              </span>
+            </button>
+          )}
+          <button
+            ref={filterButtonRef}
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            aria-label={filterCount ? t.filterActive(filterCount) : t.filter}
+            aria-haspopup="dialog"
+            className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-ink transition-opacity duration-150 ease-out active:opacity-80"
+          >
+            <img src={filterIcon} alt="" width={18} height={18} />
+            {filterCount > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full border-2 border-surface bg-kippu-festival text-[10px] font-bold text-surface"
+              >
+                {filterCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </form>
+
+      {activeConditions.length > 0 && (
+        <ul className="flex flex-wrap gap-2 pb-3">
+          {activeConditions.map((item) => (
+            <li key={item.key}>
+              <button
+                type="button"
+                onClick={item.remove}
+                aria-label={t.removeCondition(item.label)}
+                className="flex min-h-9 items-center gap-1.5 rounded-full bg-ink py-1 pr-2.5 pl-3.5 text-[13px] font-bold text-surface active:opacity-85"
+              >
+                {item.label}
+                <img src={xSmallIcon} alt="" width={10} height={10} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="flex items-end gap-3 pb-3">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <h1 className="truncate font-mincho text-xl/[1.4] font-extrabold">
+            {t.resultTitle(conditions.keyword)}
+          </h1>
+          <p aria-live="polite" className="font-mono text-xs/[1.5] text-ink-muted">
+            {total !== undefined ? t.resultCount(total) : ' '}
+          </p>
+        </div>
+        <label className="relative flex shrink-0 items-center">
+          <span className="sr-only">{t.sortLabel}</span>
+          <select
+            value={conditions.sort}
+            onChange={(event) => changeSort(event.target.value as SortOrder)}
+            className="h-10 appearance-none rounded-full border border-line bg-surface pr-8 pl-3.5 text-[13px] font-bold text-ink"
+          >
+            <option value="date">{t.sort.date}</option>
+            <option value="distance">{t.sort.distance}</option>
+          </select>
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute right-3 size-1.5 -translate-y-0.5 rotate-45 border-r-[1.5px] border-b-[1.5px] border-ink"
+          />
+        </label>
+      </div>
+
+      {waitingForPosition && location.status === 'locating' && (
+        <p role="status" className="pb-3 text-xs text-ink-muted">
+          {t.locating}
+        </p>
+      )}
+      {locationNotice && (
+        <p role="status" className="pb-3 text-xs text-danger">
+          {t.locationUnavailable}
+        </p>
+      )}
+
+      <ResultList query={query} events={events} onReset={resetAll} />
+
+      {sheetOpen && (
+        <FilterSheet
+          initial={{ category: conditions.category, date: conditions.date, area: conditions.area }}
+          keyword={conditions.keyword}
+          onApply={applyFilters}
+          onClose={closeSheet}
+        />
+      )}
+    </section>
+  )
+}
+
+interface ResultListProps {
+  query: ReturnType<typeof useEventPagesQuery>
+  events: EventListItem[]
+  onReset: () => void
+}
+
+function ResultList({ query, events, onReset }: ResultListProps) {
+  const t = ja.search
+  const { fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isFetchNextPageError } = query
+  // Wait while any fetch runs: starting the next page would cancel a background refetch.
+  const sentinelRef = useNextPageTrigger(
+    () => void fetchNextPage(),
+    hasNextPage && !isFetching && !isFetchNextPageError,
+  )
+
+  if (query.isPending) {
+    return (
+      <div aria-busy="true" className="flex flex-col gap-3">
+        <p className="sr-only">{ja.common.loading}</p>
+        <SearchResultSkeleton />
+        <SearchResultSkeleton />
+        <SearchResultSkeleton />
+      </div>
+    )
+  }
+
+  if (query.isError && events.length === 0) {
+    return (
+      <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
+        <p className="text-sm text-danger">{ja.common.error}</p>
+        <button
+          type="button"
+          onClick={() => void query.refetch()}
+          className="rounded-[14px] bg-ink px-5 py-3 text-[15px] font-bold text-surface"
+        >
+          {t.retry}
+        </button>
+      </div>
+    )
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-[10px] border border-dashed border-line px-6 py-12 text-center">
+        <p className="text-sm font-bold text-ink">{t.empty}</p>
+        <p className="text-xs text-ink-muted">{t.emptyHint}</p>
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-2 min-h-11 text-sm font-bold text-ink underline underline-offset-4"
+        >
+          {t.resetAll}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <ul className="flex flex-col gap-3">
+        {events.map((event) => (
+          <li key={event.id}>
+            <SearchResultCard event={event} />
+          </li>
+        ))}
+      </ul>
+      <div ref={sentinelRef} className="flex min-h-12 items-center justify-center py-4">
+        {isFetchingNextPage && <p className="text-xs text-ink-muted">{ja.common.loading}</p>}
+        {isFetchNextPageError && (
+          <p role="alert" className="flex items-center gap-3 text-xs text-danger">
+            {t.loadMoreError}
+            <button
+              type="button"
+              onClick={() => void fetchNextPage()}
+              className="font-bold text-ink underline underline-offset-4"
+            >
+              {t.retry}
+            </button>
+          </p>
+        )}
+      </div>
+    </>
+  )
 }
