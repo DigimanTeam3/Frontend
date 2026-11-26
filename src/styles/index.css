@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+
+/* Design tokens. Replace the values with the Figma styles; keep the names. */
+@theme {
+  --color-primary: #e4572e;
+  --color-surface: #ffffff;
+  --color-ink: #1f2328;
+  --color-ink-muted: #6b7280;
+  --color-line: #e5e7eb;
+  --color-danger: #d92d20;
+
+  --font-sans: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+}
