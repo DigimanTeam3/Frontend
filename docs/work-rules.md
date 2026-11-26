@@ -53,23 +53,58 @@
 
 ```txt
 src/
-  app/             앱 조립: router.tsx(라우트 목록), providers.tsx, 공통 레이아웃
-  pages/           라우트 1개 = 파일 1개. 기능 컴포넌트를 배치만 함
+  app/             앱 조립: router.tsx(18개 화면 경로), RequireAuth(로그인 보호), providers.tsx, 공통 레이아웃
+  pages/           화면 1개 = 파일 1개 (S01~S18). 기능 컴포넌트를 배치만 함
   features/        기능별 폴더 (담당자가 나뉘는 단위)
-    events/        행사 목록·상세
-      components/  이 기능에서만 쓰는 컴포넌트
-      api.ts       API 호출 함수 + 쿼리 훅
-    map/  recruitment/  participation/  mission/  badge/  card/  auth/ …
+    auth/          S01 로그인                         — 안재현
+    events/        S02 홈, S03 검색·필터, S05 상세     — 안재현
+    map/           S04 3D 지도                        — 안재현
+    companion/     S06~S08 동행 찾기·등록·신청·매칭     — 안재현
+    concierge/     S16 AI 창구                        — 안재현
+    checkin/       S09 위치 인증                      — 김태효
+    badge/         S10 참여 뱃지, S13 완료 뱃지        — 김태효
+    mission/       S11 미션 목록, S12 미션 제출        — 김태효
+    card/          S13 카드 생성, S14 카드 상세        — 김태효
+    mypage/        S15 My Page                        — 김태효
+    ticket/        S17 予約券                         — 김태효
+    notification/  S18 알림으로 들어온 행사            — 김태효
   shared/          여러 기능이 같이 쓰는 것 (바꾸면 상대에게 알림)
     api/           fetch 래퍼(client.ts), queryClient, queryKeys
-    ui/            공통 컴포넌트 (Button, Card, Header …)
+    ui/            공통 컴포넌트 (ScreenPlaceholder, Button, Card …)
     i18n/          ja.ts — 화면 문구(일본어)
-    lib/           유틸 (날짜 포맷, 거리 계산 …)
+    lib/           유틸 (날짜 포맷, 거리 계산, safeRedirect …)
     types/         API 응답 타입
     stores/        Zustand 스토어 (로그인 정보)
   mocks/           MSW handlers.ts, data/
   styles/          index.css (Tailwind, @theme 디자인 토큰)
 ```
+
+### 화면 경로
+
+| ID  | 화면                  | 경로                                   | 로그인 | 페이지 파일              |
+| --- | --------------------- | -------------------------------------- | ------ | ------------------------ |
+| S01 | 로그인                | `/login`                               | —      | `LoginPage`              |
+| S02 | 홈                    | `/`                                    | 불필요 | `HomePage`               |
+| S03 | 검색·필터             | `/search`                              | 불필요 | `SearchPage`             |
+| S04 | 3D 지도               | `/map`                                 | 불필요 | `MapPage`                |
+| S05 | 행사 상세             | `/events/:eventId`                     | 불필요 | `EventDetailPage`        |
+| S06 | 동행 찾기             | `/events/:eventId/companions`          | 불필요 | `CompanionListPage`      |
+| S07 | 동행 등록             | `/events/:eventId/companions/new`      | 필요   | `CompanionNewPage`       |
+| S08 | 신청·매칭             | `/companions/:postId`                  | 필요   | `CompanionDetailPage`    |
+| S09 | 위치 인증             | `/events/:eventId/check-in`            | 필요   | `CheckInPage`            |
+| S10 | 참여 뱃지             | `/events/:eventId/badge`               | 필요   | `ParticipationBadgePage` |
+| S11 | 미션 목록             | `/events/:eventId/missions`            | 필요   | `MissionListPage`        |
+| S12 | 미션 제출             | `/events/:eventId/missions/:missionId` | 필요   | `MissionSubmitPage`      |
+| S13 | 완료 뱃지 + 카드 생성 | `/events/:eventId/complete`            | 필요   | `CompletePage`           |
+| S14 | 카드 상세             | `/cards/:cardId`                       | 필요   | `CardDetailPage`         |
+| S15 | My Page               | `/me`                                  | 필요   | `MyPage`                 |
+| S16 | AI 창구               | `/concierge`                           | 불필요 | `ConciergePage`          |
+| S17 | 予約券                | `/me/tickets`                          | 필요   | `TicketsPage`            |
+| S18 | 알림으로 들어온 행사  | `/notifications/:notificationId`       | 필요   | `NotificationEventPage`  |
+
+- 로그인이 필요한 경로는 `router.tsx`의 `RequireAuth` 아래에 둡니다. 로그인하지 않았으면 `/login?redirect=<원래 경로>`로 보내고, 로그인 후 원래 화면으로 돌아옵니다.
+- LINE 로그인(S01)이 붙기 전에는 mock 모드(`VITE_USE_MOCK=true`)에서만 보이는 「開発用ログイン」 버튼으로 보호 화면을 시험합니다.
+- 각 페이지는 처음엔 「準備中」 자리표시만 있습니다. 담당자는 자기 페이지 파일과 기능 폴더만 고치면 되고, `router.tsx`는 경로를 바꿀 때만 건드립니다.
 
 - 기능 폴더 안의 파일은 그 기능 담당자가 자유롭게 고칩니다.
 - 공통 UI(`shared/ui`, `@theme` 토큰)는 Frontend 1이 기준을 정리합니다. 필요한 공통 컴포넌트가 없으면 Frontend 2도 만들 수 있지만, PR에서 Frontend 1의 확인을 받습니다 (기획안 11.2·11.3).
