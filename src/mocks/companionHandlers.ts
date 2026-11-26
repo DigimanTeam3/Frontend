@@ -42,7 +42,9 @@ function validateBody(body: Partial<CreateCompanionBody>, endDate: string) {
   if (!intro || Array.from(intro).length > 60 || intro.includes('\n')) {
     return errorResponse(400, 'VALIDATION_ERROR', 'intro must be 1-60 characters', 'intro')
   }
-  if (/https?:\/\/|www\./i.test(intro) || /\d{2,4}[-\s]?\d{3,4}[-\s]?\d{4}/.test(intro)) {
+  // NFKC turns full-width digits and letters into half-width ones before matching.
+  const normalized = intro.normalize('NFKC')
+  if (/https?:\/\/|www\./i.test(normalized) || /\d{2,4}[-\s]?\d{3,4}[-\s]?\d{4}/.test(normalized)) {
     return errorResponse(400, 'CONTACT_INFO_NOT_ALLOWED', 'contact info is not allowed', 'intro')
   }
   return null

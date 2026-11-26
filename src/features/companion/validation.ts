@@ -10,6 +10,12 @@ export const INTRO_MAX_LENGTH = 60
 const URL_PATTERN = /(https?:\/\/|www\.)\S+|\b[\w-]+\.(com|net|jp|kr|me|io|ly)\b/i
 const PHONE_PATTERN = /\d{2,4}[-\s]?\d{3,4}[-\s]?\d{4}/
 
+/** NFKC first so full-width digits and letters (０９０, ｗｗｗ) are caught too. */
+function hasContactInfo(intro: string) {
+  const normalized = intro.normalize('NFKC')
+  return URL_PATTERN.test(normalized) || PHONE_PATTERN.test(normalized)
+}
+
 export interface CompanionFormValues {
   day: string
   time: string
@@ -60,7 +66,7 @@ export function validateCompanionForm(
   if (!intro) errors.intro = messages.introRequired
   else if (introLength(intro) > INTRO_MAX_LENGTH)
     errors.intro = messages.introTooLong(INTRO_MAX_LENGTH)
-  else if (URL_PATTERN.test(intro) || PHONE_PATTERN.test(intro)) errors.intro = messages.contactInfo
+  else if (hasContactInfo(intro)) errors.intro = messages.contactInfo
 
   return errors
 }
