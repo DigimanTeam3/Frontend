@@ -1,6 +1,6 @@
 // All UI text (Japanese). Rules and checklist: docs/copy.md.
 // - One section per screen or feature (camelCase, e.g. eventDetail). Do not edit other screens' sections.
-// - `common`: words two or more screens use.
+// - `common`: words two or more screens use. `format`: pieces for src/shared/i18n/format.ts.
 // - Text with numbers or names is a function, e.g. `companionCount: (count: number) => ...`.
 //   Do not join pieces of copy in components.
 export const ja = {
@@ -17,6 +17,16 @@ export const ja = {
     autoTranslated: '自動翻訳',
     showOriginal: '原文を見る',
     showJapanese: '日本語で見る',
+  },
+  // Date, time, price and count pieces. Use the helpers in src/shared/i18n/format.ts, not these directly.
+  format: {
+    monthDay: (month: number, day: number) => `${month}月${day}日`,
+    yearMonthDay: (year: number, month: number, day: number) => `${year}年${month}月${day}日`,
+    weekday: (weekday: string) => `（${weekday}）`,
+    rangeSeparator: '〜',
+    won: (amount: string) => `${amount}ウォン`,
+    count: (count: string) => `${count}件`,
+    people: (count: string) => `${count}人`,
   },
   // Screen names by screen ID (S01–S18).
   screens: {
