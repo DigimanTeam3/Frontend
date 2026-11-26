@@ -30,14 +30,21 @@ function useSeenOnce<T extends Element>(threshold: number) {
   return [ref, seen] as const
 }
 
-function Field({ label, value, muted = false, grow = false }: FieldProps) {
+function Field({ label, value, spoken, muted = false, grow = false }: FieldProps) {
   return (
     <div className={`flex flex-col gap-px leading-[1.4] ${grow ? 'min-w-0 flex-1' : 'shrink-0'}`}>
       <dt aria-hidden="true" className="font-mono text-[8px] tracking-[0.14em] text-ink-muted">
         {label}
       </dt>
       <dd className={`truncate text-xs font-medium ${muted ? 'text-ink-faint' : 'text-ink'}`}>
-        {value}
+        {spoken ? (
+          <>
+            <span aria-hidden="true">{value}</span>
+            <span className="sr-only">{spoken}</span>
+          </>
+        ) : (
+          value
+        )}
       </dd>
     </div>
   )
@@ -46,6 +53,8 @@ function Field({ label, value, muted = false, grow = false }: FieldProps) {
 interface FieldProps {
   label: string
   value: string
+  /** Read out instead of `value` (the printed 「¥0」 is read as 「無料」). */
+  spoken?: string
   muted?: boolean
   grow?: boolean
 }
@@ -100,6 +109,7 @@ export function EventTicket({ event }: EventTicketProps) {
           <Field
             label={t.fare}
             value={event.isFree ? t.fareFree : t.farePaid}
+            spoken={event.isFree ? t.freeStamp : undefined}
             muted={event.isFree}
           />
         </dl>
