@@ -18,9 +18,14 @@ import {
   MOCK_TOKEN_LIFETIME_MS,
   mockUser,
 } from '@/mocks/data/auth'
-import { eventDetails, toEventSummary } from '@/mocks/data/events'
+import { eventDetails, mockEventAreas, toEventSummary } from '@/mocks/data/events'
 import type { DemoLoginRequest, LineLoginRequest, LoginResponse } from '@/shared/types/auth'
-import type { ApiErrorBody, EventCategory, EventListResponse } from '@/shared/types/event'
+import type {
+  ApiErrorBody,
+  EventArea,
+  EventCategory,
+  EventListResponse,
+} from '@/shared/types/event'
 
 // Mock-only event ids for checking error screens.
 const MOCK_NETWORK_ERROR_EVENT_ID = 9001
@@ -40,6 +45,23 @@ function toJstIso(date: Date) {
 // Event list conditions (issue #12)
 const EVENT_CATEGORIES: EventCategory[] = ['festival', 'exhibition', 'performance']
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+// Search conditions (issue #13)
+const EVENT_AREAS: EventArea[] = [
+  'jongno-jung',
+  'mapo-seodaemun',
+  'yongsan-yeouido',
+  'gangnam-songpa',
+]
+
+// Straight-line distance in meters (haversine), rounded.
+function distanceMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const rad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = rad(b.lat - a.lat)
+  const dLng = rad(b.lng - a.lng)
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2
+  return Math.round(2 * 6_371_000 * Math.asin(Math.sqrt(h)))
+}
 
 // YYYY-MM-DD that is a real calendar day (2026-02-30 and 2026-13-40 are not).
 function isCalendarDate(value: string) {
@@ -114,19 +136,52 @@ export const handlers = [
       return invalidParameter('category must be one of festival, exhibition, performance')
     }
     const dateFrom = params.get('dateFrom')
-    if (dateFrom !== null && !isCalendarDate(dateFrom)) {
-      return invalidParameter('dateFrom must be YYYY-MM-DD')
+    const dateTo = params.get('dateTo')
+    if ([dateFrom, dateTo].some((d) => d !== null && !isCalendarDate(d))) {
+      return invalidParameter('dateFrom and dateTo must be YYYY-MM-DD')
     }
+    const keyword = params.get('keyword')?.trim().toLowerCase() ?? ''
+    if (keyword.length > 50) return invalidParameter('keyword must be 50 characters or less')
+    const area = params.get('area')
+    if (area !== null && !EVENT_AREAS.includes(area as EventArea)) {
+      return invalidParameter('area is not a known area')
+    }
+    const sort = params.get('sort') ?? 'date'
+    const lat = params.get('lat') === null ? null : Number(params.get('lat'))
+    const lng = params.get('lng') === null ? null : Number(params.get('lng'))
+    const position =
+      lat !== null && lng !== null && isFinite(lat) && isFinite(lng) ? { lat, lng } : null
+    if (sort !== 'date' && sort !== 'distance')
+      return invalidParameter('sort must be date or distance')
+    if (sort === 'distance' && !position) return invalidParameter('sort=distance needs lat and lng')
 
     const from = dateFrom ? new Date(`${dateFrom}T00:00:00+09:00`) : null
+    const to = dateTo ? new Date(`${dateTo}T23:59:59+09:00`) : null
     const matched = eventDetails
       .filter((e) => !category || e.category === category)
       .filter((e) => !from || new Date(e.endDate) >= from)
-      .sort((a, b) => a.startDate.localeCompare(b.startDate) || a.id - b.id)
+      .filter((e) => !to || new Date(e.startDate) <= to)
+      .filter((e) => !area || mockEventAreas[e.id] === area)
+      .filter(
+        (e) =>
+          !keyword ||
+          [e.title, e.titleJa, e.venueName, e.venueNameJa].some((text) =>
+            text?.toLowerCase().includes(keyword),
+          ),
+      )
+      .map((e) => ({
+        ...toEventSummary(e),
+        distance: position ? distanceMeters(position, e) : null,
+      }))
+      .sort((a, b) =>
+        sort === 'distance'
+          ? (a.distance ?? 0) - (b.distance ?? 0) || a.id - b.id
+          : a.startDate.localeCompare(b.startDate) || a.id - b.id,
+      )
 
     const start = (page - 1) * size
     const body: EventListResponse = {
-      items: matched.slice(start, start + size).map(toEventSummary),
+      items: matched.slice(start, start + size),
       page,
       size,
       total: matched.length,

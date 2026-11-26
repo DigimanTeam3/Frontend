@@ -1,4 +1,4 @@
-import type { EventDetail, EventSummary } from '@/shared/types/event'
+import type { EventArea, EventDetail, EventSummary } from '@/shared/types/event'
 
 // Mock events in the API proposal shape. Dates are spread around the hackathon (2026-11-29)
 // so the 開催前 / 開催中 / 終了 tags all show up.
@@ -337,4 +337,20 @@ export function toEventSummary(event: EventDetail): EventSummary {
     isFree: event.isFree,
     companionCount: event.companionCount,
   }
+}
+
+// Search area of each mock event (S03 area filter).
+export const mockEventAreas: Record<number, EventArea> = {
+  1: 'jongno-jung',
+  2: 'mapo-seodaemun',
+  3: 'jongno-jung',
+  4: 'mapo-seodaemun',
+  5: 'jongno-jung',
+  6: 'yongsan-yeouido',
+  7: 'gangnam-songpa',
+  8: 'jongno-jung',
+  9: 'mapo-seodaemun',
+  10: 'yongsan-yeouido',
+  11: 'gangnam-songpa',
+  12: 'jongno-jung',
 }

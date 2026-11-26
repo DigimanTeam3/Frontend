@@ -4,6 +4,9 @@
 
 export type EventCategory = 'festival' | 'exhibition' | 'performance'
 
+/** Search area (issue #13): 鍾路・中区 / 麻浦・西大門 / 龍山・汝矣島 / 江南・松坡 */
+export type EventArea = 'jongno-jung' | 'mapo-seodaemun' | 'yongsan-yeouido' | 'gangnam-songpa'
+
 /** One item of GET /api/events. */
 export interface EventSummary {
   id: number
@@ -36,9 +39,15 @@ export interface EventDetail extends EventSummary {
   descriptionJa: string | null
 }
 
+/** One item of GET /api/events: the summary plus the distance from the position sent (issue #13). */
+export interface EventListItem extends EventSummary {
+  /** Meters from `lat`/`lng` of the request; null when no position was sent. */
+  distance: number | null
+}
+
 /** GET /api/events */
 export interface EventListResponse {
-  items: EventSummary[]
+  items: EventListItem[]
   page: number
   size: number
   total: number
