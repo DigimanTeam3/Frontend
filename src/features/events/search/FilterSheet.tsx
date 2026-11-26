@@ -214,7 +214,7 @@ export function FilterSheet({ initial, keyword, onApply, onClose }: FilterSheetP
             onClick={() => onApply(draft)}
             className="h-[54px] flex-1 rounded-[14px] bg-ink px-5 text-base font-bold text-surface active:opacity-85"
           >
-            {t.showResults(count.isSuccess ? count.data : null)}
+            {t.showResults(count.isSuccess && !count.isPlaceholderData ? count.data : null)}
           </button>
         </div>
       </div>
