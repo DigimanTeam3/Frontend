@@ -15,7 +15,7 @@ function parseCategory(value: string | null): EventCategory | undefined {
   return CATEGORIES.find((category) => category === value)
 }
 
-// S02 home: tickets you can still go to, newest first (Figma: Concept 切符 / S02-k4).
+// S02 home: tickets you can still go to, soonest first (Figma: Concept 切符 / S02-k4).
 export function HomePage() {
   const t = ja.home
   const [searchParams, setSearchParams] = useSearchParams()
@@ -98,10 +98,11 @@ interface HomeListProps {
 
 function HomeList({ query, events, category, onShowAll }: HomeListProps) {
   const t = ja.home
-  const { fetchNextPage, hasNextPage, isFetchingNextPage, isFetchNextPageError } = query
+  const { fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isFetchNextPageError } = query
+  // Wait while any fetch runs: starting the next page would cancel a background refetch.
   const sentinelRef = useNextPageTrigger(
     () => void fetchNextPage(),
-    hasNextPage && !isFetchingNextPage && !isFetchNextPageError,
+    hasNextPage && !isFetching && !isFetchNextPageError,
   )
 
   if (query.isPending) {
