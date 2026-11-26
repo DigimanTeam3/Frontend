@@ -5,7 +5,7 @@ import { useAuthStore } from '@/shared/stores/authStore'
 import type {
   CompanionListFilter,
   CompanionListResponse,
-  CompanionPostSummary,
+  CompanionPostDetail,
   CreateCompanionBody,
 } from '@/shared/types/companion'
 
@@ -26,7 +26,7 @@ export function useCompanionsQuery(eventId: number, filter: CompanionListFilter)
 }
 
 export function createCompanion(eventId: number, body: CreateCompanionBody) {
-  return apiClient<CompanionPostSummary>(`/events/${eventId}/companions`, {
+  return apiClient<CompanionPostDetail>(`/events/${eventId}/companions`, {
     method: 'POST',
     body: JSON.stringify(body),
   })

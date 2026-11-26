@@ -1,5 +1,12 @@
 import { http, HttpResponse } from 'msw/http'
-import { MOCK_ME_ID, posts, statusOf, toEventSummary, toSummary } from '@/mocks/data/companions'
+import {
+  MOCK_ME_ID,
+  posts,
+  statusOf,
+  toDetail,
+  toEventSummary,
+  toSummary,
+} from '@/mocks/data/companions'
 import type { CompanionStatus, CreateCompanionBody } from '@/shared/types/companion'
 
 // Companion API mocks (S06–S08). Shapes follow the API proposals in GitHub issues (S06 #16).
@@ -97,6 +104,6 @@ export const companionHandlers = [
       createdAt: now,
     }
     posts.push(post)
-    return HttpResponse.json({ ...toSummary(post, meId), event }, { status: 201 })
+    return HttpResponse.json(toDetail(post, meId), { status: 201 })
   }),
 ]
