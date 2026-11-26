@@ -61,9 +61,19 @@ export const ja = {
     back: '戻る',
     close: '閉じる',
   },
-  eventList: {
-    title: 'ソウルの無料イベント',
-    empty: 'イベントがありません。',
+  // S02 home
+  home: {
+    place: 'SEOUL',
+    title: '今日、行ける切符',
+    search: 'イベント名・場所で探す',
+    askAi: 'AIに聞く',
+    categories: 'カテゴリ',
+    all: 'すべて',
+    empty: 'いま行けるイベントはありません。',
+    emptyCategory: 'この種類のイベントはいまありません。',
+    showAll: 'すべてのイベントを見る',
+    retry: 'もう一度試す',
+    loadMoreError: '続きを読み込めませんでした。',
   },
   // Event ticket card (S02 home). English codes are printed decoration, hidden from screen readers.
   ticket: {
