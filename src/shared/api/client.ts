@@ -1,15 +1,10 @@
 import { useAuthStore } from '@/shared/stores/authStore'
+import { ApiError } from '@/shared/api/errors'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
-export class ApiError extends Error {
-  readonly status: number
-
-  constructor(status: number, message: string) {
-    super(message)
-    this.status = status
-  }
-}
+// ApiError lives in errors.ts with its helpers. Re-exported so `from '@/shared/api/client'` keeps working.
+export { ApiError }
 
 /** Single place for API calls: base URL, JWT header, JSON parsing, errors. */
 export async function apiClient<T>(path: string, init: RequestInit = {}): Promise<T> {
