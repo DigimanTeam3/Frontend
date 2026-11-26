@@ -44,7 +44,8 @@ function isValidDay(value: string) {
 function parseDate(value: string | null): DateChoice | undefined {
   if (!value) return undefined
   if ((DATE_PRESETS as readonly string[]).includes(value)) return value as DatePreset
-  return isValidDay(value) ? (value as DateChoice) : undefined
+  // Past days would only list ended events.
+  return isValidDay(value) && value >= seoulDateString() ? (value as DateChoice) : undefined
 }
 
 /** Reads the URL. Unknown values are ignored rather than sent to the API. */

@@ -178,12 +178,12 @@ export function FilterSheet({ initial, keyword, onApply, onClose }: FilterSheetP
                 type="date"
                 min={today}
                 value={pickedDay ?? ''}
-                onChange={(event) =>
-                  setDraft({
-                    ...draft,
-                    date: (event.target.value || undefined) as DateChoice | undefined,
-                  })
-                }
+                onChange={(event) => {
+                  const day = event.target.value
+                  // Typed past days are ignored (min only marks them invalid).
+                  if (day && day < today) return
+                  setDraft({ ...draft, date: (day || undefined) as DateChoice | undefined })
+                }}
                 className="h-11 flex-1 rounded-[10px] border border-line bg-app px-3 text-ink"
               />
             </label>
