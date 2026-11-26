@@ -21,9 +21,9 @@ function InfoRow({ icon, label, main, sub }: InfoRowProps) {
     <div className="flex items-start gap-3 border-b border-dashed border-line px-4 py-3.5 last:border-b-0">
       <img src={icon} alt="" width={20} height={20} className="shrink-0" />
       <dl className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <dt className="text-xs/normal text-ink-mute">{label}</dt>
+        <dt className="text-xs/normal text-ink-muted">{label}</dt>
         <dd className="text-[15px]/[1.65] font-bold text-ink">{main}</dd>
-        {sub && <dd className="text-xs/normal text-ink-sub">{sub}</dd>}
+        {sub && <dd className="text-xs/normal text-ink-muted">{sub}</dd>}
       </dl>
     </div>
   )

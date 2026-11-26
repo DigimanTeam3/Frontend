@@ -6,7 +6,7 @@ export function EventDetailSkeleton() {
     <div aria-busy="true" className="animate-pulse">
       <p className="sr-only">{ja.common.loading}</p>
       <div className="h-[320px] bg-line" />
-      <div className="relative -mt-[30px] flex flex-col gap-5 rounded-t-3xl bg-bg px-6 pt-6">
+      <div className="relative -mt-[30px] flex flex-col gap-5 rounded-t-3xl bg-app px-6 pt-6">
         <div className="flex gap-1.5">
           <div className="h-6 w-12 rounded-md bg-line" />
           <div className="h-6 w-10 rounded-md bg-line" />
@@ -23,7 +23,7 @@ export function EventNotFound() {
   return (
     <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-2 px-6 text-center">
       <h1 className="text-lg font-bold">{ja.eventDetail.notFound}</h1>
-      <p className="text-sm text-ink-sub">{ja.eventDetail.notFoundHint}</p>
+      <p className="text-sm text-ink-muted">{ja.eventDetail.notFoundHint}</p>
       <Link
         to="/"
         className="mt-4 rounded-[14px] border border-line bg-surface px-5 py-3 text-[15px] font-bold"
@@ -48,7 +48,7 @@ export function EventLoadError({ onRetry }: { onRetry: () => void }) {
       >
         {ja.eventDetail.retry}
       </button>
-      <Link to="/" className="mt-2 text-sm text-ink-sub underline">
+      <Link to="/" className="mt-2 text-sm text-ink-muted underline">
         {ja.notFound.backHome}
       </Link>
     </div>

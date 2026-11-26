@@ -25,8 +25,8 @@ export function EventDetailPage() {
   else content = <EventDetailView event={event} />
 
   return (
-    // Cancel RootLayout's main padding so the hero image reaches the screen edges.
-    <div className="-mx-4 -my-6 min-h-dvh bg-bg">
+    // Full-screen layout (BARE_PATHS in layoutChrome.ts): the hero image reaches the screen edges.
+    <div className="min-h-dvh bg-app">
       {content}
       {event && !isError && <EventDetailCta eventId={event.id} />}
     </div>

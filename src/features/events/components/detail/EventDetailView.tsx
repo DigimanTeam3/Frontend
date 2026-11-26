@@ -22,14 +22,14 @@ export function EventDetailView({ event }: { event: EventDetail }) {
     <article>
       <EventHero imageUrl={event.imageUrl} shareTitle={title ?? event.title} />
 
-      <div className="relative -mt-[30px] flex flex-col gap-5 rounded-t-3xl bg-bg px-6 pt-6 pb-44">
+      <div className="relative -mt-[30px] flex flex-col gap-5 rounded-t-3xl bg-app px-6 pt-6 pb-44">
         <EventTags event={event} />
 
         <header className="flex flex-col gap-1">
           <h1 lang={titleIsOriginal ? 'ko' : undefined} className="text-[22px]/[1.4] font-bold">
             {title}
           </h1>
-          <p className="flex flex-wrap items-center gap-1.5 text-xs/normal text-ink-mute">
+          <p className="flex flex-wrap items-center gap-1.5 text-xs/normal text-ink-muted">
             {hasTranslation && !showOriginal && (
               <span lang="ko" className="text-[13px]/[1.6]">
                 {event.title}
@@ -65,13 +65,13 @@ export function EventDetailView({ event }: { event: EventDetail }) {
         <section className="flex flex-col gap-3">
           <Link to={`/events/${event.id}/companions`} className="flex items-center gap-1">
             <h2 className="flex-1 text-lg/[1.45] font-bold">{t.companions}</h2>
-            <span className="text-[13px]/[1.6] text-ink-sub">
+            <span className="text-[13px]/[1.6] text-ink-muted">
               {t.companionCount(event.companionCount)}
             </span>
             <img src={chevronIcon} alt="" width={16} height={16} />
           </Link>
           {event.companionCount === 0 && (
-            <p className="rounded-[14px] border border-dashed border-line px-4 py-3 text-[13px]/[1.6] text-ink-sub">
+            <p className="rounded-[14px] border border-dashed border-line px-4 py-3 text-[13px]/[1.6] text-ink-muted">
               {t.noCompanions}
             </p>
           )}

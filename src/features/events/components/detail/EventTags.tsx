@@ -7,13 +7,13 @@ const TAG_BASE = 'inline-flex items-center gap-1 rounded-md px-2 py-[3px] text-x
 const CATEGORY_STYLE: Record<EventCategory, string> = {
   festival: 'bg-festival-soft text-festival',
   exhibition: 'bg-exhibit-soft text-exhibit',
-  performance: 'border border-line bg-surface text-ink-sub',
+  performance: 'border border-line bg-surface text-ink-muted',
 }
 
 const STATUS_STYLE = {
-  upcoming: 'border border-line bg-surface text-ink-sub',
+  upcoming: 'border border-line bg-surface text-ink-muted',
   ongoing: 'bg-warn-soft text-warn',
-  ended: 'bg-line text-ink-mute',
+  ended: 'bg-line text-ink-faint',
 } as const
 
 export function EventTags({ event }: { event: EventDetail }) {

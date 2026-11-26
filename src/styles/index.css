@@ -22,11 +22,7 @@
 
 /* Event category and state colors from the Figma ui variables. Added for S05. */
 @theme {
-  --color-bg: #f5f3ef;
-  --color-ink-sub: #5e6370;
-  --color-ink-mute: #9a9da5;
   --color-gate: #12a57c;
-  --color-gate-soft: #d8f3e9;
   --color-festival: #d0532e;
   --color-festival-soft: #fbe2d8;
   --color-exhibit: #2f64a0;
