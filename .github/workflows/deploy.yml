@@ -1,0 +1,53 @@
+name: Deploy (Vercel)
+
+# The repo is owned by a GitHub organization, which Vercel's Hobby plan cannot connect.
+# So we deploy with the Vercel CLI instead. Needs repo secrets:
+# VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID (see docs/deploy.md).
+#   - push to main   -> production
+#   - pull request   -> preview URL, posted as a PR comment
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    # Secrets are not available to pull requests from forks.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - run: npm install --global vercel@latest
+
+      - name: Production
+        if: github.event_name == 'push'
+        run: |
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Preview
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          gh pr comment ${{ github.event.pull_request.number }} --body "미리보기: $url" --edit-last || \
+            gh pr comment ${{ github.event.pull_request.number }} --body "미리보기: $url"

@@ -1,0 +1,29 @@
+name: PR rules
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  naming:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR 제목 형식 확인
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if ! printf '%s' "$TITLE" | grep -Eq '^\[(S[0-9]{2}|C[0-9]{1,2})\] (init|feat|fix|refactor|style|docs|chore): .+ #[0-9]+$'; then
+            echo "::error::PR 제목은 '[ID] <type>: <summary> #<이슈번호>' 형식이어야 합니다 (예: [C1] init: repository setup #1). type: init, feat, fix, refactor, style, docs, chore"
+            exit 1
+          fi
+      - name: 브랜치 이름 확인
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if ! printf '%s' "$BRANCH" | grep -Eq '^(init|feat|fix|refactor|style|docs|chore)/([sc][0-9]{1,2}-)?[a-z0-9-]+$'; then
+            echo "::error::브랜치 이름은 '<type>/<id>-<summary>' 형식이어야 합니다 (예: feat/s02-home, init/c1-repository-setup)"
+            exit 1
+          fi
