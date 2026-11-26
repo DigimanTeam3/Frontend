@@ -38,6 +38,7 @@ export function SearchPage() {
   const conditions = readConditions(searchParams)
   const [sheetOpen, setSheetOpen] = useState(false)
   const filterButtonRef = useRef<HTMLButtonElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Every change goes through the URL. It starts from the address bar as it is now, not from this
   // render's copy: a late callback (position answer, timer) must not bring back old conditions.
@@ -158,6 +159,7 @@ export function SearchPage() {
         <div className="flex h-12 items-center gap-2 rounded-full border border-line bg-surface pr-1.5 pl-4 focus-within:border-ink">
           <img src={searchIcon} alt="" width={18} height={18} className="shrink-0" />
           <input
+            ref={inputRef}
             type="search"
             enterKeyHint="search"
             aria-label={t.inputLabel}
@@ -180,6 +182,8 @@ export function SearchPage() {
               onClick={() => {
                 setDraft('')
                 update({ keyword: '' })
+                // The button goes away; keep the focus in the field.
+                inputRef.current?.focus()
               }}
               aria-label={t.clear}
               className="flex size-9 shrink-0 items-center justify-center rounded-full active:bg-ink/10"
@@ -219,7 +223,11 @@ export function SearchPage() {
             <li key={item.key}>
               <button
                 type="button"
-                onClick={() => update({ [item.key]: undefined })}
+                onClick={() => {
+                  update({ [item.key]: undefined })
+                  // The chip goes away; move the focus to the filter button next to it.
+                  filterButtonRef.current?.focus()
+                }}
                 aria-label={t.removeCondition(item.label)}
                 className="flex min-h-9 items-center gap-1.5 rounded-full bg-ink py-1 pr-2.5 pl-3.5 text-[13px] font-bold text-surface active:opacity-85"
               >
