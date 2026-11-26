@@ -347,7 +347,6 @@ export const ja = {
     ownerNote: '承認すると、相手の名前が切符の座席に印字されます。',
     accept: '承認する',
     reject: '見送る',
-    requestFull: '満席',
     requestRejected: '見送り済み',
     errors: {
       ALREADY_REQUESTED: 'すでに申し込んでいます。',

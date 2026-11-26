@@ -34,7 +34,7 @@ export function RequestList({ post, busy, onAccept, onReject }: RequestListProps
               {request.status === 'REJECTED' ? (
                 <span className="text-xs text-ink-muted">{text.requestRejected}</span>
               ) : !isOpen ? (
-                <span className="text-xs text-ink-muted">{text.requestFull}</span>
+                <span className="text-xs text-ink-muted">{ja.companion.status[post.status]}</span>
               ) : (
                 <span className="flex shrink-0 gap-2">
                   <button

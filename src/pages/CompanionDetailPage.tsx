@@ -19,8 +19,12 @@ export function CompanionDetailPage() {
   const { data: post, isPending, isError, error, refetch, isRefetching } = useCompanionQuery(postId)
   const action = useCompanionActionMutation(postId)
 
-  if (error instanceof ApiError && error.status === 401) {
-    const redirect = encodeURIComponent(location.pathname)
+  // A 401 from loading or from an action (request, cancel, accept, reject) both go to login.
+  const unauthorized = [error, action.error].some(
+    (value) => value instanceof ApiError && value.status === 401,
+  )
+  if (unauthorized) {
+    const redirect = encodeURIComponent(location.pathname + location.search)
     return <Navigate to={`/login?redirect=${redirect}`} replace />
   }
 

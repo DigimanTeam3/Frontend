@@ -102,6 +102,8 @@ export function useCompanionActionMutation(postId: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (action: CompanionAction) => runCompanionAction(postId, action),
+    // Stop an in-flight 10s poll so its older answer cannot overwrite the result below.
+    onMutate: () => queryClient.cancelQueries({ queryKey: queryKeys.companions.detail(postId) }),
     onSuccess: (post) => {
       queryClient.setQueryData(queryKeys.companions.detail(postId), post)
       return queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() })
