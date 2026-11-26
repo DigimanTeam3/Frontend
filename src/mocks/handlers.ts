@@ -147,10 +147,17 @@ export const handlers = [
       return invalidParameter('area is not a known area')
     }
     const sort = params.get('sort') ?? 'date'
-    const lat = params.get('lat') === null ? null : Number(params.get('lat'))
-    const lng = params.get('lng') === null ? null : Number(params.get('lng'))
-    const position =
-      lat !== null && lng !== null && isFinite(lat) && isFinite(lng) ? { lat, lng } : null
+    const latText = params.get('lat')
+    const lngText = params.get('lng')
+    const lat = latText ? Number(latText) : null
+    const lng = lngText ? Number(lngText) : null
+    if (
+      (latText !== null && (lat === null || !(Math.abs(lat) <= 90))) ||
+      (lngText !== null && (lng === null || !(Math.abs(lng) <= 180)))
+    ) {
+      return invalidParameter('lat and lng must be numbers in range')
+    }
+    const position = lat !== null && lng !== null ? { lat, lng } : null
     if (sort !== 'date' && sort !== 'distance')
       return invalidParameter('sort must be date or distance')
     if (sort === 'distance' && !position) return invalidParameter('sort=distance needs lat and lng')
