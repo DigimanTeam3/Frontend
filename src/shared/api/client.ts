@@ -20,6 +20,11 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
 
   const response = await fetch(`${BASE_URL}${path}`, { ...init, headers })
   if (!response.ok) {
+    // Our token was rejected: the login is over. RequireAuth then sends protected screens to /login.
+    // Skip if the user has logged in again with a new token in the meantime.
+    if (response.status === 401 && token && useAuthStore.getState().accessToken === token) {
+      useAuthStore.getState().logout({ expired: true })
+    }
     throw new ApiError(response.status, await response.text())
   }
   if (response.status === 204) return undefined as T
