@@ -69,6 +69,7 @@ export function FilterSheet({ initial, keyword, onApply, onClose }: FilterSheetP
   const t = ja.search
   const titleId = useId()
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const pressedOutside = useRef(false)
   const [draft, setDraft] = useState<SearchFilters>(initial)
   const [showPicker, setShowPicker] = useState(isPickedDay(initial.date))
   const count = useEventCountQuery(toListParams({ ...draft, keyword, sort: 'date' }, null), true)
@@ -108,9 +109,13 @@ export function FilterSheet({ initial, keyword, onApply, onClose }: FilterSheetP
         event.preventDefault()
         onClose()
       }}
+      onPointerDown={(event) => {
+        pressedOutside.current = event.target === event.currentTarget
+      }}
       onClick={(event) => {
-        // A click on the dimmed area outside the sheet lands on the dialog element itself.
-        if (event.target === event.currentTarget) onClose()
+        // A tap on the dimmed area lands on the dialog element itself. Both press and release must
+        // be there: a drag that starts inside the sheet and ends outside does not close it.
+        if (event.target === event.currentTarget && pressedOutside.current) onClose()
       }}
       className="mx-auto mt-auto mb-0 max-h-[85dvh] w-full max-w-app overflow-y-auto rounded-t-3xl bg-surface p-0 text-ink shadow-[0_-4px_16px_rgba(30,34,48,0.12)] backdrop:bg-ink/45"
     >
