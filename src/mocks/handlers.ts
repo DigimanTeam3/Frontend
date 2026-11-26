@@ -10,6 +10,13 @@ import {
 import { events } from '@/mocks/data/events'
 import type { LineLoginRequest, LoginResponse } from '@/shared/types/auth'
 
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000
+
+/** ISO 8601 in Japan time, e.g. "2026-11-29T10:00:00+09:00" (the API rule for times). */
+function toJstIso(date: Date) {
+  return `${new Date(date.getTime() + JST_OFFSET_MS).toISOString().slice(0, 19)}+09:00`
+}
+
 // Paths follow the endpoint list in the service plan (8.10), under the /api prefix.
 export const handlers = [
   // S01: any API called with the expired mock token answers 401. Keep this first.
@@ -38,7 +45,7 @@ export const handlers = [
     }
     const response: LoginResponse = {
       accessToken: MOCK_ACCESS_TOKEN,
-      expiresAt: new Date(Date.now() + MOCK_TOKEN_LIFETIME_MS).toISOString(),
+      expiresAt: toJstIso(new Date(Date.now() + MOCK_TOKEN_LIFETIME_MS)),
       user: mockUser,
     }
     return HttpResponse.json(response)
