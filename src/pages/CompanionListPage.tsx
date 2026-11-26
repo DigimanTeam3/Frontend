@@ -14,6 +14,8 @@ const FILTERS: { value: CompanionListFilter; label: string }[] = [
 // S06. Companion posts for one event. Viewing needs no login; opening a post does (S08).
 export function CompanionListPage() {
   const eventId = Number(useParams().eventId)
+  // The query stays disabled for a bad id, so treat it as not found instead of loading forever.
+  const validEventId = Number.isInteger(eventId) && eventId > 0
   const [searchParams, setSearchParams] = useSearchParams()
   const filter: CompanionListFilter = searchParams.get('status') === 'all' ? 'ALL' : 'OPEN'
   const { data, isPending, isError, error, refetch, isRefetching } = useCompanionsQuery(
@@ -26,13 +28,13 @@ export function CompanionListPage() {
   }
 
   const myOpenPost = data?.items.find((post) => post.isMine && post.status === 'OPEN')
-  const notFound = !Number.isInteger(eventId) || apiErrorCode(error) === 'EVENT_NOT_FOUND'
+  const notFound = !validEventId || apiErrorCode(error) === 'EVENT_NOT_FOUND'
 
   return (
     <section className="flex min-h-full flex-col">
       <header className="mb-4 flex items-center gap-2">
         <Link
-          to={`/events/${Number.isInteger(eventId) ? eventId : ''}`}
+          to={`/events/${validEventId ? eventId : ''}`}
           aria-label={ja.companion.backToEvent}
           className="-ml-2 px-2 text-2xl leading-none text-ink-muted"
         >
