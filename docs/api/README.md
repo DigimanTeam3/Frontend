@@ -31,14 +31,14 @@
 
 상태 코드별 화면 동작 기본값입니다. 화면 명세에서 다르게 정하면 그쪽을 따릅니다.
 
-| 상태 | 대표 code                                  | 화면 동작                                   |
-| ---- | ------------------------------------------ | ------------------------------------------- |
-| 400  | `VALIDATION_ERROR`, `INVALID_PARAMETER`    | `field`가 있으면 그 입력 칸 아래에 문구     |
-| 401  | `UNAUTHORIZED`                             | 로그인이 끝난 것으로 보고 로그인 화면으로   |
-| 403  | `FORBIDDEN`                                | 권한 없음 문구                              |
-| 404  | `<대상>_NOT_FOUND` (예: `EVENT_NOT_FOUND`) | 「見つかりません」 화면. 다시 시도하지 않음 |
-| 409  | 화면별 (예: `ALREADY_REQUESTED`)           | 화면 명세의 문구                            |
-| 500  | `INTERNAL_ERROR`                           | `ja.common.error` + 다시 시도 버튼          |
+| 상태 | 대표 code                                  | 화면 동작                                                               |
+| ---- | ------------------------------------------ | ----------------------------------------------------------------------- |
+| 400  | `VALIDATION_ERROR`, `INVALID_PARAMETER`    | `field`가 있으면 그 입력 칸 아래에 문구                                 |
+| 401  | `UNAUTHORIZED`                             | 로그인이 끝난 것으로 보고 로그인 화면으로 (S01 이후 `apiClient`가 처리) |
+| 403  | `FORBIDDEN`                                | 권한 없음 문구                                                          |
+| 404  | `<대상>_NOT_FOUND` (예: `EVENT_NOT_FOUND`) | 「見つかりません」 화면. 다시 시도하지 않음                             |
+| 409  | 화면별 (예: `ALREADY_REQUESTED`)           | 화면 명세의 문구                                                        |
+| 500  | `INTERNAL_ERROR`                           | `ja.common.error` + 다시 시도 버튼                                      |
 
 ## 3. 화면 코드에서 쓰는 법
 
@@ -61,7 +61,7 @@ apiErrorCode(error) // 'EVENT_NOT_FOUND' | null
 apiErrorField(error) // 'intro' | null
 ```
 
-- 쿼리 재시도 기본값(`src/shared/api/queryClient.ts`의 `shouldRetryQuery`): 네트워크 에러·5xx는 한 번 더 시도하고, 4xx는 바로 에러로 보여 줍니다. 화면마다 `retry`를 따로 쓰지 않아도 됩니다.
+- 쿼리 재시도 기본값(`src/shared/api/errors.ts`의 `shouldRetryQuery`를 `queryClient.ts`가 기본값으로 씀): 네트워크 에러·5xx는 한 번 더 시도하고, 4xx는 바로 에러로 보여 줍니다. 화면마다 `retry`를 따로 쓰지 않아도 됩니다.
 - 쿼리 키는 `src/shared/api/queryKeys.ts`에만 만듭니다. 기능별로 `all` → `list` / `detail` 순서로 쌓아 무효화를 한곳에서 합니다.
 
 ## 4. mock 규칙 (`src/mocks`)

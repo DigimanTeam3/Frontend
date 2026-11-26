@@ -10,7 +10,7 @@ export function parseErrorBody(text: string): ApiErrorBody | null {
   }
   if (!body || typeof body !== 'object') return null
   const { code, message, field } = body as Record<string, unknown>
-  if (typeof code !== 'string') return null
+  if (typeof code !== 'string' || code === '') return null
   return {
     code,
     message: typeof message === 'string' ? message : '',
@@ -39,6 +39,7 @@ export class ApiError extends Error {
 /**
  * True for an ApiError, optionally only for one status or one code:
  * `isApiError(error)`, `isApiError(error, 404)`, `isApiError(error, 'EVENT_NOT_FOUND')`.
+ * Pass a status as a number: a string is always read as a code, so `'404'` never matches.
  */
 export function isApiError(error: unknown, match?: number | string): error is ApiError {
   if (!(error instanceof ApiError)) return false
@@ -59,6 +60,7 @@ export function apiErrorField(error: unknown): string | null {
 /**
  * Default retry for queries: retry once after a network or server (5xx) error.
  * 4xx answers (not found, login needed, bad input) do not change on a retry, so they show at once.
+ * This includes 408 and 429: the screen's retry button covers them.
  */
 export function shouldRetryQuery(failureCount: number, error: unknown) {
   if (error instanceof ApiError && error.status < 500) return false
