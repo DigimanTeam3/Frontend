@@ -33,6 +33,14 @@ function toJstIso(date: Date) {
 const EVENT_CATEGORIES: EventCategory[] = ['festival', 'exhibition', 'performance']
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
+// YYYY-MM-DD that is a real calendar day (2026-02-30 and 2026-13-40 are not).
+function isCalendarDate(value: string) {
+  if (!DATE_PATTERN.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+}
+
 function invalidParameter(message: string) {
   return HttpResponse.json(errorBody('INVALID_PARAMETER', message), { status: 400 })
 }
@@ -95,7 +103,7 @@ export const handlers = [
       return invalidParameter('category must be one of festival, exhibition, performance')
     }
     const dateFrom = params.get('dateFrom')
-    if (dateFrom !== null && !DATE_PATTERN.test(dateFrom)) {
+    if (dateFrom !== null && !isCalendarDate(dateFrom)) {
       return invalidParameter('dateFrom must be YYYY-MM-DD')
     }
 
