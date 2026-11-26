@@ -51,7 +51,6 @@ export const ja = {
   },
   companion: {
     listTitle: '同行募集',
-    backToEvent: 'イベントに戻る',
     filterOpen: '募集中のみ',
     filterAll: 'すべて',
     status: { OPEN: '募集中', FULL: '満席', CLOSED: '締切' },

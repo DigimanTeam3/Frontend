@@ -32,16 +32,8 @@ export function CompanionListPage() {
 
   return (
     <section className="flex min-h-full flex-col">
-      <header className="mb-4 flex items-center gap-2">
-        <Link
-          to={`/events/${validEventId ? eventId : ''}`}
-          aria-label={ja.companion.backToEvent}
-          className="-ml-2 px-2 text-2xl leading-none text-ink-muted"
-        >
-          ‹
-        </Link>
-        <h1 className="text-xl font-bold">{ja.companion.listTitle}</h1>
-      </header>
+      {/* Back to the event is in the shared top bar (RootLayout). */}
+      <h1 className="mb-4 text-xl font-bold">{ja.companion.listTitle}</h1>
 
       {notFound ? (
         <p className="py-12 text-center text-ink-muted">{ja.companion.eventNotFound}</p>
