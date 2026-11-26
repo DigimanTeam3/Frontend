@@ -15,6 +15,7 @@ export const queryKeys = {
     // signedIn is part of the key: the list says which posts are mine, so it differs after login.
     list: (eventId: number, filter: string, signedIn: boolean) =>
       [...queryKeys.companions.lists(), eventId, filter, signedIn] as const,
+    detail: (postId: number) => [...queryKeys.companions.all, 'detail', postId] as const,
   },
   // The event as the journey screens read it (S09–S13): only a few fields of the event detail,
   // so it must not share the cache entry of `events.detail`, which holds the full shape.
