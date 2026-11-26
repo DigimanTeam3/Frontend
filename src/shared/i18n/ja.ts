@@ -326,7 +326,6 @@ export const ja = {
   },
   companionDetail: {
     title: '募集の詳細',
-    backToList: '同行募集に戻る',
     notFound: '募集が見つかりません。',
     ticketLabel: '同行切符',
     ticketNo: (id: number) => `No.${String(id).padStart(4, '0')}`,

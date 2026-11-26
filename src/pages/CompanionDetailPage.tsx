@@ -1,4 +1,4 @@
-import { Link, Navigate, useLocation, useParams } from 'react-router'
+import { Navigate, useLocation, useParams } from 'react-router'
 import { useCompanionActionMutation, useCompanionQuery } from '@/features/companion/api'
 import { EventStrip } from '@/features/companion/components/EventStrip'
 import { InitialAvatar } from '@/features/companion/components/InitialAvatar'
@@ -36,16 +36,8 @@ export function CompanionDetailPage() {
 
   return (
     <section>
-      <header className="mb-4 flex items-center gap-2">
-        <Link
-          to={post ? `/events/${post.eventId}/companions` : '/'}
-          aria-label={text.backToList}
-          className="-ml-2 px-2 text-2xl leading-none text-ink-muted"
-        >
-          ‹
-        </Link>
-        <h1 className="text-xl font-bold">{text.title}</h1>
-      </header>
+      {/* Back is in the shared top bar (RootLayout). */}
+      <h1 className="mb-4 text-xl font-bold">{text.title}</h1>
 
       {notFound ? (
         <p className="py-12 text-center text-ink-muted">{text.notFound}</p>
