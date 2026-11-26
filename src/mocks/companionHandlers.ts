@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw/http'
 import { MOCK_ME_ID, posts, statusOf, toEventSummary, toSummary } from '@/mocks/data/companions'
 import type { CompanionStatus } from '@/shared/types/companion'
 
-// Companion API mocks (S06–S08). Shapes follow the API proposal pages in Notion.
+// Companion API mocks (S06–S08). Shapes follow the API proposals in GitHub issues (S06 #16).
 
 const MOCK_TOKEN = 'Bearer mock-access-token'
 const STATUS_ORDER: Record<CompanionStatus, number> = { OPEN: 0, FULL: 1, CLOSED: 2 }

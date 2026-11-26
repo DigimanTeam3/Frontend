@@ -1,4 +1,4 @@
-// Companion (S06–S08) shapes from the API proposal pages in Notion. Field names are camelCase.
+// Companion (S06–S08) shapes from the API proposals in GitHub issues (S06 #16). Field names are camelCase.
 
 /** OPEN: seats left / FULL: every seat matched / CLOSED: meeting time has passed. */
 export type CompanionStatus = 'OPEN' | 'FULL' | 'CLOSED'
