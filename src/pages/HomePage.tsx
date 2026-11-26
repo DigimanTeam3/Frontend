@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useEventPagesQuery } from '@/features/events/api'
 import searchIcon from '@/features/events/assets/search.svg'
@@ -20,7 +20,8 @@ export function HomePage() {
   const t = ja.home
   const [searchParams, setSearchParams] = useSearchParams()
   const category = parseCategory(searchParams.get('category'))
-  const today = seoulDateString()
+  // Fixed when the screen opens: passing midnight should not reload the list and lose the scroll.
+  const [today] = useState(() => seoulDateString())
   const query = useEventPagesQuery({ category, dateFrom: today }, PAGE_SIZE)
   const events = query.data?.pages.flatMap((page) => page.items) ?? []
 
