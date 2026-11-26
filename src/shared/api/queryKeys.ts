@@ -3,6 +3,8 @@ export const queryKeys = {
   events: {
     all: ['events'] as const,
     list: () => [...queryKeys.events.all, 'list'] as const,
+    // Paged list with conditions (S02 home, S03 search). Kept apart from `list` (different data shape).
+    pages: (params: object) => [...queryKeys.events.all, 'pages', params] as const,
     detail: (eventId: number) => [...queryKeys.events.all, 'detail', eventId] as const,
   },
   companions: {

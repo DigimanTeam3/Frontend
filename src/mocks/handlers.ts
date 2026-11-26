@@ -12,7 +12,7 @@ import {
 } from '@/mocks/data/auth'
 import { eventDetails, toEventSummary } from '@/mocks/data/events'
 import type { DemoLoginRequest, LineLoginRequest, LoginResponse } from '@/shared/types/auth'
-import type { ApiErrorBody, EventListResponse } from '@/shared/types/event'
+import type { ApiErrorBody, EventCategory, EventListResponse } from '@/shared/types/event'
 
 // Mock-only event ids for checking error screens.
 const MOCK_NETWORK_ERROR_EVENT_ID = 9001
@@ -27,6 +27,14 @@ const JST_OFFSET_MS = 9 * 60 * 60 * 1000
 /** ISO 8601 in Japan time, e.g. "2026-11-29T10:00:00+09:00" (the API rule for times). */
 function toJstIso(date: Date) {
   return `${new Date(date.getTime() + JST_OFFSET_MS).toISOString().slice(0, 19)}+09:00`
+}
+
+// Event list conditions (issue #12)
+const EVENT_CATEGORIES: EventCategory[] = ['festival', 'exhibition', 'performance']
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+function invalidParameter(message: string) {
+  return HttpResponse.json(errorBody('INVALID_PARAMETER', message), { status: 400 })
 }
 
 // Paths follow the endpoint list in the service plan (8.10), under the /api prefix.
@@ -78,14 +86,31 @@ export const handlers = [
   http.get('/api/events', async ({ request }) => {
     await delay(400)
     const url = new URL(request.url)
-    const page = Math.max(1, Number(url.searchParams.get('page')) || 1)
-    const size = Math.min(100, Math.max(1, Number(url.searchParams.get('size')) || 20))
+    const params = url.searchParams
+    const page = Math.max(1, Number(params.get('page')) || 1)
+    const size = Math.min(100, Math.max(1, Number(params.get('size')) || 20))
+
+    const category = params.get('category')
+    if (category !== null && !EVENT_CATEGORIES.includes(category as EventCategory)) {
+      return invalidParameter('category must be one of festival, exhibition, performance')
+    }
+    const dateFrom = params.get('dateFrom')
+    if (dateFrom !== null && !DATE_PATTERN.test(dateFrom)) {
+      return invalidParameter('dateFrom must be YYYY-MM-DD')
+    }
+
+    const from = dateFrom ? new Date(`${dateFrom}T00:00:00+09:00`) : null
+    const matched = eventDetails
+      .filter((e) => !category || e.category === category)
+      .filter((e) => !from || new Date(e.endDate) >= from)
+      .sort((a, b) => a.startDate.localeCompare(b.startDate) || a.id - b.id)
+
     const start = (page - 1) * size
     const body: EventListResponse = {
-      items: eventDetails.slice(start, start + size).map(toEventSummary),
+      items: matched.slice(start, start + size).map(toEventSummary),
       page,
       size,
-      total: eventDetails.length,
+      total: matched.length,
     }
     return HttpResponse.json(body)
   }),
