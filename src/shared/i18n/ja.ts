@@ -1,7 +1,7 @@
 // All UI text (Japanese). Rules and checklist: docs/copy.md.
 // - One section per screen or feature (camelCase, e.g. eventDetail). Do not edit other screens' sections.
 // - `common`: words two or more screens use. `format`: pieces for src/shared/i18n/format.ts.
-// - Text with numbers or names is a function, e.g. `companionCount: (count: number) => ...`.
+// - Text with numbers or names is a function, e.g. `loggedInAs: (name: string) => ...`.
 //   Do not join pieces of copy in components.
 export const ja = {
   common: {
