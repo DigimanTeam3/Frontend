@@ -28,8 +28,8 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 1200,
       rolldownOptions: {
         output: {
-          // Emit the MapLibre worker (.mjs) as .js: nginx's default mime.types has no .mjs entry,
-          // and browsers refuse worker scripts that are not served as JavaScript.
+          // Emit the MapLibre worker (.mjs) as .js so any static host serves it as JavaScript
+          // (browsers refuse worker scripts with a wrong MIME type).
           assetFileNames: (asset) =>
             asset.names.some((name) => name.endsWith('.mjs'))
               ? 'assets/[name]-[hash].js'
@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => {
             '/api': {
               target: apiProxyTarget,
               changeOrigin: true,
-              // Backend routes start at /events, /me ... (same as nginx in production).
+              // Backend routes start at /events, /me ... (same as Vercel rewrites in production).
               rewrite: (path) => path.replace(/^\/api/, ''),
             },
           }

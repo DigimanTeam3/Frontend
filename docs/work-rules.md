@@ -14,7 +14,7 @@
 | Git 기반 협업: 기능 단위 브랜치, 구현 후 PR                     | 1장(브랜치)·2장(PR)                                                                                                                                   |
 | 공통 UI 기준 유지: Frontend 1이 정리한 기준을 Frontend 2도 적용 | 공통 UI 기준(`shared/ui`, `styles/index.css`의 `@theme` 토큰)은 Frontend 1(안재현)이 정리합니다. Frontend 2(김태효)도 이 컴포넌트·토큰을 씁니다 (4장) |
 | 기능 단위 통합: 독립 구현 후 API 연동·통합 테스트               | mock으로 기능을 독립적으로 만든 뒤 `VITE_USE_MOCK=false`로 실제 API에 연결합니다                                                                      |
-| 배포 환경 공유: Backend 2가 구축한 EC2 기준                     | 배포 ADR. front는 nginx 설정안과 `dist/`를 넘깁니다                                                                                                   |
+| 배포 환경 공유: Backend 2가 구축한 EC2 기준                     | 배포 ADR. front는 Vercel, 백엔드는 EC2. `/api`는 Vercel rewrites로 백엔드에 넘깁니다 ([deploy.md](deploy.md))                                         |
 
 ## 1. 브랜치
 

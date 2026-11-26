@@ -54,6 +54,6 @@ src/
 
 ## 배포
 
-빌드한 `dist/`를 EC2의 nginx가 서빙하고, `/api`는 같은 서버의 FastAPI로 프록시합니다. 위치 인증(Geolocation)은 HTTPS에서만 동작합니다.
+프론트는 Vercel에 배포합니다. `/api`는 Vercel rewrites로 백엔드에 넘깁니다. 자세한 내용은 [docs/deploy.md](docs/deploy.md)를 봅니다.
 
 작업 규칙은 [CONTRIBUTING.md](CONTRIBUTING.md)를 봅니다.
