@@ -12,7 +12,8 @@ export function CompanionNewPage() {
     eventId,
     'OPEN',
   )
-  const notFound = !Number.isInteger(eventId) || apiErrorCode(error) === 'EVENT_NOT_FOUND'
+  const validEventId = Number.isInteger(eventId) && eventId > 0
+  const notFound = !validEventId || apiErrorCode(error) === 'EVENT_NOT_FOUND'
   const myOpenPost = data?.items.find((post) => post.isMine && post.status === 'OPEN')
 
   return (
@@ -23,7 +24,7 @@ export function CompanionNewPage() {
         <p className="py-12 text-center text-ink-muted">{ja.companion.eventNotFound}</p>
       ) : isPending ? (
         <p className="text-ink-muted">{ja.common.loading}</p>
-      ) : isError ? (
+      ) : isError && !data ? (
         <div className="py-8 text-center">
           <p className="text-danger">{ja.common.error}</p>
           <button
