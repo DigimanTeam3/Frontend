@@ -46,7 +46,11 @@ export function PolaroidCard({
   const photo = photoUrl && photoUrl !== failedUrl ? photoUrl : lanternPhoto
 
   return (
-    <div ref={ref} className={`@container relative aspect-[270/430] w-full ${className ?? ''}`}>
+    // isolate: the z-order of the stickers stays inside the card (under a sticky top bar).
+    <div
+      ref={ref}
+      className={`@container relative isolate aspect-[270/430] w-full ${className ?? ''}`}
+    >
       {/* The paper has two stacked shadows: the wide soft one here, the thin one on the paper. */}
       <div className="absolute inset-0 rounded-[1.11cqw] shadow-[0_2.96cqw_3.7cqw] shadow-ink/18">
         <div className="flex size-full flex-col rounded-[1.11cqw] bg-surface px-[7.41cqw] pt-[8.89cqw] shadow-[0_0.37cqw_0.37cqw] shadow-ink/10">

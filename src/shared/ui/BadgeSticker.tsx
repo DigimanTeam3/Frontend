@@ -7,7 +7,10 @@ export interface BadgeStickerProps {
   kind: BadgeStickerKind
   /** Not earned yet: the whole sticker fades. */
   locked?: boolean
-  /** The sticker is as wide as its box; size it here (e.g. "w-10") or by the parent. */
+  /**
+   * The sticker fills the width of its box: give it a width here (e.g. "w-10") or put it in a
+   * parent with a fixed width (it cannot size a shrink-to-fit parent by itself).
+   */
   className?: string
 }
 

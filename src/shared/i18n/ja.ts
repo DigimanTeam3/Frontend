@@ -268,6 +268,23 @@ export const ja = {
       complete: '完走バッジ',
     },
     lockedBadge: '写真バッジ（まだ持っていません）',
+    // Screen reader labels of the sticker controls: a tray badge I can put on the card, a tray
+    // badge that is on the card already, and the remove button of a sticker.
+    placeBadge: {
+      participation: '参加バッジをカードにはる',
+      complete: '完走バッジをカードにはる',
+    },
+    usedBadge: {
+      participation: '参加バッジ（カードにはってあります）',
+      complete: '完走バッジ（カードにはってあります）',
+    },
+    removeBadge: {
+      participation: '参加バッジをはがす',
+      complete: '完走バッジをはがす',
+    },
+    // Read after the name of a sticker on the card.
+    stickerHint:
+      'EnterキーかSpaceキーで選び、矢印キーで動かします。Deleteキーではがし、Escキーで選択をやめます。',
     noCard: {
       title: 'まだカードはありません',
       body: '必須ミッションをすべて終えると、完走バッジと思い出カードができます',
