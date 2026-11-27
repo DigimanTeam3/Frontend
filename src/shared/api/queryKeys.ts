@@ -1,3 +1,5 @@
+import type { BadgeType } from '@/shared/types/badge'
+
 // Every query key is built here so invalidation stays consistent.
 export const queryKeys = {
   events: {
@@ -9,5 +11,10 @@ export const queryKeys = {
     all: ['participations'] as const,
     // My participation in one event (null in the cache = I have none yet).
     byEvent: (eventId: number) => [...queryKeys.participations.all, 'event', eventId] as const,
+  },
+  badges: {
+    all: ['badges'] as const,
+    // My badges of one type.
+    mine: (badgeType: BadgeType) => [...queryKeys.badges.all, 'mine', badgeType] as const,
   },
 }

@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw/http'
+import { badgeHandlers } from '@/mocks/badgeHandlers'
 import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { events } from '@/mocks/data/events'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
@@ -12,5 +13,6 @@ export const handlers = [
     const event = events.find((e) => e.id === Number(params.eventId))
     return event ? HttpResponse.json(event) : new HttpResponse(null, { status: 404 })
   }),
+  ...badgeHandlers,
   ...uploadHandlers,
 ]
