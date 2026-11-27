@@ -6,7 +6,7 @@ import {
   type SoftShadow,
 } from '@/features/card/lib/cardImageKit'
 import { drawSticker, STICKER_REACH } from '@/features/card/lib/drawSticker'
-import type { DrawnSticker } from '@/features/card/stickers'
+import type { DrawnSticker } from '@/shared/lib/stickers'
 import { ja } from '@/shared/i18n/ja'
 import lanternPhoto from '@/shared/ui/assets/ticket-lantern.svg'
 

@@ -1,5 +1,5 @@
 import { useRef, type MouseEvent, type PointerEvent } from 'react'
-import { STICKER_TYPES } from '@/features/card/stickers'
+import { STICKER_TYPES } from '@/shared/lib/stickers'
 import { DRAG_THRESHOLD_PX, type StickerBoard } from '@/features/card/useStickerBoard'
 import { ja } from '@/shared/i18n/ja'
 import type { BadgeType } from '@/shared/types/badge'

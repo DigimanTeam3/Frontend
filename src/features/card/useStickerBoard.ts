@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { DEFAULT_STICKER_POSITION, type StickerPlacement } from '@/features/card/stickers'
+import { DEFAULT_STICKER_POSITION, type StickerPlacement } from '@/shared/lib/stickers'
 import type { BadgeType } from '@/shared/types/badge'
 
 /** A place on the card, as fractions of the card box (0,0 = top-left, 1,1 = bottom-right). */

@@ -4,7 +4,7 @@ import {
   type CardImageStyle,
   type SoftShadow,
 } from '@/features/card/lib/cardImageKit'
-import type { DrawnSticker } from '@/features/card/stickers'
+import type { DrawnSticker } from '@/shared/lib/stickers'
 import { ja } from '@/shared/i18n/ja'
 import { BADGE_GLYPH } from '@/shared/ui/badgeGlyphs'
 
