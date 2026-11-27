@@ -11,6 +11,8 @@ export const INDOOR_DEMO_EVENT_ID = 25
 /** Test events: their verify call always fails (see the top of checkinHandlers.ts). */
 export const LOW_ACCURACY_EVENT_ID = 9003
 export const VERIFY_ERROR_EVENT_ID = 9004
+/** Test event that is over and has no seeded participation: joining answers EVENT_ENDED. */
+export const ENDED_EVENT_ID = 9005
 
 // Events 1–5 mirror src/mocks/data/events.ts of the event screens (same ids, titles, places).
 export const journeyEvents: JourneyEvent[] = [
@@ -114,6 +116,21 @@ export const journeyEvents: JourneyEvent[] = [
     category: 'performance',
     startDate: '2026-11-01T00:00:00+09:00',
     endDate: '2026-12-31T23:59:59+09:00',
+    venueName: '테스트 장소',
+    venueNameJa: 'テスト会場',
+    lat: 37.5585,
+    lng: 126.9388,
+    imageUrl: null,
+  },
+  {
+    // Event 5 is over too, but the seed has it checked in already (see initialState), so the
+    // check-in screen never gets to EVENT_ENDED there.
+    id: ENDED_EVENT_ID,
+    title: '테스트: 종료된 이벤트',
+    titleJa: 'テスト：終了したイベント',
+    category: 'festival',
+    startDate: '2026-10-01T10:00:00+09:00',
+    endDate: '2026-10-31T18:00:00+09:00',
     venueName: '테스트 장소',
     venueNameJa: 'テスト会場',
     lat: 37.5585,
