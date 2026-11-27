@@ -37,6 +37,8 @@ const MIN_MARGIN = 20
 
 const PHOTO = { x: 20, y: 24, width: 230, height: 310, radius: 2 }
 const PHOTO_PLACEHOLDER_ALPHA = 0.05
+// A photo that has not arrived by then counts as failed: the share button must not hang.
+const PHOTO_TIMEOUT_MS = 8_000
 const TEXT_LEFT = PHOTO.x
 const TEXT_RIGHT = PHOTO.x + PHOTO.width
 const LINE_HEIGHT = 1.45
@@ -61,16 +63,52 @@ function marginFor(stickers: DrawnSticker[]) {
   return Math.ceil(margin)
 }
 
-/** The picture, or null when it cannot be loaded in a way the canvas may read back. */
-function loadPhoto(url: string) {
+/** The picture behind `src`, or null when it cannot be loaded in a way the canvas may read back. */
+function decodeImage(src: string) {
   return new Promise<HTMLImageElement | null>((resolve) => {
     const image = new Image()
-    // Without this a photo from another origin taints the canvas and no PNG comes out of it.
+    // Without this a picture from another origin taints the canvas and no PNG comes out of it.
     image.crossOrigin = 'anonymous'
     image.onload = () => resolve(image.naturalWidth > 0 && image.naturalHeight > 0 ? image : null)
     image.onerror = () => resolve(null)
-    image.src = url
+    image.src = src
   })
+}
+
+/**
+ * The card's photo, or null when it cannot be loaded (also when `signal` aborts or it takes too
+ * long).
+ */
+async function loadPhoto(url: string, signal?: AbortSignal) {
+  // A local photo (the mock, a fresh pick) is read as it is.
+  if (/^(blob|data):/i.test(url)) return decodeImage(url)
+
+  // Fetched by hand instead of through <img crossorigin>: the browser cache may hold the answer
+  // the <img> on screen got without CORS, and reusing that one would taint the canvas.
+  // TODO(api): the image host must send CORS headers (Access-Control-Allow-Origin) or the shared image has no photo
+  const controller = new AbortController()
+  const abort = () => controller.abort()
+  const timer = setTimeout(abort, PHOTO_TIMEOUT_MS)
+  signal?.addEventListener('abort', abort)
+  if (signal?.aborted) abort()
+  let objectUrl: string | null = null
+  try {
+    const response = await fetch(url, {
+      mode: 'cors',
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+    if (!response.ok) return null
+    objectUrl = URL.createObjectURL(await response.blob())
+    return await decodeImage(objectUrl)
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', abort)
+    // The decoded picture no longer needs the URL.
+    if (objectUrl) URL.revokeObjectURL(objectUrl)
+  }
 }
 
 /** `text`, or its start with an ellipsis when it is wider than `maxWidth` (CSS: truncate). */
@@ -191,16 +229,21 @@ function toPngBlob(canvas: HTMLCanvasElement) {
 
 /**
  * The card as one PNG: paper, photo, texts and the badge stickers at their places, with a
- * margin in the page colour so stickers that hang over the edge are not cut.
+ * margin in the page colour so stickers that hang over the edge are not cut. `signal` stops the
+ * download of the photo when the image is no longer wanted.
  */
-export async function renderCardImage(input: CardImageInput): Promise<Blob> {
+export async function renderCardImage(input: CardImageInput, signal?: AbortSignal): Promise<Blob> {
   const style = readCardImageStyle()
   // The card on screen uses the same font, so this normally resolves at once.
   await document.fonts?.ready.catch(() => undefined)
 
-  // Like <PolaroidCard>: my photo or the event picture, else the lantern picture.
-  const photo =
-    (input.photoUrl ? await loadPhoto(input.photoUrl) : null) ?? (await loadPhoto(lanternPhoto))
+  // A card without any photo gets the lantern picture, like <PolaroidCard>. A photo that exists
+  // but cannot be loaded leaves the window empty instead: the lantern would pass for the photo.
+  const photo = input.photoUrl
+    ? await loadPhoto(input.photoUrl, signal)
+    : await decodeImage(lanternPhoto)
+  // Nobody waits for a cancelled image: skip the painting and the encoding.
+  if (signal?.aborted) throw new DOMException('the card image is no longer wanted', 'AbortError')
   try {
     return await toPngBlob(paintCard(input, style, photo))
   } catch (error) {

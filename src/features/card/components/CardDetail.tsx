@@ -2,13 +2,13 @@ import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { CardInfo } from '@/features/card/components/CardInfo'
 import { CardStickers } from '@/features/card/components/CardStickers'
+import { ShareImagePreview } from '@/features/card/components/ShareImagePreview'
 import { detailStickers } from '@/features/card/stickers'
 import { useStickerStore } from '@/features/card/stickerStore'
 import { useShareCard } from '@/features/card/useShareCard'
 import { ja } from '@/shared/i18n/ja'
 import { polaroidCardText } from '@/shared/lib/polaroidCardText'
 import type { ExperienceCard } from '@/shared/types/card'
-import { Button } from '@/shared/ui/Button'
 import { buttonClassName } from '@/shared/ui/buttonStyles'
 import { PolaroidCard } from '@/shared/ui/PolaroidCard'
 import { Toast } from '@/shared/ui/Toast'
@@ -30,12 +30,19 @@ export function CardDetail({ card }: CardDetailProps) {
   const [editing, setEditing] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const editButton = useRef<HTMLButtonElement>(null)
-  const { share, preparing } = useShareCard(card, stickers, setToast)
+  const shareButton = useRef<HTMLButtonElement>(null)
+  const { share, preparing, previewUrl, closePreview } = useShareCard(card, stickers, setToast)
 
   const closeEditor = () => {
     // Rendered at once: the edit button is back by this, so the focus returns to it.
     flushSync(() => setEditing(false))
     editButton.current?.focus({ preventScroll: true })
+  }
+
+  const closeSharePreview = () => {
+    // Back to the button that opened the overlay.
+    flushSync(closePreview)
+    shareButton.current?.focus({ preventScroll: true })
   }
 
   return (
@@ -75,19 +82,21 @@ export function CardDetail({ card }: CardDetailProps) {
           >
             {copy.editMemo}
           </button>
-          <Button
-            variant="accent"
-            shape="pill"
-            className={ACTION_SIZE}
+          {/* A plain button with the shared look, like the edit button: it needs the ref. */}
+          <button
+            type="button"
+            ref={shareButton}
             onClick={share}
             disabled={preparing}
             aria-busy={preparing}
+            className={`${buttonClassName({ variant: 'accent', shape: 'pill' })} ${ACTION_SIZE}`}
           >
             {preparing ? copy.sharePreparing : copy.share}
-          </Button>
+          </button>
         </div>
       )}
 
+      {previewUrl && <ShareImagePreview imageUrl={previewUrl} onClose={closeSharePreview} />}
       <Toast message={toast} onDismiss={() => setToast(null)} />
     </div>
   )

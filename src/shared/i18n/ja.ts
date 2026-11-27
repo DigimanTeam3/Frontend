@@ -317,9 +317,16 @@ export const ja = {
     },
     share: '共有する',
     sharePreparing: '準備中…',
-    // Shown where the share sheet cannot take a file: the image was downloaded instead.
-    imageSaved: '画像を保存しました',
     shareFailed: '共有できませんでした。もう一度お試しください。',
+    // The browser refused the share sheet because the image was not ready at the tap. It is now.
+    shareTapAgain: '画像の準備ができました。もう一度タップしてください',
+    // Overlay with the image where the share sheet cannot take a file (S14, in-app browsers).
+    sharePreview: {
+      title: '共有用の画像',
+      imageAlt: '思い出カードの画像',
+      hint: '自動で保存されないときは、画像を長押しして保存してください',
+      close: '閉じる',
+    },
     // A title or venue that is too long for its line in the share image.
     shareImageCut: (text: string) => `${text}…`,
   },
