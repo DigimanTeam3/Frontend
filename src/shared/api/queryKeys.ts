@@ -7,6 +7,12 @@ export const queryKeys = {
     list: () => [...queryKeys.events.all, 'list'] as const,
     detail: (eventId: number) => [...queryKeys.events.all, 'detail', eventId] as const,
   },
+  // The event as the journey screens read it (S09–S13): only a few fields of the event detail,
+  // so it must not share the cache entry of `events.detail`, which holds the full shape.
+  journeyEvents: {
+    all: ['journeyEvents'] as const,
+    detail: (eventId: number) => [...queryKeys.journeyEvents.all, 'detail', eventId] as const,
+  },
   participations: {
     all: ['participations'] as const,
     // My participation in one event (null in the cache = I have none yet).
