@@ -31,13 +31,13 @@ npx vercel@latest deploy --prod --yes --build-env VITE_USE_MOCK=true --build-env
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://<백엔드 주소>/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|api/).*)", "destination": "/index.html" }
   ]
 }
 ```
 
 - `/api` 줄: `/api`를 떼고 백엔드로 넘깁니다. 백엔드 라우트가 `/api/...`로 시작하면 `destination`을 `https://<백엔드 주소>/api/:path*`로 바꿉니다.
-- 새로고침 줄: 화면 새로고침 시 `index.html`로 (Vite SPA 공식 안내, https://vercel.com/docs/frameworks/frontend/vite). 실제 파일(`/assets/...`)은 rewrites보다 먼저 응답됩니다.
+- 새로고침 줄: 화면 새로고침 시 `index.html`로 (Vite SPA 공식 안내, https://vercel.com/docs/frameworks/frontend/vite). 실제 파일(`/assets/...`)은 rewrites보다 먼저 응답됩니다. `/assets/`·`/api/` 아래 없는 주소는 `index.html`로 보내지 않고 404로 둡니다.
 - 외부 대상은 최대 120초까지 기다리고, 넘으면 `ROUTER_EXTERNAL_TARGET_ERROR` (https://vercel.com/docs/limits).
 - 문서 예시는 https 대상뿐입니다. 백엔드가 http만 열려 있으면 동작하는지 먼저 확인합니다.
 
