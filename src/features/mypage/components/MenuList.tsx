@@ -71,6 +71,7 @@ export function MenuList({ summary }: MenuListProps) {
   )
 
   const logout = () => {
+    if (loggingOut.current) return
     loggingOut.current = true
     void navigate(paths.home(), { replace: true })
   }
