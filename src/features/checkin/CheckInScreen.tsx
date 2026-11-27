@@ -6,7 +6,7 @@ import { CheckInReady } from '@/features/checkin/components/CheckInReady'
 import { useCheckIn } from '@/features/checkin/useCheckIn'
 import { useJourneyEventQuery, useParticipationQuery } from '@/shared/api/journey'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorStatus } from '@/shared/lib/apiError'
+import { isEventNotFound } from '@/shared/lib/apiError'
 import { parseIdParam, paths } from '@/shared/lib/paths'
 import type { JourneyEvent } from '@/shared/types/eventBrief'
 import type { Participation } from '@/shared/types/participation'
@@ -29,7 +29,7 @@ export function CheckInScreen() {
     // Checked before the error states: a failed background refetch must not close a check-in
     // that is already on screen.
     content = <CheckInFlow key={event.id} event={event} initialParticipation={participation} />
-  } else if (eventId === null || apiErrorStatus(eventQuery.error) === 404) {
+  } else if (eventId === null || isEventNotFound(eventQuery.error)) {
     content = (
       <>
         <h1 className="sr-only">{ja.checkIn.title}</h1>

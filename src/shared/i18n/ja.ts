@@ -153,7 +153,8 @@ export const ja = {
   participationBadge: {
     title: '改札完了',
     // Two lines.
-    // TODO(api): the Figma copy says "ミッションが開きました（4つ）"; the count needs the mission list.
+    // TODO(S11): the Figma copy says "ミッションが開きました（4つ）". The count is items.length of
+    // GET /events/{eventId}/missions; add the query with S11, then make this line a function.
     body: ['参加バッジを手に入れました。', 'ミッションが開きました'],
     // Date, time and the venue name (a separate element, so a Korean original can be marked
     // lang="ko"). The double spaces around the dot are part of the design.

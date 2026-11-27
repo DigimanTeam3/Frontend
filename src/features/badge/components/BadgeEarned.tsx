@@ -30,6 +30,7 @@ export function BadgeEarned({ event, ticketNumber, earnedAt }: BadgeEarnedProps)
 
   return (
     <>
+      <h1 className="sr-only">{copy.title}</h1>
       {/* mt-[52px]: room for the stamp, which reaches above the ticket. */}
       <div className="relative mx-auto mt-[52px] w-[300px] max-w-full">
         <GateTicket
@@ -40,17 +41,24 @@ export function BadgeEarned({ event, ticketNumber, earnedAt }: BadgeEarnedProps)
           punched
         />
         {/* The stamp lands on the corner after the ticket is there. Plays only with motion on. */}
-        <ParticipationStamp
-          date={date}
-          style={{ right: STAMP_RIGHT }}
-          className="absolute -top-[47px] z-10 motion-safe:transition-[scale,opacity] motion-safe:delay-300 motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,1.4,0.4,1)] motion-safe:starting:scale-[1.8] motion-safe:starting:opacity-0"
-        />
+        {/* Separate positioned wrapper: the stamp itself is `relative`, which would beat `absolute`. */}
+        <div className="absolute -top-[47px] z-10" style={{ right: STAMP_RIGHT }}>
+          {/* Starts smaller (a bigger start would reach past the screen edge). Without motion or
+              @starting-style support it simply shows in its final state. */}
+          <ParticipationStamp
+            date={date}
+            className="motion-safe:transition-[scale,opacity] motion-safe:delay-300 motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,1.4,0.4,1)] motion-safe:starting:scale-[0.6] motion-safe:starting:opacity-0"
+          />
+        </div>
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-2 text-center">
-        <h1 className="font-mincho text-[30px] leading-[1.3] font-extrabold tracking-[0.01em] text-ink">
+        <p
+          aria-hidden="true"
+          className="font-mincho text-[30px] leading-[1.3] font-extrabold tracking-[0.01em] text-ink"
+        >
           {copy.title}
-        </h1>
+        </p>
         <p className="text-[15px] leading-[1.65] text-ink-muted">
           {copy.body.map((line) => (
             <span key={line} className="block">

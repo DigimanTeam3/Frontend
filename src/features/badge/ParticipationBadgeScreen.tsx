@@ -4,7 +4,7 @@ import { BadgeEarned } from '@/features/badge/components/BadgeEarned'
 import { useMyBadgesQuery } from '@/shared/api/badges'
 import { useJourneyEventQuery, useParticipationQuery } from '@/shared/api/journey'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorStatus } from '@/shared/lib/apiError'
+import { isEventNotFound } from '@/shared/lib/apiError'
 import { parseIdParam, paths } from '@/shared/lib/paths'
 import { PinIcon } from '@/shared/ui/icons/PinIcon'
 import { SearchIcon } from '@/shared/ui/icons/SearchIcon'
@@ -60,7 +60,7 @@ export function ParticipationBadgeScreen() {
         </>
       )
     }
-  } else if (eventId === null || apiErrorStatus(eventQuery.error) === 404) {
+  } else if (eventId === null || isEventNotFound(eventQuery.error)) {
     content = (
       <>
         {heading}
