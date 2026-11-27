@@ -32,6 +32,12 @@
   --color-warn-soft: #fbf0d6;
 }
 
+/* 公演 (performance) print color from Figma kippu/stage. Added for C6 map pins. */
+@theme {
+  --color-stage: #5a7a36;
+  --color-stage-soft: #dfe9cf;
+}
+
 @layer base {
   html,
   body {
