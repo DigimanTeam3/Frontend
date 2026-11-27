@@ -1,6 +1,6 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { CheckInScreen } from '@/features/checkin/CheckInScreen'
 
-// S09. Replace the placeholder with the real screen.
+// S09. The screen lives in its feature folder.
 export function CheckInPage() {
-  return <ScreenPlaceholder screenId="S09" />
+  return <CheckInScreen />
 }
