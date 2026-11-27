@@ -8,10 +8,10 @@ const text = ja.companionDetail
 
 /** The companion ticket (切符). Matched people's names are printed in the seat cells. */
 export function KippuTicket({ post }: { post: CompanionPostDetail }) {
-  const seats = Array.from({ length: post.capacity }, (_, index) => ({
-    label: `1${SEAT_LETTERS[index] ?? index + 1}`,
-    member: post.members[index] ?? null,
-  }))
+  const seats = Array.from({ length: post.capacity }, (_, index) => {
+    const label = `1${SEAT_LETTERS[index] ?? index + 1}`
+    return { label, member: post.members.find((member) => member.seat === label) ?? null }
+  })
 
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
@@ -46,11 +46,7 @@ export function KippuTicket({ post }: { post: CompanionPostDetail }) {
         <ul aria-live="polite" className="mt-2 grid grid-cols-4 gap-2">
           {seats.map(({ label, member }) => (
             <li key={label}>
-              <SeatCell
-                seat={member?.seat ?? label}
-                name={member?.user.nickname ?? null}
-                isMe={member?.isMe}
-              />
+              <SeatCell seat={label} name={member?.user.nickname ?? null} isMe={member?.isMe} />
             </li>
           ))}
         </ul>
