@@ -60,12 +60,13 @@ export function getCompanion(postId: number) {
   return apiClient<CompanionPostDetail>(`/companions/${postId}`)
 }
 
-export function useCompanionQuery(postId: number) {
+export function useCompanionQuery(postId: number, { paused = false } = {}) {
   return useQuery({
     queryKey: queryKeys.companions.detail(postId),
     queryFn: () => getCompanion(postId),
     enabled: Number.isInteger(postId) && postId > 0,
     refetchInterval: (query) => {
+      if (paused) return false
       const post = query.state.data
       const waiting =
         post?.status === 'OPEN' && (post.isMine || post.myRequest?.status === 'PENDING')

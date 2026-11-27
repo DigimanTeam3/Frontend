@@ -16,8 +16,16 @@ const text = ja.companionDetail
 export function CompanionDetailPage() {
   const postId = Number(useParams().postId)
   const location = useLocation()
-  const { data: post, isPending, isError, error, refetch, isRefetching } = useCompanionQuery(postId)
   const action = useCompanionActionMutation(postId)
+  // No polling while an action is on its way, so an older answer cannot replace the new one.
+  const {
+    data: post,
+    isPending,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useCompanionQuery(postId, { paused: action.isPending })
 
   // A 401 from loading or from an action (request, cancel, accept, reject) both go to login.
   const unauthorized = [error, action.error].some(
