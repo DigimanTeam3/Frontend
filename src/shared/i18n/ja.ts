@@ -53,4 +53,19 @@ export const ja = {
     errorBody: '通信状態を確認して、もう一度お試しください',
     retry: '再読み込み',
   },
+  // Photo picker with preview and upload (C8: src/shared/ui/ImageUploader.tsx).
+  imageUploader: {
+    add: '写真を追加',
+    remove: '写真を削除',
+    previewAlt: '選んだ写真',
+    uploading: '送信中…',
+    // Keys are API error codes of POST /uploads/images, plus NETWORK and UNKNOWN.
+    errors: {
+      UNSUPPORTED_IMAGE_TYPE: 'この形式の写真は使えません。別の写真を選んでください。',
+      FILE_TOO_LARGE: '写真のサイズが大きすぎます。別の写真を選んでください。',
+      EMPTY_FILE: '写真を読み込めませんでした。もう一度選んでください。',
+      NETWORK: '通信できませんでした。電波の良い場所でもう一度お試しください。',
+      UNKNOWN: '写真を送れませんでした。もう一度お試しください。',
+    },
+  },
 } as const
