@@ -31,10 +31,16 @@ export function ConciergePage() {
     setDraft((current) => (current.trim() ? current : text))
   }
 
+  // Asked by voice: answer by voice too.
+  const speakIfVoice = (entry: ChatEntry | null) => {
+    if (entry?.role === 'assistant' && entry.via === 'voice') {
+      speech.speak(entry.id, entry.reply.reply)
+    }
+  }
+
   const recorder = useVoiceRecorder(async (audio) => {
     const entry = await chat.sendVoice(audio)
-    // Asked by voice: answer by voice too.
-    if (entry?.role === 'assistant') speech.speak(entry.id, entry.reply.reply)
+    speakIfVoice(entry)
     restoreRejected(entry)
   })
 
@@ -54,7 +60,10 @@ export function ConciergePage() {
   }
 
   const retry = async () => {
-    restoreRejected(await chat.retry())
+    speech.cancel()
+    const entry = await chat.retry()
+    speakIfVoice(entry)
+    restoreRejected(entry)
   }
 
   const onSendDraft = () => {

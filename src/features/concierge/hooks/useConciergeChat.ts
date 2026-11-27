@@ -141,7 +141,10 @@ export function useConciergeChat() {
     const last = entriesRef.current.at(-1)
     if (last?.role !== 'error' || !last.retryText) return Promise.resolve(null)
     const text = last.retryText
-    return run(() => ask(text, 'text', false))
+    // Keep how it was first asked (a voice question is still answered by voice).
+    const question = entriesRef.current.findLast((entry) => entry.role === 'user')
+    const via = question?.role === 'user' ? question.via : 'text'
+    return run(() => ask(text, via, false))
   }, [ask, run])
 
   /** Voice: audio → text (shown as a request slip) → reply. */
