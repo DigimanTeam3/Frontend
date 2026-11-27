@@ -220,7 +220,6 @@ export const ja = {
   },
   companionNew: {
     title: '同行を募集する',
-    close: '閉じる',
     eventLabel: 'この行事の募集',
     date: '日付',
     time: '集合時間',

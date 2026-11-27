@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { useCompanionsQuery } from '@/features/companion/api'
 import { CompanionForm } from '@/features/companion/components/CompanionForm'
 import { apiErrorCode } from '@/features/companion/errors'
@@ -17,16 +17,7 @@ export function CompanionNewPage() {
 
   return (
     <section>
-      <header className="mb-4 flex items-center gap-2">
-        <Link
-          to={`/events/${Number.isInteger(eventId) ? eventId : ''}/companions`}
-          aria-label={ja.companionNew.close}
-          className="-ml-2 px-2 text-2xl leading-none text-ink-muted"
-        >
-          ×
-        </Link>
-        <h1 className="text-xl font-bold">{ja.companionNew.title}</h1>
-      </header>
+      <h1 className="mb-4 text-xl font-bold">{ja.companionNew.title}</h1>
 
       {notFound ? (
         <p className="py-12 text-center text-ink-muted">{ja.companion.eventNotFound}</p>
