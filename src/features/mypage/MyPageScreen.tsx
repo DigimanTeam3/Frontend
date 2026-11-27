@@ -17,7 +17,9 @@ export function MyPageScreen() {
   const user = meQuery.data
   const summary = summaryQuery.data
 
-  if (meQuery.isError || summaryQuery.isError) {
+  // Only without data: a failed background refetch must not close a page that is already on
+  // screen.
+  if ((!user || !summary) && (meQuery.isError || summaryQuery.isError)) {
     // Sign-in trouble has its own copy; network and server errors share the generic one.
     const code = apiErrorCode(meQuery.error ?? summaryQuery.error)
     const copy = code === 'UNAUTHORIZED' ? ja.myPage.errors.UNAUTHORIZED : ja.myPage.errors.UNKNOWN

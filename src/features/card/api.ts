@@ -39,6 +39,11 @@ export function useUpdateCardMutation(cardId: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (changes: ExperienceCardUpdate) => updateCard(cardId, changes),
+    // A refetch of the card that is already on its way would answer with the old memo and
+    // overwrite the saved one below.
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.cards.detail(cardId) })
+    },
     onSuccess: (card) => {
       queryClient.setQueryData(queryKeys.cards.detail(cardId), card)
       // My card list (S13, My Page) holds a copy of the card.

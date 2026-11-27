@@ -13,6 +13,9 @@ export function useTicketsQuery() {
   })
 }
 
+// Names the deletes, to count the ones still running (not a cache key, so it is kept here).
+const DELETE_TICKET_MUTATION_KEY = ['tickets', 'delete'] as const
+
 interface DeleteContext {
   ticket: Ticket | undefined
   index: number
@@ -25,6 +28,8 @@ export function useDeleteTicketMutation() {
   const listKey = queryKeys.tickets.list()
 
   return useMutation<void, Error, number, DeleteContext>({
+    mutationKey: DELETE_TICKET_MUTATION_KEY,
+    // TODO(api): must answer 204 (a 200 with an empty body would be read as a failure)
     mutationFn: (ticketId) => apiClient<void>(`/me/tickets/${ticketId}`, { method: 'DELETE' }),
     onMutate: async (ticketId) => {
       await queryClient.cancelQueries({ queryKey: listKey })
@@ -45,6 +50,11 @@ export function useDeleteTicketMutation() {
         return { items }
       })
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: listKey }),
+    onSettled: () => {
+      // Only the last delete still running reloads the list (this one counts as running here):
+      // a reload in between would bring back a ticket whose delete has not reached the server.
+      if (queryClient.isMutating({ mutationKey: DELETE_TICKET_MUTATION_KEY }) !== 1) return
+      return queryClient.invalidateQueries({ queryKey: listKey })
+    },
   })
 }

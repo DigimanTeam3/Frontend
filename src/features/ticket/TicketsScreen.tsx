@@ -14,16 +14,26 @@ export function TicketsScreen() {
   const ticketsQuery = useTicketsQuery()
   const deleteMutation = useDeleteTicketMutation()
   const [toast, setToast] = useState<string | null>(null)
-  const [deleteFailed, setDeleteFailed] = useState(false)
+  // The tickets whose delete failed. Kept per ticket, so a delete of another ticket that starts
+  // or succeeds meanwhile does not take the alert away.
+  const [failedIds, setFailedIds] = useState<number[]>([])
 
   const tickets = ticketsQuery.data?.items
+  // Only for tickets still in the list: one that is gone after a refetch (deleted elsewhere)
+  // cannot be tried again, so its alert would stay forever.
+  const deleteFailed = failedIds.some((id) => tickets?.some((ticket) => ticket.id === id))
 
-  function deleteTicket(ticketId: number) {
-    setDeleteFailed(false)
-    deleteMutation.mutate(ticketId, {
-      onSuccess: () => setToast(copy.deleted),
-      onError: () => setDeleteFailed(true),
-    })
+  // mutateAsync, not mutate with callbacks: those only fire for the newest delete, so with two
+  // quick deletes the result of the first one would be lost.
+  async function deleteTicket(ticketId: number) {
+    // A new try takes back the failure of this ticket only.
+    setFailedIds((ids) => ids.filter((id) => id !== ticketId))
+    try {
+      await deleteMutation.mutateAsync(ticketId)
+      setToast(copy.deleted)
+    } catch {
+      setFailedIds((ids) => [...ids, ticketId])
+    }
   }
 
   let content
@@ -36,7 +46,11 @@ export function TicketsScreen() {
       ) : (
         <ul aria-label={copy.listLabel} className="flex flex-col gap-4">
           {tickets.map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} onDelete={deleteTicket} />
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              onDelete={(ticketId) => void deleteTicket(ticketId)}
+            />
           ))}
         </ul>
       )
