@@ -397,7 +397,7 @@ export const ja = {
   // Saved conditions, reservation tickets (S17: src/features/ticket).
   ticket: {
     title: '予約券',
-    description: '条件を予約しておくと、合う行事が出たときにLINEでお知らせします',
+    description: '条件を予約しておくと、合うイベントが出たときにLINEでお知らせします',
     listLabel: '予約券の一覧',
     // Small heading on each card.
     cardLabel: '予約券',
