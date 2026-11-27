@@ -68,4 +68,81 @@ export const ja = {
       UNKNOWN: '写真を送れませんでした。もう一度お試しください。',
     },
   },
+  // Paper ticket of an event (src/shared/ui/GateTicket.tsx), shown by S09 and S10.
+  gateTicket: {
+    category: {
+      festival: '祭り',
+      exhibition: '展示',
+      performance: '公演',
+    },
+    number: (monthDay: string, serial: string) => `No.${monthDay}-${serial}`,
+    venueLabel: 'VENUE',
+    dateLabel: 'DATE',
+    date: (month: string, day: string, weekday: string) => `${month}.${day} ${weekday}`,
+    // The double spaces around the dot are part of the design (rendered with white-space: pre).
+    stubCaption: 'ADMIT ONE  ·  改札で切り取る',
+  },
+  // Error block of the journey screens (S09–S13) when the event id in the URL does not exist.
+  eventNotFound: {
+    title: 'イベントが見つかりません',
+    body: 'URLが正しいか、もう一度ご確認ください',
+    home: 'ホームへ',
+  },
+  // Location check-in (S09: src/features/checkin).
+  checkIn: {
+    title: '到着チェック',
+    intro: {
+      headline: ['会場に着いたら、', '切符を改札しよう'],
+      body: [
+        '今いる場所が会場の近くか確認します。',
+        '位置情報は到着チェックの時だけ使い、保存しません。',
+      ],
+      stepPermission: '位置情報の利用を許可する',
+      stepRadius: (radiusM: number) => `会場から ${radiusM}m 以内で確認`,
+      stepTear: '切符を切り取って参加バッジ獲得',
+      start: '位置情報を許可して確認',
+      httpsNote: 'HTTPSで接続しているときだけ使えます',
+    },
+    checking: '確認中…',
+    ready: {
+      chip: '改札できます',
+      // The double spaces around the dot are part of the design (rendered with white-space: pre).
+      reading: (distance: string, accuracyM: number) =>
+        `会場まで ${distance}  ·  精度 ±${accuracyM}m`,
+      pull: '半券を下に引いて改札',
+      stubLabel: '半券を切り取って改札する',
+    },
+    // Keys are the failure reasons of src/features/checkin/failure.ts.
+    failureTitle: {
+      PERMISSION_DENIED: '位置情報がオフです',
+      POSITION_UNAVAILABLE: '現在地を取得できません',
+      LOW_ACCURACY: '位置の精度が低いです',
+      OUT_OF_RANGE: '会場の範囲外です',
+      EVENT_ENDED: 'イベントは終了しました',
+      EVENT_NOT_STARTED: 'イベントはまだ始まっていません',
+      ALREADY_VERIFIED: 'もうチェック済みです',
+      NETWORK: '通信できませんでした',
+    },
+    failureBody: {
+      PERMISSION_DENIED: '設定で位置情報を許可してください',
+      POSITION_UNAVAILABLE: '屋外に出て、もう一度お試しください',
+      LOW_ACCURACY: 'Wi-Fiをオンにすると精度が上がります',
+      ALREADY_VERIFIED: '参加バッジはマイページで見られます',
+      NETWORK: '電波の良い場所でお試しください',
+      outOfRange: (radiusM: number) => `会場の ${radiusM}m 以内で確認してください`,
+      // Two paragraphs, used when the server tells the distance and the radius.
+      outOfRangeDistance: (distance: string) => `いまの場所は会場から ${distance} 離れています。`,
+      outOfRangeRetry: (venue: string, radiusM: number) =>
+        `${venue}の ${radiusM}m 以内で、もう一度お試しください。`,
+      period: (start: string, end: string) => `開催期間：${start} – ${end}`,
+    },
+    actions: {
+      retry: 'もう一度',
+      retryCheck: 'もう一度確認',
+      later: 'あとで',
+      venueMap: '地図で会場',
+      otherEvents: 'ほかのイベント',
+      missions: 'ミッションへ',
+    },
+  },
 } as const
