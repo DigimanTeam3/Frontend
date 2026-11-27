@@ -1,9 +1,12 @@
 import { http, HttpResponse } from 'msw/http'
+import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { events } from '@/mocks/data/events'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
 
 // Paths follow the endpoint list in the service plan (8.10), under the /api prefix.
 export const handlers = [
+  // First: its TEMP /api/events/:eventId answers before the old one below.
+  ...checkinHandlers,
   http.get('/api/events', () => HttpResponse.json(events)),
   http.get('/api/events/:eventId', ({ params }) => {
     const event = events.find((e) => e.id === Number(params.eventId))
