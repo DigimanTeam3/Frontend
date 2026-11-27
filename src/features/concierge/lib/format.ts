@@ -43,8 +43,14 @@ export function conditionLabels(conditions: ConciergeConditions) {
     labels.push(shortDate((dateFrom ?? dateTo) as string))
   }
   if (conditions.area) labels.push(conditions.area)
-  if (conditions.category) labels.push(ja.concierge.conditions.category[conditions.category])
-  if (conditions.companion) labels.push(ja.concierge.conditions[conditions.companion])
+  // Values this screen does not know are left out instead of showing "undefined".
+  const { category } = ja.concierge.conditions
+  if (conditions.category && Object.hasOwn(category, conditions.category)) {
+    labels.push(category[conditions.category])
+  }
+  if (conditions.companion === 'alone' || conditions.companion === 'group') {
+    labels.push(ja.concierge.conditions[conditions.companion])
+  }
   labels.push(...conditions.keywords)
   return labels
 }

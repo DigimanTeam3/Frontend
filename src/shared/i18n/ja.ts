@@ -92,6 +92,7 @@ export const ja = {
         exhibition: { ja: '展示', code: 'EXHIBIT' },
         performance: { ja: '公演', code: 'STAGE' },
       },
+      otherCategory: { ja: 'イベント', code: 'EVENT' },
       admit: 'ADMIT',
       admitCount: 'ONE',
       original: '原題',

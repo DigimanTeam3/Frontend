@@ -15,6 +15,9 @@ const CATEGORY_STYLE: Record<
   performance: { paper: 'bg-[#dfe9cf]', ink: 'text-[#5a7a36]', border: 'border-[#5a7a36]' },
 }
 
+// A category this screen does not know yet: plain paper and a generic label.
+const OTHER_STYLE = { paper: 'bg-surface', ink: 'text-ink-muted', border: 'border-ink-muted' }
+
 export interface EventTicketProps {
   recommendation: ConciergeRecommendation
   /** ms before the Korean title turns into Japanese (after the ticket is printed). */
@@ -24,8 +27,9 @@ export interface EventTicketProps {
 /** One recommended event, printed as a 切符 (Figma: Concept 切符 / ticket). */
 export function EventTicket({ recommendation, revealDelay }: EventTicketProps) {
   const { event, reason } = recommendation
-  const style = CATEGORY_STYLE[event.category]
-  const category = t.category[event.category]
+  const known = Object.hasOwn(CATEGORY_STYLE, event.category)
+  const style = known ? CATEGORY_STYLE[event.category] : OTHER_STYLE
+  const category = known ? t.category[event.category] : t.otherCategory
   const venue = event.venueNameJa ?? event.venueName
 
   return (
