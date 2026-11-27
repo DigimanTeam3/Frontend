@@ -240,4 +240,38 @@ export const ja = {
       backToList: 'ミッション一覧へ',
     },
   },
+  // Polaroid experience card (src/shared/ui/PolaroidCard.tsx), shown by S13, S14 and My Page.
+  polaroidCard: {
+    // "2026.11.29", from the parts of the card's eventDate.
+    date: (year: string, month: string, day: string) => `${year}.${month}.${day}`,
+    // The venue name follows as its own element, so a Korean original can be marked lang="ko".
+    metaBeforeVenue: (date: string) => `${date} ・ `,
+    number: (cardId: number) => `No.${String(cardId).padStart(3, '0')}`,
+  },
+  // Label on the round badge sticker (src/shared/ui/BadgeSticker.tsx).
+  badgeSticker: {
+    participation: '参加',
+    complete: '完走',
+    photo: '写真',
+  },
+  // Completion badge and card creation (S13: src/features/card/CompleteScreen.tsx).
+  complete: {
+    // Screen name for screen readers in the states without the visible heading.
+    screenName: 'カード生成',
+    title: '完走！',
+    subtitle: 'カードができました',
+    trayTitle: 'バッジをはる',
+    trayHint: 'ドラッグして好きな場所に',
+    save: 'カードを保存する',
+    badgeName: {
+      participation: '参加バッジ',
+      complete: '完走バッジ',
+    },
+    lockedBadge: '写真バッジ（まだ持っていません）',
+    noCard: {
+      title: 'まだカードはありません',
+      body: '必須ミッションをすべて終えると、完走バッジと思い出カードができます',
+      action: 'ミッションへ',
+    },
+  },
 } as const

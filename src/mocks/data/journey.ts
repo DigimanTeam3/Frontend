@@ -1,5 +1,5 @@
 import type { Badge, BadgeType } from '@/shared/types/badge'
-import type { ExperienceCard } from '@/shared/types/card'
+import type { ExperienceCard, ExperienceCardUpdate } from '@/shared/types/card'
 import type { EventBrief, JourneyEvent } from '@/shared/types/eventBrief'
 import type {
   Mission,
@@ -131,9 +131,22 @@ export const journeyEvents: JourneyEvent[] = [
 
 type MissionTemplate = Omit<Mission, 'mySubmission'>
 
-// Missions per event: event 1 mirrors the Figma list, event 25 (indoor demo) works anywhere.
-// Other events have none. Mission 102 has no Japanese text, to show the lang="ko" fallback.
+// Missions per event: event 1 mirrors the Figma list, event 25 (indoor demo) works anywhere,
+// event 4 has one so its Korean-only card can be made. Other events have none. Missions 102 and
+// 401 have no Japanese text, to show the lang="ko" fallback.
 const missionTemplates: MissionTemplate[] = [
+  {
+    id: 401,
+    eventId: 4,
+    title: '마음에 드는 물건 하나 찾기',
+    titleJa: null,
+    description: '플리마켓에서 마음에 든 물건을 한마디로 적어 주세요.',
+    descriptionJa: null,
+    difficulty: 'easy',
+    verificationMethod: 'text',
+    required: true,
+    sortOrder: 1,
+  },
   {
     id: 101,
     eventId: 1,
@@ -462,4 +475,21 @@ export function submitMission(
   const earned = mission.required ? completeEvent(mission.eventId, userId) : NOTHING_EARNED
   saveState()
   return { submission, ...earned }
+}
+
+/** My experience cards, newest first; every card belongs to the one mock user. */
+export function listCards() {
+  return state.cards.toReversed()
+}
+
+export function findCard(cardId: number) {
+  return state.cards.find((card) => card.id === cardId)
+}
+
+/** Writes the given fields on the card, like PATCH /experience-cards/{cardId}. */
+export function updateCard(card: ExperienceCard, changes: ExperienceCardUpdate) {
+  if (changes.memo !== undefined) card.memo = changes.memo
+  if (changes.userImage !== undefined) card.userImage = changes.userImage
+  saveState()
+  return card
 }

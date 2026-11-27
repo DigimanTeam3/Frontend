@@ -19,3 +19,10 @@ export interface ExperienceCard {
   completeBadge: Badge
   createdAt: string
 }
+
+/** Body of PATCH /experience-cards/{cardId}: only the given fields change. */
+export interface ExperienceCardUpdate {
+  /** Up to 500 characters. */
+  memo?: string
+  userImage?: string
+}

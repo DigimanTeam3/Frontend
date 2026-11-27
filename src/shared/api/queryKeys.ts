@@ -22,4 +22,10 @@ export const queryKeys = {
     // My badges of one type.
     mine: (badgeType: BadgeType) => [...queryKeys.badges.all, 'mine', badgeType] as const,
   },
+  cards: {
+    all: ['cards'] as const,
+    // My experience cards (first page).
+    mine: () => [...queryKeys.cards.all, 'mine'] as const,
+    detail: (cardId: number) => [...queryKeys.cards.all, 'detail', cardId] as const,
+  },
 }

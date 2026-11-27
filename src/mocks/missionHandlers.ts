@@ -15,6 +15,7 @@ import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@
 //
 // Test hooks of the list, by the event id in the URL:
 //   1     the four Figma missions (one has no Japanese text, one is optional and long)
+//   4     one required text mission, Korean only (event 4 has no Japanese texts at all)
 //   25    indoor demo: two required missions and one optional
 //   9001  network error (no answer at all)
 //   9002  500 INTERNAL_ERROR

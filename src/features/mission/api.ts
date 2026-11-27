@@ -56,9 +56,9 @@ export function useSubmitMissionMutation(eventId: number) {
         (list) => list && withSubmission(list, submission),
       )
       void queryClient.invalidateQueries({ queryKey: missionsKey })
-      // The last required mission also hands out the complete badge. The experience card
-      // queries (S13 / S14) have no keys yet; invalidate them here when they exist.
+      // The last required mission also hands out the complete badge and the experience card.
       void queryClient.invalidateQueries({ queryKey: queryKeys.badges.all })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.cards.all })
     },
     onError: (error) => {
       // Sent before (another tab or device): reload so the screen shows that submission.
