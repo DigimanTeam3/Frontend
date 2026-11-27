@@ -32,7 +32,7 @@ function validateBody(body: Partial<CreateCompanionBody>, endDate: string) {
   if (!meetAt || Number.isNaN(meetAt.getTime()) || meetAt.getTime() <= Date.now()) {
     return errorResponse(400, 'VALIDATION_ERROR', 'meetAt is invalid', 'meetAt')
   }
-  if (meetAt.getTime() > new Date(endDate).getTime() + 24 * 60 * 60 * 1000) {
+  if (meetAt.getTime() > new Date(endDate).getTime()) {
     return errorResponse(400, 'VALIDATION_ERROR', 'meetAt is after the event', 'meetAt')
   }
   if (!Number.isInteger(body.capacity) || body.capacity! < 2 || body.capacity! > 4) {

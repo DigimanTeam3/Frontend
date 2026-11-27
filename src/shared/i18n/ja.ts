@@ -245,6 +245,7 @@ export const ja = {
       dateOutOfRange: 'イベント期間中の日付を選んでください',
       timeRequired: '集合時間を選んでください',
       timePast: '過去の時刻は選べません',
+      timeAfterEnd: 'イベント終了後の時刻は選べません',
       capacity: '人数は2〜4人で選んでください',
       introRequired: 'ひとことを入力してください',
       introTooLong: (max: number) => `${max}文字以内で入力してください`,

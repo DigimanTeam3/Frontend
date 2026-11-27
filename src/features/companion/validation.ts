@@ -51,8 +51,10 @@ export function validateCompanionForm(
   else if (values.day < min || values.day > max) errors.day = messages.dateOutOfRange
 
   if (!/^\d{2}:(00|30)$/.test(values.time)) errors.time = messages.timeRequired
-  else if (!errors.day && new Date(toSeoulIso(values.day, values.time)) <= now) {
-    errors.time = messages.timePast
+  else if (!errors.day) {
+    const meetAt = new Date(toSeoulIso(values.day, values.time))
+    if (meetAt <= now) errors.time = messages.timePast
+    else if (meetAt > new Date(event.endDate)) errors.time = messages.timeAfterEnd
   }
 
   if (
