@@ -63,7 +63,9 @@ export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
 
   const showServerError = (error: unknown) => {
     if (error instanceof ApiError && error.status === 401) {
-      navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`, { replace: true })
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`, {
+        replace: true,
+      })
       return
     }
     const body = apiErrorBody(error)
