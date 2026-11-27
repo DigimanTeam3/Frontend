@@ -13,7 +13,7 @@ export function SearchResultCard({ event }: { event: EventListItem }) {
   const meta = [
     ticketDate(event.startDate, event.endDate),
     preferJa(event.venueNameJa, event.venueName),
-    event.distance !== null ? ja.search.distance(event.distance) : null,
+    event.distance != null ? ja.search.distance(event.distance) : null,
   ].filter(Boolean)
 
   return (

@@ -41,8 +41,8 @@ export interface EventDetail extends EventSummary {
 
 /** One item of GET /api/events: the summary plus the distance from the position sent (issue #13). */
 export interface EventListItem extends EventSummary {
-  /** Meters from `lat`/`lng` of the request; null when no position was sent. */
-  distance: number | null
+  /** Meters from `lat`/`lng` of the request; null or left out when no position was sent. */
+  distance?: number | null
 }
 
 /** GET /api/events */
