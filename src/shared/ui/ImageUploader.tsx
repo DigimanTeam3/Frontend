@@ -62,7 +62,9 @@ export function ImageUploader({
 
     const pick = ++pickRef.current
     setErrorKey(null)
-    if (!file.type.startsWith('image/')) {
+    // Some Android pickers hand over real photos with an empty type, so only a type that is set
+    // and is not an image is refused here.
+    if (file.type !== '' && !file.type.startsWith('image/')) {
       setErrorKey('UNSUPPORTED_IMAGE_TYPE')
       return
     }
