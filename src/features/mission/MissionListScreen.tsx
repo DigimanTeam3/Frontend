@@ -5,8 +5,8 @@ import { MissionList } from '@/features/mission/components/MissionList'
 import { useJourneyEventQuery } from '@/shared/api/journey'
 import { ja } from '@/shared/i18n/ja'
 import { isEventNotFound } from '@/shared/lib/apiError'
-import { parseIdParam, paths } from '@/shared/lib/paths'
-import { SearchIcon } from '@/shared/ui/icons/SearchIcon'
+import { parseIdParam } from '@/shared/lib/paths'
+import { EventNotFoundState } from '@/shared/ui/EventNotFoundState'
 import { State } from '@/shared/ui/State'
 import { Toast } from '@/shared/ui/Toast'
 
@@ -58,14 +58,7 @@ export function MissionListScreen() {
     content = (
       <>
         {heading}
-        <State
-          kind="error"
-          className="my-auto"
-          icon={<SearchIcon />}
-          title={ja.eventNotFound.title}
-          body={ja.eventNotFound.body}
-          action={{ label: ja.eventNotFound.home, onClick: () => navigate(paths.home()) }}
-        />
+        <EventNotFoundState />
       </>
     )
   } else if (eventQuery.isError || missionsQuery.isError) {

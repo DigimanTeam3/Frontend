@@ -34,6 +34,8 @@ export function useVerifyParticipationMutation(eventId: number) {
     onSuccess: (result) => {
       // The next screens (badge, missions) read the verified participation from the cache.
       queryClient.setQueryData(queryKeys.participations.byEvent(eventId), result.participation)
+      // The mission list (isVerified, unlocked rows) depends on the check-in; do not serve a stale one.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.missions.byEvent(eventId) })
     },
   })
 }

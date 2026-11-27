@@ -26,7 +26,7 @@ export function MissionProgressCard({
   const allDone = requiredCount > 0 && completedCount >= requiredCount
 
   return (
-    <div className="flex flex-col gap-3 rounded-[14px] border border-line bg-surface p-[18px]">
+    <div className="flex flex-col gap-3 rounded-[14px] bg-surface p-[18px]">
       <div className="flex items-center gap-2">
         <p
           lang={event.titleJa === null ? 'ko' : undefined}
