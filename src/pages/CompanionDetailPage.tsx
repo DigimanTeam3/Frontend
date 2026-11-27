@@ -1,3 +1,5 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { Navigate, useLocation, useParams } from 'react-router'
 import { useCompanionActionMutation, useCompanionQuery } from '@/features/companion/api'
 import { EventStrip } from '@/features/companion/components/EventStrip'
@@ -8,6 +10,7 @@ import { RequestList } from '@/features/companion/components/RequestList'
 import { StatusTag } from '@/features/companion/components/StatusTag'
 import { ApiError } from '@/shared/api/client'
 import { apiErrorCode } from '@/shared/api/errors'
+import { queryKeys } from '@/shared/api/queryKeys'
 import { ja } from '@/shared/i18n/ja'
 
 const text = ja.companionDetail
@@ -16,6 +19,7 @@ const text = ja.companionDetail
 export function CompanionDetailPage() {
   const postId = Number(useParams().postId)
   const location = useLocation()
+  const queryClient = useQueryClient()
   const action = useCompanionActionMutation(postId)
   // No polling while an action is on its way, so an older answer cannot replace the new one.
   const {
@@ -31,6 +35,10 @@ export function CompanionDetailPage() {
   const unauthorized = [error, action.error].some(
     (value) => value instanceof ApiError && value.status === 401,
   )
+  // Drop the cached post so it is not shown again after signing in as someone else.
+  useEffect(() => {
+    if (unauthorized) queryClient.removeQueries({ queryKey: queryKeys.companions.detail(postId) })
+  }, [unauthorized, postId, queryClient])
   if (unauthorized) {
     const redirect = encodeURIComponent(location.pathname + location.search)
     return <Navigate to={`/login?redirect=${redirect}`} replace />
