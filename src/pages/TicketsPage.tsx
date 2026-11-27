@@ -1,6 +1,6 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { TicketsScreen } from '@/features/ticket/TicketsScreen'
 
-// S17. Replace the placeholder with the real screen.
+// S17. The screen lives in its feature folder.
 export function TicketsPage() {
-  return <ScreenPlaceholder screenId="S17" />
+  return <TicketsScreen />
 }
