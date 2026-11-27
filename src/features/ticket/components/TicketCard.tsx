@@ -33,9 +33,10 @@ export function TicketCard({ ticket, onDelete }: TicketCardProps) {
 
       {ticket.labels.length > 0 && (
         <ul className="flex flex-wrap gap-1.5">
-          {ticket.labels.map((label) => (
+          {ticket.labels.map((label, index) => (
             <li
-              key={label}
+              // With the index: two labels may have the same text.
+              key={`${index}-${label}`}
               className="text-festival border-festival rounded-md border-[1.5px] px-2.5 py-1 text-[13px] leading-normal font-bold break-words"
             >
               {label}
