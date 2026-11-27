@@ -28,7 +28,8 @@ export function CompanionDetailPage() {
     return <Navigate to={`/login?redirect=${redirect}`} replace />
   }
 
-  const notFound = !Number.isInteger(postId) || apiErrorCode(error) === 'COMPANION_NOT_FOUND'
+  const validPostId = Number.isInteger(postId) && postId > 0
+  const notFound = !validPostId || apiErrorCode(error) === 'COMPANION_NOT_FOUND'
   const actionErrorCode = apiErrorCode(action.error)
   const actionError = action.isError
     ? ((actionErrorCode && text.errors[actionErrorCode]) ?? ja.common.error)
