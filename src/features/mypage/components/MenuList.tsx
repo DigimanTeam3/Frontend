@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
+import { CompanionRecordList } from '@/features/mypage/components/CompanionRecordList'
 import { ParticipationList } from '@/features/mypage/components/ParticipationList'
 import { ja } from '@/shared/i18n/ja'
 import { paths } from '@/shared/lib/paths'
@@ -53,6 +54,8 @@ export function MenuList({ summary }: MenuListProps) {
   const queryClient = useQueryClient()
   const [participationsOpen, setParticipationsOpen] = useState(false)
   const panelId = useId()
+  const [companionsOpen, setCompanionsOpen] = useState(false)
+  const companionsPanelId = useId()
 
   const loggingOut = useRef(false)
 
@@ -101,10 +104,28 @@ export function MenuList({ summary }: MenuListProps) {
         </button>
         <div id={panelId}>{participationsOpen && <ParticipationList />}</div>
       </li>
-      {/* TODO(api): not clickable yet. The companion screens have no route for "my posts" and
-          there is no agreed API to list them. */}
-      <li className={ROW_CLASS}>
-        <RowBody icon={<PenIcon />} label={copy.recruitments} value={summary.recruitmentCount} />
+      <li>
+        <button
+          type="button"
+          aria-expanded={companionsOpen}
+          aria-controls={companionsPanelId}
+          onClick={() => setCompanionsOpen(!companionsOpen)}
+          className={ROW_CLASS}
+        >
+          <RowBody
+            icon={<PenIcon />}
+            label={copy.recruitments}
+            value={summary.recruitmentCount}
+            chevron={
+              <ChevronRightIcon
+                className={`${CHEVRON} motion-safe:transition-transform ${
+                  companionsOpen ? 'rotate-90' : ''
+                }`}
+              />
+            }
+          />
+        </button>
+        <div id={companionsPanelId}>{companionsOpen && <CompanionRecordList />}</div>
       </li>
       <li>
         <Link to={paths.tickets()} className={ROW_CLASS}>

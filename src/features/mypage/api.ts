@@ -3,11 +3,12 @@ import { apiClient } from '@/shared/api/client'
 import { getMyBadges } from '@/shared/api/badges'
 import { retryUnlessClientError } from '@/shared/api/journey'
 import { queryKeys } from '@/shared/api/queryKeys'
-import type { MyParticipation, MySummary, User } from '@/shared/types/me'
+import type { MyCompanion, MyParticipation, MySummary, User } from '@/shared/types/me'
 import type { Page } from '@/shared/types/page'
 
-// Page size that holds every participation for now.
+// Page size that holds every participation (and every companion post) for now.
 const PARTICIPATION_PAGE_SIZE = 100
+const COMPANION_PAGE_SIZE = 100
 
 export function useMeQuery() {
   return useQuery({
@@ -41,6 +42,17 @@ export function useMyParticipationsQuery() {
     queryFn: () => {
       const query = new URLSearchParams({ page: '1', size: String(PARTICIPATION_PAGE_SIZE) })
       return apiClient<Page<MyParticipation>>(`/me/participations?${query}`)
+    },
+    retry: retryUnlessClientError,
+  })
+}
+
+export function useMyCompanionsQuery() {
+  return useQuery({
+    queryKey: queryKeys.me.companions(),
+    queryFn: () => {
+      const query = new URLSearchParams({ page: '1', size: String(COMPANION_PAGE_SIZE) })
+      return apiClient<Page<MyCompanion>>(`/me/companions?${query}`)
     },
     retry: retryUnlessClientError,
   })
