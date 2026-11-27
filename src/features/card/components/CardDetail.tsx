@@ -49,9 +49,10 @@ export function CardDetail({ card }: CardDetailProps) {
     <div className="flex flex-1 flex-col">
       <h1 className="sr-only">{copy.title}</h1>
 
-      {/* Stretched over the 24px page padding and clipped there: a sticker arranged at the very
-          edge of the card would reach past the screen and make the page scroll sideways. */}
-      <div className="-mx-6 overflow-x-clip px-6 pt-6">
+      {/* Stretched over the page padding and clipped there: a sticker arranged at the very edge
+          of the card would reach past the screen and make the page scroll sideways. The padding
+          is the layout's gutter token, or the 16px of the layout that has no token yet. */}
+      <div className="-mx-[var(--spacing-gutter,16px)] overflow-x-clip px-[var(--spacing-gutter,16px)] pt-6">
         <div className="mx-auto w-full max-w-[310px]">
           <PolaroidCard {...polaroidCardText(card)}>
             <CardStickers stickers={stickers} />
