@@ -8,7 +8,8 @@ export const INTRO_MAX_LENGTH = 60
 
 // Contact details are not allowed in posts: meet at the venue and talk in person.
 const URL_PATTERN = /(https?:\/\/|www\.)\S+|\b[\w-]+\.(com|net|jp|kr|me|io|ly)\b/i
-const PHONE_PATTERN = /\d{2,4}[-\s]?\d{3,4}[-\s]?\d{4}/
+// Separators: ASCII hyphen, spaces, dots, Unicode dashes, minus, ー and full-width hyphen.
+const PHONE_PATTERN = /\d{2,4}[-\s.‐‑–—−ー－]?\d{3,4}[-\s.‐‑–—−ー－]?\d{4}/
 
 /** NFKC first so full-width digits and letters (０９０, ｗｗｗ) are caught too. */
 function hasContactInfo(intro: string) {

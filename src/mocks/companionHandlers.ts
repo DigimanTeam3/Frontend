@@ -44,7 +44,10 @@ function validateBody(body: Partial<CreateCompanionBody>, endDate: string) {
   }
   // NFKC turns full-width digits and letters into half-width ones before matching.
   const normalized = intro.normalize('NFKC')
-  if (/https?:\/\/|www\./i.test(normalized) || /\d{2,4}[-\s]?\d{3,4}[-\s]?\d{4}/.test(normalized)) {
+  if (
+    /https?:\/\/|www\./i.test(normalized) ||
+    /\d{2,4}[-\s.‐‑–—−ー－]?\d{3,4}[-\s.‐‑–—−ー－]?\d{4}/.test(normalized)
+  ) {
     return errorResponse(400, 'CONTACT_INFO_NOT_ALLOWED', 'contact info is not allowed', 'intro')
   }
   return null
