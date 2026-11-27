@@ -142,11 +142,14 @@ export function MapScreen() {
 
   const showNotice = (text: string) => setNotice({ text, key: Date.now() })
 
+  // A failed refetch keeps showing the events already loaded; the error is only for no data.
+  const listFailed = isError && !data
+
   if (!webglOk) {
     return (
       <MapFallbackList
         events={data ?? []}
-        status={isPending ? 'loading' : isError ? 'error' : 'ready'}
+        status={isPending ? 'loading' : listFailed ? 'error' : 'ready'}
         onRetry={() => void refetch()}
       />
     )
@@ -183,7 +186,7 @@ export function MapScreen() {
 
   const status = isPending
     ? 'loading'
-    : isError
+    : listFailed
       ? 'error'
       : mapped.length === 0
         ? 'empty'
