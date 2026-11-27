@@ -429,6 +429,8 @@ export const ja = {
   // The page a LINE alert opens when a new event matches a saved condition (S18:
   // src/features/notification).
   notification: {
+    // Screen name for screen readers while the page is loading or failed.
+    screenName: 'お知らせ',
     title: '条件に合うイベントが見つかりました',
     conditionLead: '予約していた条件',
     // The saved condition, quoted.
@@ -438,6 +440,7 @@ export const ja = {
     viewTickets: '予約券を見る',
     notFound: {
       title: 'お知らせが見つかりません',
+      body: 'リンクが正しいか、もう一度ご確認ください',
       home: 'ホームへ',
     },
     // Keys are API error codes of GET /notifications/{id}, plus UNKNOWN (network, server and

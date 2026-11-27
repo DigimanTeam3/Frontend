@@ -56,7 +56,7 @@ export function NotificationEventScreen() {
   }
 
   // No heading is visible while loading or failing, so the name stays for screen readers.
-  const heading = <h1 className="sr-only">{copy.title}</h1>
+  const heading = <h1 className="sr-only">{copy.screenName}</h1>
 
   if (notificationId === null || isNotificationNotFound(query.error)) {
     return (
@@ -67,6 +67,7 @@ export function NotificationEventScreen() {
           className="my-auto"
           icon={<SearchIcon />}
           title={copy.notFound.title}
+          body={copy.notFound.body}
           action={{ label: copy.notFound.home, onClick: () => void navigate(paths.home()) }}
         />
       </section>
