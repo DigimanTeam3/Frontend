@@ -42,4 +42,10 @@ export const queryKeys = {
     all: ['tickets'] as const,
     list: () => [...queryKeys.tickets.all, 'list'] as const,
   },
+  // The page a LINE alert opens (S18).
+  notifications: {
+    all: ['notifications'] as const,
+    detail: (notificationId: number) =>
+      [...queryKeys.notifications.all, 'detail', notificationId] as const,
+  },
 }

@@ -426,4 +426,31 @@ export const ja = {
       },
     },
   },
+  // The page a LINE alert opens when a new event matches a saved condition (S18:
+  // src/features/notification).
+  notification: {
+    title: '条件に合うイベントが見つかりました',
+    conditionLead: '予約していた条件',
+    // The saved condition, quoted.
+    condition: (condition: string) => `「${condition}」`,
+    eventCardLabel: '見つかったイベント',
+    viewEvent: 'イベントを見る',
+    viewTickets: '予約券を見る',
+    notFound: {
+      title: 'お知らせが見つかりません',
+      home: 'ホームへ',
+    },
+    // Keys are API error codes of GET /notifications/{id}, plus UNKNOWN (network, server and
+    // every other error). NOTIFICATION_NOT_FOUND has its own block above.
+    errors: {
+      UNAUTHORIZED: {
+        title: 'ログインが必要です',
+        body: 'ログインし直してから、もう一度お試しください',
+      },
+      UNKNOWN: {
+        title: '読み込めませんでした',
+        body: '通信状態を確認して、もう一度お試しください',
+      },
+    },
+  },
 } as const
