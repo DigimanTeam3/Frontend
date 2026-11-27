@@ -50,12 +50,13 @@ export function BadgeSection() {
       {isError && <SectionError onRetry={() => void refetch()} />}
       {badges && (
         <div className="flex flex-col gap-3">
-          {/* Stretched over the page padding, so the row scrolls up to the screen edge. It is a
+          {/* Stretched over the page padding (the layout's gutter token, or the 16px of the
+              layout that has no token yet), so the row scrolls up to the screen edge. It is a
               scroll area: focusable so the keyboard can scroll it. */}
           <ul
             aria-label={copy.listLabel}
             tabIndex={0}
-            className="-mx-6 flex gap-3 overflow-x-auto px-6"
+            className="-mx-[var(--spacing-gutter,16px)] flex gap-3 overflow-x-auto px-[var(--spacing-gutter,16px)]"
           >
             {badges.map((badge) => (
               <li key={badge.id} className="shrink-0">

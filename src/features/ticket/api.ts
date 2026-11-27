@@ -54,7 +54,8 @@ export function useDeleteTicketMutation() {
       // Only the last delete still running reloads the list (this one counts as running here):
       // a reload in between would bring back a ticket whose delete has not reached the server.
       if (queryClient.isMutating({ mutationKey: DELETE_TICKET_MUTATION_KEY }) !== 1) return
-      return queryClient.invalidateQueries({ queryKey: listKey })
+      // Not returned: the delete is over now, its result must not wait for the reload.
+      void queryClient.invalidateQueries({ queryKey: listKey })
     },
   })
 }
