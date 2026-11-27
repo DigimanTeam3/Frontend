@@ -1,3 +1,6 @@
+import type { Badge } from '@/shared/types/badge'
+import type { ExperienceCard } from '@/shared/types/card'
+
 /** How a mission is answered: one photo (with an optional comment) or a text. */
 export type MissionVerificationMethod = 'photo' | 'text'
 
@@ -38,4 +41,19 @@ export interface MissionListResponse {
   myCompletedRequiredCount: number
   /** My location check-in of this event has passed. Missions only open after it. */
   isVerified: boolean
+}
+
+/** Body of POST /missions/{missionId}/submissions: photo mission `{ image, text? }`, text mission `{ text }`. */
+export interface SubmissionRequest {
+  /** URL from the image upload (POST /uploads/images). */
+  image?: string
+  text?: string
+}
+
+/** Answer of POST /missions/{missionId}/submissions. */
+export interface SubmissionResult {
+  submission: Submission
+  /** Both are set only when this submission finished the last required mission of the event. */
+  completeBadge: Badge | null
+  experienceCard: ExperienceCard | null
 }
