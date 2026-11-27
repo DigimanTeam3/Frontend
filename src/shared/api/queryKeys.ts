@@ -12,6 +12,11 @@ export const queryKeys = {
     // My participation in one event (null in the cache = I have none yet).
     byEvent: (eventId: number) => [...queryKeys.participations.all, 'event', eventId] as const,
   },
+  missions: {
+    all: ['missions'] as const,
+    // The missions of one event with my progress.
+    byEvent: (eventId: number) => [...queryKeys.missions.all, 'event', eventId] as const,
+  },
   badges: {
     all: ['badges'] as const,
     // My badges of one type.
