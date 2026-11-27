@@ -5,6 +5,7 @@ import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { events } from '@/mocks/data/events'
 import { missionHandlers } from '@/mocks/missionHandlers'
 import { mypageHandlers } from '@/mocks/mypageHandlers'
+import { ticketHandlers } from '@/mocks/ticketHandlers'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
 
 // Paths follow the endpoint list in the service plan (8.10), under the /api prefix.
@@ -20,5 +21,6 @@ export const handlers = [
   ...cardHandlers,
   ...missionHandlers,
   ...mypageHandlers,
+  ...ticketHandlers,
   ...uploadHandlers,
 ]

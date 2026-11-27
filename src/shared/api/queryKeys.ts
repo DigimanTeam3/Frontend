@@ -37,4 +37,9 @@ export const queryKeys = {
     badges: () => [...queryKeys.me.all, 'badges'] as const,
     participations: () => [...queryKeys.me.all, 'participations'] as const,
   },
+  // Saved conditions (予約券, S17).
+  tickets: {
+    all: ['tickets'] as const,
+    list: () => [...queryKeys.tickets.all, 'list'] as const,
+  },
 }
