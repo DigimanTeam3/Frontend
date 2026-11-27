@@ -30,7 +30,7 @@ export function TopBar({ title, leading = 'back', fallback = '/', trailing }: To
           <img src={icon} alt="" />
         </button>
         {title && (
-          <p className="min-w-0 flex-1 truncate font-mono text-xs font-bold tracking-[0.12em] text-ink-muted">
+          <p className="min-w-0 flex-1 truncate font-mono text-xs font-semibold tracking-[0.12em] text-ink-muted">
             {title}
           </p>
         )}
