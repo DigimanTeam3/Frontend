@@ -12,15 +12,15 @@
 - 배포 명령 (최신 main만 받은 깨끗한 폴더에서 실행):
 
 ```bash
-npx vercel@latest deploy --prod --yes --build-env VITE_USE_MOCK=true --build-env VITE_API_BASE_URL=/api
+npx vercel@67 deploy --prod --yes --build-env VITE_USE_MOCK=true --build-env VITE_API_BASE_URL=/api
 ```
 
 - mock 없이 실제 API로 배포할 때는 `/api` rewrite(2장)를 추가한 뒤 `--build-env VITE_USE_MOCK=false`로 바꿉니다.
 
 ### 처음 한 번 설정
 
-1. `npx vercel@latest login`으로 Vercel 계정에 로그인
-2. `npx vercel@latest link --yes --project digiman-frontend`로 프로젝트 연결 (`.vercel/`은 커밋하지 않음)
+1. `npx vercel@67 login`으로 Vercel 계정에 로그인
+2. `npx vercel@67 link --yes --project digiman-frontend`로 프로젝트 연결 (`.vercel/`은 커밋하지 않음)
 
 ## 2. vercel.json
 
