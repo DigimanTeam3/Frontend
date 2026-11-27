@@ -43,7 +43,7 @@ export function CompanionDetailPage() {
         <p className="py-12 text-center text-ink-muted">{text.notFound}</p>
       ) : isPending ? (
         <p className="text-ink-muted">{ja.common.loading}</p>
-      ) : isError ? (
+      ) : isError && !post ? (
         <div className="py-8 text-center">
           <p className="text-danger">{ja.common.error}</p>
           <button
