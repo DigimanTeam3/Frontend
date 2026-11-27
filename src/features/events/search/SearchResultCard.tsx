@@ -34,7 +34,9 @@ export function SearchResultCard({ event }: { event: EventListItem }) {
           {hasJa ? event.titleJa : event.title}
         </h2>
         {!hasJa && <p className="text-[10px]/[1.4] text-ink-muted">{ja.ticket.noTranslation}</p>}
-        <p className="mt-auto truncate text-xs/[1.5] text-ink-muted">{meta.join(' · ')}</p>
+        <p className="mt-auto truncate text-xs/[1.5] text-ink-muted">
+          {meta.join(ja.search.metaSeparator)}
+        </p>
       </article>
 
       <span aria-hidden="true" className="relative w-4 shrink-0 self-stretch">

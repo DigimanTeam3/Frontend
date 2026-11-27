@@ -152,6 +152,8 @@ export const ja = {
     loadMoreError: '続きを読み込めませんでした。',
     distance: (meters: number) =>
       meters < 1000 ? `${meters}m` : `${(meters / 1000).toFixed(1)}km`,
+    selectedMark: '✓',
+    metaSeparator: ' · ',
   },
   eventCategory: {
     festival: '祭り',

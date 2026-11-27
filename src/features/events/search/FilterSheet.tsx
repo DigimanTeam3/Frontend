@@ -39,7 +39,7 @@ function Chip({
     >
       {selected && (
         <span aria-hidden="true" className="text-[11px]">
-          ✓
+          {ja.search.selectedMark}
         </span>
       )}
       {children}
