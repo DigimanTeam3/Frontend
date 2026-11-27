@@ -1,4 +1,3 @@
-import { events } from '@/mocks/data/events'
 import type {
   CompanionPostSummary,
   CompanionRequestStatus,
@@ -21,11 +20,29 @@ const users: Record<number, UserSummary> = {
   15: { id: 15, nickname: 'そら' },
 }
 
-// Japanese names for the sample events in events.ts.
-const eventNamesJa: Record<number, { titleJa: string; venueNameJa: string }> = {
-  1: { titleJa: '清渓川ナイトウォーク', venueNameJa: '清渓川広場' },
-  2: { titleJa: '新村ストリートライブ', venueNameJa: '延世路' },
-}
+// Events the companion responses point at. Ids match the event mock so links between screens line up.
+const companionEvents: EventSummary[] = [
+  {
+    id: 1,
+    title: '샘플 행사: 청계천 야경 산책',
+    titleJa: '清渓川ナイトウォーク',
+    venueName: '청계천',
+    venueNameJa: '清渓川広場',
+    imageUrl: null,
+    startDate: '2026-11-27T18:00:00+09:00',
+    endDate: '2026-12-14T22:00:00+09:00',
+  },
+  {
+    id: 2,
+    title: '샘플 행사: 신촌 거리 공연',
+    titleJa: '新村ストリートライブ',
+    venueName: '연세로',
+    venueNameJa: '延世路',
+    imageUrl: null,
+    startDate: '2026-11-29T14:00:00+09:00',
+    endDate: '2026-11-29T17:00:00+09:00',
+  },
+]
 
 export interface MockMember {
   userId: number
@@ -112,18 +129,8 @@ export function findUser(userId: number): UserSummary {
 }
 
 export function toEventSummary(eventId: number): EventSummary | null {
-  const event = events.find((e) => e.id === eventId)
-  if (!event) return null
-  return {
-    id: event.id,
-    title: event.title,
-    titleJa: eventNamesJa[event.id]?.titleJa ?? null,
-    venueName: event.venue_name,
-    venueNameJa: eventNamesJa[event.id]?.venueNameJa ?? null,
-    imageUrl: event.image_url,
-    startDate: event.start_date,
-    endDate: event.end_date,
-  }
+  const event = companionEvents.find((e) => e.id === eventId)
+  return event ? { ...event } : null
 }
 
 export function statusOf(post: MockPost): CompanionStatus {
