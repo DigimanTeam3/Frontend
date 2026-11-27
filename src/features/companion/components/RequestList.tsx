@@ -14,10 +14,12 @@ export interface RequestListProps {
 /** Author view: people who asked to join, with accept / decline. */
 export function RequestList({ post, busy, onAccept, onReject }: RequestListProps) {
   const isOpen = post.status === 'OPEN'
+  // Declined people stay in the list but are not counted.
+  const activeCount = post.requests.filter((request) => request.status !== 'REJECTED').length
   return (
     <section>
       <h2 className="font-bold">
-        {text.requestsTitle} {post.requests.length > 0 && post.requests.length}
+        {text.requestsTitle} {activeCount > 0 && activeCount}
       </h2>
       <p className="mt-1 text-xs text-ink-muted">{text.ownerNote}</p>
       {post.requests.length === 0 ? (
