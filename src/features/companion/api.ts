@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { apiErrorCode } from '@/features/companion/errors'
 import { apiClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useAuthStore } from '@/shared/stores/authStore'
@@ -36,6 +37,14 @@ export function useCreateCompanionMutation(eventId: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: CreateCompanionBody) => createCompanion(eventId, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() })
+    },
+    // Someone (another tab) already posted: refetch so the screen shows the existing post.
+    onError: (error) => {
+      if (apiErrorCode(error) === 'ALREADY_POSTED') {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() })
+      }
+    },
   })
 }
