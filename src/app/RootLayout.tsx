@@ -19,11 +19,12 @@ export function RootLayout() {
   // Only the catch-all (404) route has a "*" param.
   const isNotFound = useParams()['*'] !== undefined
   const chrome = getLayoutChrome(pathname, isNotFound)
+  const padding = chrome.kind === 'tabs' && chrome.fullBleed ? '' : MAIN_PADDING[chrome.kind]
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col bg-app text-ink">
       {chrome.kind === 'back' && <TopBar leading={chrome.leading} fallback={chrome.fallback} />}
-      <main className={`flex flex-1 flex-col ${MAIN_PADDING[chrome.kind]}`}>
+      <main className={`flex flex-1 flex-col ${padding}`}>
         <Outlet />
       </main>
       {chrome.kind === 'tabs' && <TabBar />}
