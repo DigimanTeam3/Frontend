@@ -184,7 +184,7 @@ export const ja = {
     searchPlaceholder: '行事名・場所で探す',
     filterLabel: '種類で絞り込む',
     all: 'すべて',
-    flyingTo: 'TO',
+    flyingTo: 'TO ▸',
     toggle3d: '3D表示',
     overview: 'すべてのイベントを見る',
     locate: '現在地',

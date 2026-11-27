@@ -241,7 +241,7 @@ export function MapScreen() {
           >
             {flyingTo && (
               <>
-                <span aria-hidden>{ja.map.flyingTo} ▸ </span>
+                <span aria-hidden>{ja.map.flyingTo} </span>
                 <span className="font-sans font-bold tracking-normal">{flyingTo}</span>
               </>
             )}
