@@ -11,6 +11,7 @@ export interface Submission {
   userId: number
   submissionType: MissionVerificationMethod
   text: string | null
+  // TODO(api): the spec (v2) names the request field `imageUrl` but does not show the answer.
   image: string | null
   verificationStatus: 'pending' | 'approved' | 'rejected'
   submittedAt: string
@@ -34,7 +35,7 @@ export interface Mission {
   mySubmission: Submission | null
 }
 
-/** GET /events/{eventId}/missions */
+/** GET /events/{eventId}/missions, as the screens read it (see toMissionList in shared/api/missions). */
 export interface MissionListResponse {
   items: Mission[]
   requiredCount: number
@@ -43,16 +44,28 @@ export interface MissionListResponse {
   isVerified: boolean
 }
 
-/** Body of POST /missions/{missionId}/submissions: photo mission `{ image, text? }`, text mission `{ text }`. */
+/**
+ * Body of POST /missions/{missionId}/submissions: a photo mission sends `imageUrl` (and maybe a
+ * comment in `text`), a text mission sends `text` (1 to 200 characters).
+ */
 export interface SubmissionRequest {
+  submissionType: MissionVerificationMethod
   /** URL from the image upload (POST /uploads/images). */
-  image?: string
+  imageUrl?: string
   text?: string
+}
+
+/** My progress in the required missions of the event, after a submission. */
+export interface MissionProgress {
+  completedRequired: number
+  totalRequired: number
+  isAllCompleted: boolean
 }
 
 /** Answer of POST /missions/{missionId}/submissions. */
 export interface SubmissionResult {
   submission: Submission
+  progress: MissionProgress
   /** Both are set only when this submission finished the last required mission of the event. */
   completeBadge: Badge | null
   experienceCard: ExperienceCard | null

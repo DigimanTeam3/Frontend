@@ -5,6 +5,7 @@ import { useMyBadgesQuery } from '@/shared/api/badges'
 import { useJourneyEventQuery, useParticipationQuery } from '@/shared/api/journey'
 import { ja } from '@/shared/i18n/ja'
 import { isEventNotFound } from '@/shared/lib/apiError'
+import { isCheckedIn } from '@/shared/lib/participationStatus'
 import { parseIdParam, paths } from '@/shared/lib/paths'
 import { PinIcon } from '@/shared/ui/icons/PinIcon'
 import { SearchIcon } from '@/shared/ui/icons/SearchIcon'
@@ -20,7 +21,7 @@ export function ParticipationBadgeScreen() {
 
   const event = eventQuery.data
   const participation = participationQuery.data
-  const verified = participation?.status === 'verified'
+  const verified = isCheckedIn(participation?.status)
   // The badge only gives the exact time; without it the participation has the same moment.
   const badgesQuery = useMyBadgesQuery('participation', verified)
   const badge = badgesQuery.data?.items.find((item) => item.eventId === eventId)

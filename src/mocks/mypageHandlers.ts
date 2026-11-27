@@ -64,7 +64,9 @@ export const mypageHandlers = [
 
     const all = listParticipations(
       userId,
-      status === 'joined' || status === 'verified' ? (status as ParticipationStatus) : undefined,
+      status === 'joined' || status === 'verified' || status === 'completed'
+        ? (status as ParticipationStatus)
+        : undefined,
     )
     const body: Page<MyParticipation> = {
       items: all.slice((page - 1) * size, page * size),

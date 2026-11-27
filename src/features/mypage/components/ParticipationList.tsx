@@ -4,6 +4,7 @@ import { SectionError } from '@/features/mypage/components/SectionError'
 import { SectionLoading } from '@/features/mypage/components/SectionLoading'
 import { ja } from '@/shared/i18n/ja'
 import { formatDateRange } from '@/shared/lib/formatDate'
+import { isCheckedIn } from '@/shared/lib/participationStatus'
 import { paths } from '@/shared/lib/paths'
 
 // The events I took part in, under the menu row that opens it. Loads when it is first opened.
@@ -47,12 +48,12 @@ export function ParticipationList() {
                 </span>
                 <span
                   className={`shrink-0 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${
-                    participation.status === 'verified'
+                    isCheckedIn(participation.status)
                       ? 'bg-gate text-white'
                       : 'bg-ink/5 text-ink-muted'
                   }`}
                 >
-                  {participation.status === 'verified' ? copy.verified : copy.unverified}
+                  {isCheckedIn(participation.status) ? copy.verified : copy.unverified}
                 </span>
               </Link>
             </li>

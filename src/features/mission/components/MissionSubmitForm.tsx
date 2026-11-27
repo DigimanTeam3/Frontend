@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router'
 import { useSubmitMissionMutation } from '@/features/mission/api'
 import { MissionHeader } from '@/features/mission/components/MissionHeader'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorCode } from '@/shared/lib/apiError'
+import { apiErrorCode, apiErrorInfo } from '@/shared/lib/apiError'
 import { paths } from '@/shared/lib/paths'
 import type { Mission, SubmissionRequest } from '@/shared/types/mission'
 import type { UploadedImage } from '@/shared/types/upload'
@@ -28,10 +28,13 @@ const LABEL = 'text-xs leading-normal font-bold text-ink-muted'
 type ErrorKey = keyof typeof ja.missionSubmit.errors
 
 function errorKeyOf(error: unknown): ErrorKey {
-  const code = apiErrorCode(error)
-  return code !== null && Object.hasOwn(ja.missionSubmit.errors, code)
-    ? (code as ErrorKey)
-    : 'UNKNOWN'
+  const info = apiErrorInfo(error)
+  if (!info || !Object.hasOwn(ja.missionSubmit.errors, info.code)) return 'UNKNOWN'
+  // The validation copy is about the comment: a complaint about another field gets the generic one.
+  if (info.code === 'VALIDATION_ERROR' && info.field !== undefined && info.field !== 'text') {
+    return 'UNKNOWN'
+  }
+  return info.code as ErrorKey
 }
 
 /** The request body, or null while the form is not complete. */
@@ -41,9 +44,12 @@ function submissionBody(
   text: string,
 ): SubmissionRequest | null {
   const trimmed = text.trim()
-  if (mission.verificationMethod === 'text') return trimmed === '' ? null : { text: trimmed }
+  if (mission.verificationMethod === 'text') {
+    return trimmed === '' ? null : { submissionType: 'text', text: trimmed }
+  }
   if (!image) return null
-  return trimmed === '' ? { image: image.url } : { image: image.url, text: trimmed }
+  const photo: SubmissionRequest = { submissionType: 'photo', imageUrl: image.url }
+  return trimmed === '' ? photo : { ...photo, text: trimmed }
 }
 
 // The form of a mission that is still open (Figma: S12 ミッション提出): one photo for a photo
@@ -93,7 +99,8 @@ export function MissionSubmitForm({
       // The message itself comes from submit.error; here only what the form has to do.
       const code = apiErrorCode(error)
       if (code === 'MISSION_NOT_FOUND') onMissionNotFound()
-      if (code === 'INVALID_IMAGE_URL') {
+      // The server did not take the photo: start over with an empty uploader.
+      if (code === 'IMAGE_REQUIRED') {
         setImage(null)
         setUploaderKey((key) => key + 1)
       }

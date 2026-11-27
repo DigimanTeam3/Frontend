@@ -118,6 +118,8 @@ function FailureActions({ event, failure, busy, onRetry }: CheckInFailedProps) {
       )
     case 'EVENT_ENDED':
     case 'EVENT_NOT_STARTED':
+    // Trying again cannot help: the event itself has no venue position.
+    case 'EVENT_LOCATION_UNAVAILABLE':
       return (
         <Link to={paths.home()} className={`${buttonClassName()} ${PRIMARY}`}>
           {actions.otherEvents}

@@ -1,20 +1,24 @@
 import { http, HttpResponse } from 'msw/http'
 import {
+  countMissions,
   findJourneyEvent,
   findParticipation,
   findParticipationById,
   INDOOR_DEMO_EVENT_ID,
   joinEvent,
   LOW_ACCURACY_EVENT_ID,
+  NO_LOCATION_EVENT_ID,
+  nowIso,
   VERIFY_ERROR_EVENT_ID,
   verifyParticipation,
 } from '@/mocks/data/journey'
 import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
 import { distanceMeters } from '@/shared/lib/distance'
+import { isCheckedIn } from '@/shared/lib/participationStatus'
 import type { JourneyEvent } from '@/shared/types/eventBrief'
 import type { VerifyRequest, VerifyResult } from '@/shared/types/participation'
 
-// Location check-in mock (S09). Shapes follow the backend API spec v0.3, in camelCase.
+// Location check-in mock (S09). Shapes follow the backend API spec v2 (Supabase, 2026-11-27).
 //
 // Test hooks, by the event id in the URL:
 //   25    indoor demo: the check-in passes from anywhere
@@ -23,12 +27,13 @@ import type { VerifyRequest, VerifyResult } from '@/shared/types/participation'
 //   9003  the event loads, but verify always answers 400 LOW_ACCURACY
 //   9004  the event loads, but verify always answers 500 INTERNAL_ERROR
 //   9005  the event is over: joining answers 400 EVENT_ENDED
+//   9006  the event loads, but verify always answers 400 EVENT_LOCATION_UNAVAILABLE
 //   any other unknown id → 404 EVENT_NOT_FOUND
 // The other failures come from the data: event 1 is far away unless you stand at the venue
 // (OUT_OF_RANGE), event 3 has not started (EVENT_NOT_STARTED), and checking in twice answers
 // ALREADY_VERIFIED (event 5 is seeded as checked in, so it shows this one from the start).
 
-const RADIUS_M = 300
+const DEFAULT_RADIUS_M = 300
 const MAX_ACCURACY_M = 200
 
 const NETWORK_ERROR_EVENT_ID = 9001
@@ -66,7 +71,9 @@ export const checkinHandlers = [
     if (hooked) return hooked
 
     const event = findJourneyEvent(eventId)
-    return event ? HttpResponse.json(event) : eventNotFound()
+    if (!event) return eventNotFound()
+    const body: JourneyEvent = { ...event, missionCount: countMissions(eventId) }
+    return HttpResponse.json(body)
   }),
 
   // Create-or-get: 201 for a new participation, 200 for the one I already have.
@@ -123,9 +130,11 @@ export const checkinHandlers = [
     } catch {
       body = {}
     }
-    const { lat, lng, accuracy } = body
-    if (typeof lat !== 'number' || typeof lng !== 'number') {
-      return errorResponse(422, 'VALIDATION_ERROR', 'lat and lng are required', { field: 'lat' })
+    const { latitude, longitude, accuracy } = body
+    if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+      return errorResponse(400, 'VALIDATION_ERROR', 'latitude and longitude are required', {
+        field: 'latitude',
+      })
     }
 
     if (event.id === LOW_ACCURACY_EVENT_ID) {
@@ -134,8 +143,11 @@ export const checkinHandlers = [
       })
     }
     if (event.id === VERIFY_ERROR_EVENT_ID) return serverError()
+    if (event.id === NO_LOCATION_EVENT_ID) {
+      return errorResponse(400, 'EVENT_LOCATION_UNAVAILABLE', 'the event has no venue position')
+    }
 
-    if (participation.status === 'verified') {
+    if (isCheckedIn(participation.status)) {
       return errorResponse(409, 'ALREADY_VERIFIED', 'already verified')
     }
     if (hasNotStarted(event)) {
@@ -154,14 +166,23 @@ export const checkinHandlers = [
         detail: { accuracy, maxAccuracy: MAX_ACCURACY_M },
       })
     }
-    const distanceM = distanceMeters({ lat, lng }, event)
-    if (!isDemo && distanceM > RADIUS_M) {
+    const distance = distanceMeters({ lat: latitude, lng: longitude }, event)
+    const radius = event.verificationRadius ?? DEFAULT_RADIUS_M
+    if (!isDemo && distance > radius) {
       return errorResponse(400, 'OUT_OF_RANGE', 'outside the venue radius', {
-        detail: { distanceM, radiusM: RADIUS_M },
+        detail: { distanceMeters: distance, radiusMeters: radius },
       })
     }
 
-    const result: VerifyResult = { ...verifyParticipation(participation, event), distanceM }
+    const { participation: verified, badge } = verifyParticipation(participation, event)
+    const result: VerifyResult = {
+      participationId: verified.id,
+      eventId: event.id,
+      status: verified.status,
+      distanceMeters: distance,
+      verifiedAt: verified.verifiedAt ?? nowIso(),
+      participationBadge: badge,
+    }
     return HttpResponse.json(result)
   }),
 ]

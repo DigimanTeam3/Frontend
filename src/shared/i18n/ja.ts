@@ -121,6 +121,7 @@ export const ja = {
       EVENT_ENDED: 'イベントは終了しました',
       EVENT_NOT_STARTED: 'イベントはまだ始まっていません',
       ALREADY_VERIFIED: 'もうチェック済みです',
+      EVENT_LOCATION_UNAVAILABLE: '到着チェックができません',
       NETWORK: '通信できませんでした',
     },
     failureBody: {
@@ -128,6 +129,7 @@ export const ja = {
       POSITION_UNAVAILABLE: '屋外に出て、もう一度お試しください',
       LOW_ACCURACY: 'Wi-Fiをオンにすると精度が上がります',
       ALREADY_VERIFIED: '参加バッジはマイページで見られます',
+      EVENT_LOCATION_UNAVAILABLE: 'このイベントは会場の位置がまだ登録されていません',
       NETWORK: '電波の良い場所でお試しください',
       outOfRange: (radiusM: number) => `会場の ${radiusM}m 以内で確認してください`,
       // Two paragraphs, used when the server tells the distance and the radius.
@@ -152,10 +154,12 @@ export const ja = {
   // Participation badge after the ticket is torn (S10: src/features/badge).
   participationBadge: {
     title: '改札完了',
-    // Two lines.
-    // TODO(S11): the Figma copy says "ミッションが開きました（4つ）". The count is items.length of
-    // GET /events/{eventId}/missions; add the query with S11, then make this line a function.
-    body: ['参加バッジを手に入れました。', 'ミッションが開きました'],
+    // Two lines. The second one carries the number of missions when the event tells it
+    // (`missionCount` of the event detail).
+    body: (missionCount: number | undefined) => [
+      '参加バッジを手に入れました。',
+      missionCount ? `ミッションが開きました（${missionCount}つ）` : 'ミッションが開きました',
+    ],
     // Date, time and the venue name (a separate element, so a Korean original can be marked
     // lang="ko"). The double spaces around the dot are part of the design.
     metaBeforeVenue: (date: string, time: string) => `${date}  ${time}  ·  `,
@@ -217,8 +221,8 @@ export const ja = {
       NOT_VERIFIED: '到着チェックが必要です',
       ALREADY_SUBMITTED: 'このミッションは提出済みです',
       IMAGE_REQUIRED: '写真を追加してください',
-      TEXT_REQUIRED: 'ひとことを入力してください',
-      INVALID_IMAGE_URL: '写真をもう一度選んでください',
+      // A text that is empty or longer than 200 characters.
+      VALIDATION_ERROR: 'ひとことは1〜200文字で入力してください',
       UNKNOWN: '通信できませんでした。電波の良い場所でもう一度お試しください。',
     },
     toCheckIn: '到着チェックへ',
@@ -420,7 +424,7 @@ export const ja = {
       title: '予約券はまだありません',
       body: 'AI窓口で条件を保存すると、ここに並びます',
     },
-    // Keys are API error codes of GET /me/tickets, plus UNKNOWN (network, server and every other
+    // Keys are API error codes of GET /saved-conditions, plus UNKNOWN (network, server and every other
     // error).
     errors: {
       UNAUTHORIZED: {

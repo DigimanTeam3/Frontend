@@ -1,9 +1,10 @@
-import { DEFAULT_RADIUS_M } from '@/features/checkin/failure'
 import { ja } from '@/shared/i18n/ja'
 import { Button } from '@/shared/ui/Button'
 import { PinIcon } from '@/shared/ui/icons/PinIcon'
 
 export interface CheckInIntroProps {
+  /** How far from the venue the check-in passes, in meters. */
+  radiusM: number
   /** The check is running: the button shows it and cannot be tapped again. */
   busy: boolean
   onStart: () => void
@@ -11,9 +12,9 @@ export interface CheckInIntroProps {
 
 // Stage "intro" (Figma: S09 はじめる前): says what the check does before the browser asks for
 // the location permission.
-export function CheckInIntro({ busy, onStart }: CheckInIntroProps) {
+export function CheckInIntro({ radiusM, busy, onStart }: CheckInIntroProps) {
   const { intro } = ja.checkIn
-  const steps = [intro.stepPermission, intro.stepRadius(DEFAULT_RADIUS_M), intro.stepTear]
+  const steps = [intro.stepPermission, intro.stepRadius(radiusM), intro.stepTear]
 
   return (
     <>

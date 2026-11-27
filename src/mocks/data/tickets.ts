@@ -1,4 +1,4 @@
-// TODO(api): provisional — no backend API for saved conditions (予約券) yet. Paths and fields are placeholders for the mock only.
+// TODO(api): provisional — the backend spec (v2) names the paths (/saved-conditions) but the API is not built yet, so the fields are placeholders for the mock only.
 import type { Ticket } from '@/shared/types/ticket'
 
 // Saved conditions of the mock user, in memory (a reload brings the three samples back). The copy

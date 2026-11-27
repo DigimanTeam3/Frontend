@@ -19,4 +19,8 @@ export interface JourneyEvent extends EventBrief {
   category: JourneyEventCategory
   lat: number
   lng: number
+  /** How far from the venue the check-in passes, in meters. */
+  verificationRadius?: number
+  /** Number of published missions of the event. */
+  missionCount?: number
 }
