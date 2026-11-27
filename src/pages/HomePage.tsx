@@ -2,7 +2,7 @@ import { EventCard } from '@/features/events/components/EventCard'
 import { useEventsQuery } from '@/features/events/api'
 import { ja } from '@/shared/i18n/ja'
 
-export function EventListPage() {
+export function HomePage() {
   const { data: events, isPending, isError } = useEventsQuery()
 
   return (
