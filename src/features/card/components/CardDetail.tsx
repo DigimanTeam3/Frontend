@@ -4,9 +4,11 @@ import { CardInfo } from '@/features/card/components/CardInfo'
 import { CardStickers } from '@/features/card/components/CardStickers'
 import { detailStickers } from '@/features/card/stickers'
 import { useStickerStore } from '@/features/card/stickerStore'
+import { useShareCard } from '@/features/card/useShareCard'
 import { ja } from '@/shared/i18n/ja'
 import { polaroidCardText } from '@/shared/lib/polaroidCardText'
 import type { ExperienceCard } from '@/shared/types/card'
+import { Button } from '@/shared/ui/Button'
 import { buttonClassName } from '@/shared/ui/buttonStyles'
 import { PolaroidCard } from '@/shared/ui/PolaroidCard'
 import { Toast } from '@/shared/ui/Toast'
@@ -28,6 +30,7 @@ export function CardDetail({ card }: CardDetailProps) {
   const [editing, setEditing] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const editButton = useRef<HTMLButtonElement>(null)
+  const { share, preparing } = useShareCard(card, stickers, setToast)
 
   const closeEditor = () => {
     // Rendered at once: the edit button is back by this, so the focus returns to it.
@@ -72,6 +75,16 @@ export function CardDetail({ card }: CardDetailProps) {
           >
             {copy.editMemo}
           </button>
+          <Button
+            variant="accent"
+            shape="pill"
+            className={ACTION_SIZE}
+            onClick={share}
+            disabled={preparing}
+            aria-busy={preparing}
+          >
+            {preparing ? copy.sharePreparing : copy.share}
+          </Button>
         </div>
       )}
 

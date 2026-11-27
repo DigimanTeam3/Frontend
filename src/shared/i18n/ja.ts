@@ -315,5 +315,12 @@ export const ja = {
       body: 'URLが正しいか、もう一度ご確認ください',
       action: 'マイページへ',
     },
+    share: '共有する',
+    sharePreparing: '準備中…',
+    // Shown where the share sheet cannot take a file: the image was downloaded instead.
+    imageSaved: '画像を保存しました',
+    shareFailed: '共有できませんでした。もう一度お試しください。',
+    // A title or venue that is too long for its line in the share image.
+    shareImageCut: (text: string) => `${text}…`,
   },
 } as const
