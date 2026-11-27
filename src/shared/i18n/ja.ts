@@ -200,4 +200,44 @@ export const ja = {
     viewCard: '思い出カードを見る',
     submittedToast: 'ミッションを提出しました',
   },
+  // Mission submission (S12: src/features/mission/MissionSubmitScreen.tsx).
+  missionSubmit: {
+    title: 'ミッション提出',
+    // Place of the mission in the list, two digits: "MISSION 03".
+    number: (position: number) => `MISSION ${String(position).padStart(2, '0')}`,
+    photoLabel: '写真',
+    photoHelp: '1枚 · 自動で小さくして送ります',
+    textLabel: 'ひとこと',
+    counter: (length: number, max: number) => `${length} / ${max}`,
+    submit: '提出する',
+    submitting: '提出中…',
+    // Keys are API error codes of POST /missions/{missionId}/submissions, plus UNKNOWN
+    // (network, server and every other error).
+    errors: {
+      NOT_VERIFIED: '到着チェックが必要です',
+      ALREADY_SUBMITTED: 'このミッションは提出済みです',
+      IMAGE_REQUIRED: '写真を追加してください',
+      TEXT_REQUIRED: 'ひとことを入力してください',
+      INVALID_IMAGE_URL: '写真をもう一度選んでください',
+      UNKNOWN: '通信できませんでした。電波の良い場所でもう一度お試しください。',
+    },
+    toCheckIn: '到着チェックへ',
+    notVerified: {
+      title: 'まだ到着チェックが済んでいません',
+      body: '会場で到着チェックを済ませると、ミッションを提出できます',
+      action: '到着チェックへ',
+    },
+    notFound: {
+      title: 'ミッションが見つかりません',
+      body: 'ミッション一覧から選び直してください',
+      action: 'ミッション一覧へ',
+    },
+    // Read-only view of a mission I already submitted.
+    submitted: {
+      done: '完了',
+      date: (date: string) => `${date} に提出`,
+      photoAlt: '提出した写真',
+      backToList: 'ミッション一覧へ',
+    },
+  },
 } as const
