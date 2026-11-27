@@ -109,6 +109,9 @@ export const ja = {
     title: '近くのイベント',
     unsupported: 'この端末では地図を表示できません（WebGL 非対応）。',
     directions: 'Google マップで経路を見る',
+    loading: '地図を読み込み中…',
+    loadFailed: '地図を読み込めませんでした。通信状況を確認してください。',
+    retry: 'もう一度試す',
   },
   companion: {
     listTitle: '同行募集',

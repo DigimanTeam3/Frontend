@@ -1,0 +1,29 @@
+/* MapLibre control look in the Concept 切符 palette. Loaded with MapCanvas only. */
+
+/* Attribution is required by the tile terms, so it stays open (never collapsed to an "i" button). */
+.kippu-map .maplibregl-ctrl-attrib {
+  /* One line, sized to the text, so no word is cut off on a 390px screen. */
+  width: max-content;
+  max-width: 100%;
+  border-radius: 6px 0 0 0;
+  background-color: rgb(246 240 228 / 0.85);
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1.6;
+  white-space: nowrap;
+  color: var(--color-ink-muted);
+}
+
+.kippu-map .maplibregl-ctrl-attrib a {
+  color: inherit;
+}
+
+.kippu-map .maplibregl-ctrl-bottom-right .maplibregl-ctrl {
+  margin: 0;
+}
+
+/* Markers are React buttons; MapLibre's own cursor and tap highlight are not needed. */
+.kippu-map .maplibregl-marker {
+  -webkit-tap-highlight-color: transparent;
+}
