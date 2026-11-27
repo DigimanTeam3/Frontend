@@ -64,8 +64,15 @@ export function failureFromApiError(error: unknown): CheckInFailure {
   }
 }
 
-/** Body text of the error card, one string per paragraph. */
-export function failureBody(failure: CheckInFailure, event: JourneyEvent): string[] {
+/**
+ * One paragraph of the error card. The object form is a sentence around the venue name: the
+ * name stays its own piece so the card can mark a Korean original with lang="ko".
+ */
+export type FailureParagraph =
+  string | { beforeVenue: string; venue: string; venueLang: 'ko' | undefined; afterVenue: string }
+
+/** Body text of the error card, one entry per paragraph. */
+export function failureBody(failure: CheckInFailure, event: JourneyEvent): FailureParagraph[] {
   const copy = ja.checkIn.failureBody
   switch (failure.reason) {
     case 'OUT_OF_RANGE':
@@ -74,7 +81,11 @@ export function failureBody(failure: CheckInFailure, event: JourneyEvent): strin
       }
       return [
         copy.outOfRangeDistance(formatDistance(failure.distanceM)),
-        copy.outOfRangeRetry(event.venueNameJa ?? event.venueName, failure.radiusM),
+        {
+          ...copy.outOfRangeRetry(failure.radiusM),
+          venue: event.venueNameJa ?? event.venueName,
+          venueLang: event.venueNameJa === null ? 'ko' : undefined,
+        },
       ]
     case 'EVENT_ENDED':
     case 'EVENT_NOT_STARTED':

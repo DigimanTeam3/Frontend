@@ -32,9 +32,11 @@ export function CheckInIntro({ busy, onStart }: CheckInIntroProps) {
             </span>
           ))}
         </h1>
-        <p className="text-center text-[13px] leading-[1.6] text-ink-muted">
+        {/* Under 375px the longer line (25 characters) no longer fits at 13px. One size smaller
+            keeps it on one line at 360px; text-balance splits it evenly on anything narrower. */}
+        <p className="text-center text-[13px] leading-[1.6] text-ink-muted max-[374px]:text-xs">
           {intro.body.map((line) => (
-            <span key={line} className="block">
+            <span key={line} className="block text-balance">
               {line}
             </span>
           ))}

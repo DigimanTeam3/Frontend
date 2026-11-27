@@ -56,9 +56,17 @@ export function CheckInFailed(props: CheckInFailedProps) {
           </h2>
         </div>
         <div className="text-[13px] leading-[1.6] text-ink-muted">
-          {failureBody(failure, event).map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          {failureBody(failure, event).map((paragraph) =>
+            typeof paragraph === 'string' ? (
+              <p key={paragraph}>{paragraph}</p>
+            ) : (
+              <p key={paragraph.afterVenue}>
+                {paragraph.beforeVenue}
+                <span lang={paragraph.venueLang}>{paragraph.venue}</span>
+                {paragraph.afterVenue}
+              </p>
+            ),
+          )}
         </div>
       </div>
 

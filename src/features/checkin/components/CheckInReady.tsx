@@ -35,8 +35,9 @@ export function CheckInReady({
 }: CheckInReadyProps) {
   const { ready } = ja.checkIn
   const tear = useStubTear(onTorn)
-  // The glow frames the whole ticket, so it goes as soon as the stub leaves its place.
-  const pulled = tear.offsetY > 0 || tear.phase === 'tearing'
+  // The glow frames the whole ticket, so it goes as soon as the stub leaves its place and
+  // comes back only when the stub is home again (not while it springs back).
+  const pulled = tear.offsetY > 0 || tear.settling || tear.phase === 'tearing'
 
   return (
     <div className="flex flex-col items-center">

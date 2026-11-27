@@ -132,8 +132,12 @@ export const ja = {
       outOfRange: (radiusM: number) => `会場の ${radiusM}m 以内で確認してください`,
       // Two paragraphs, used when the server tells the distance and the radius.
       outOfRangeDistance: (distance: string) => `いまの場所は会場から ${distance} 離れています。`,
-      outOfRangeRetry: (venue: string, radiusM: number) =>
-        `${venue}の ${radiusM}m 以内で、もう一度お試しください。`,
+      // The venue name goes between the two parts as its own element, because it needs
+      // lang="ko" when it is the Korean original.
+      outOfRangeRetry: (radiusM: number) => ({
+        beforeVenue: '',
+        afterVenue: `の ${radiusM}m 以内で、もう一度お試しください。`,
+      }),
       period: (start: string, end: string) => `開催期間：${start} – ${end}`,
     },
     actions: {
