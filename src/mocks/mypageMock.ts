@@ -8,7 +8,7 @@ import { errorResponse } from '@/mocks/mockHelpers'
 // "cards" also fails the completion screen (S13): both read GET /me/experience-cards.
 export const MYPAGE_MOCK_KEY = 'digiman.mock.mypage'
 
-export type MyPagePart = 'me' | 'summary' | 'badges' | 'cards' | 'participations'
+export type MyPagePart = 'me' | 'summary' | 'badges' | 'cards' | 'participations' | 'companions'
 
 interface MyPageMockOptions {
   fail?: MyPagePart[]
