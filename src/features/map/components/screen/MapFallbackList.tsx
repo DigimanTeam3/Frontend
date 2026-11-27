@@ -1,4 +1,4 @@
-import { EventCard } from '@/features/events/components/EventCard'
+import { MapListCard } from '@/features/map/components/screen/MapListCard'
 import { ja } from '@/shared/i18n/ja'
 import type { EventSummary } from '@/shared/types/event'
 
@@ -35,7 +35,7 @@ export function MapFallbackList({ events, status, onRetry }: MapFallbackListProp
       <ul className="flex flex-col gap-3">
         {events.map((event) => (
           <li key={event.id}>
-            <EventCard event={event} />
+            <MapListCard event={event} />
           </li>
         ))}
       </ul>
