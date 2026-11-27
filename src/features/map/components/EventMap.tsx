@@ -1,78 +1,76 @@
-import 'maplibre-gl/dist/maplibre-gl.css'
-import { Map, Marker, NavigationControl, Popup } from '@vis.gl/react-maplibre'
-import { setWorkerUrl } from 'maplibre-gl'
-import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
-import { useState } from 'react'
+import { NavigationControl, Popup, type MapRef } from '@vis.gl/react-maplibre'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router'
 import { useEventsQuery } from '@/features/events/api'
+import { preferJa } from '@/features/events/lib/eventText'
+import { SEOUL_CENTER } from '@/features/map/config'
+import { DirectionsLink } from '@/features/map/components/DirectionsLink'
+import { EventPin } from '@/features/map/components/EventPin'
+import { MapCanvas } from '@/features/map/components/MapCanvas'
+import { boundsOf, hasValidCoords } from '@/features/map/lib/coords'
+import { prefersReducedMotion } from '@/features/map/lib/maplibre'
 import { ja } from '@/shared/i18n/ja'
-import { directionsUrl } from '@/shared/lib/directionsUrl'
 import type { EventSummary } from '@/shared/types/event'
 
-// maplibre-gl 6 finds its worker next to its own file, which Vite moves.
-// Point it at the worker file Vite emits instead.
-setWorkerUrl(workerUrl)
+const INITIAL_VIEW = { ...SEOUL_CENTER, zoom: 12, pitch: 45, bearing: -20 }
 
-// OpenFreeMap "liberty" already includes a 3D building layer (fill-extrusion, zoom 14+).
-// Attribution is required by the tile terms; MapLibre adds it from the style automatically.
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
-
-// Sinchon station area
-const INITIAL_VIEW = { latitude: 37.5552, longitude: 126.9369, zoom: 16, pitch: 60, bearing: -20 }
-
-function hasWebGL() {
-  const canvas = document.createElement('canvas')
-  return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'))
-}
-
+/** All events on one 3D map, fitted to where they are. Tap a pin for a short card. */
 export function EventMap() {
-  const { data: events = [] } = useEventsQuery()
+  const { data: events } = useEventsQuery()
+  const mapRef = useRef<MapRef>(null)
+  const [mapReady, setMapReady] = useState(false)
   const [selected, setSelected] = useState<EventSummary | null>(null)
-  const [webglOk] = useState(hasWebGL)
+  const mapped = useMemo(() => (events ?? []).filter(hasValidCoords), [events])
 
-  if (!webglOk) return <p className="text-ink-muted">{ja.map.unsupported}</p>
+  useEffect(() => {
+    const bounds = boundsOf(mapped)
+    if (!mapReady || !bounds) return
+    mapRef.current?.fitBounds(bounds, {
+      padding: 56,
+      maxZoom: 15,
+      pitch: 45,
+      duration: prefersReducedMotion() ? 0 : 800,
+    })
+  }, [mapReady, mapped])
 
   return (
-    <div className="h-[60dvh] w-full overflow-hidden rounded-2xl">
-      <Map
-        initialViewState={INITIAL_VIEW}
-        mapStyle={MAP_STYLE}
-        maxPitch={70}
-        canvasContextAttributes={{ antialias: true }}
-      >
-        <NavigationControl position="top-right" visualizePitch />
-        {events.map((event) => (
-          <Marker
-            key={event.id}
-            latitude={event.lat}
-            longitude={event.lng}
-            anchor="bottom"
-            color="#e4572e"
-            onClick={(e) => {
-              e.originalEvent.stopPropagation()
-              setSelected(event)
-            }}
-          />
-        ))}
-        {selected && (
-          <Popup
-            latitude={selected.lat}
-            longitude={selected.lng}
-            anchor="top"
-            onClose={() => setSelected(null)}
+    <MapCanvas
+      ref={mapRef}
+      className="h-[60dvh] w-full rounded-2xl"
+      initialViewState={INITIAL_VIEW}
+      onLoad={() => setMapReady(true)}
+      onClick={() => setSelected(null)}
+    >
+      <NavigationControl position="top-right" visualizePitch />
+      {mapped.map((event) => (
+        <EventPin
+          key={event.id}
+          event={event}
+          selected={selected?.id === event.id}
+          onSelect={setSelected}
+        />
+      ))}
+      {selected && hasValidCoords(selected) && (
+        <Popup
+          latitude={selected.lat}
+          longitude={selected.lng}
+          anchor="top"
+          closeButton={false}
+          onClose={() => setSelected(null)}
+        >
+          <Link to={`/events/${selected.id}`} className="block font-bold text-ink">
+            {preferJa(selected.titleJa, selected.title)}
+          </Link>
+          <p className="text-ink-muted">{preferJa(selected.venueNameJa, selected.venueName)}</p>
+          <DirectionsLink
+            lat={selected.lat}
+            lng={selected.lng}
+            className="mt-1 inline-block font-bold text-exhibit underline"
           >
-            <p className="font-bold">{selected.titleJa ?? selected.title}</p>
-            <p className="text-ink-muted">{selected.venueNameJa ?? selected.venueName}</p>
-            <a
-              className="mt-1 inline-block text-primary underline"
-              href={directionsUrl(selected.lat, selected.lng)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {ja.map.directions}
-            </a>
-          </Popup>
-        )}
-      </Map>
-    </div>
+            {ja.map.directions}
+          </DirectionsLink>
+        </Popup>
+      )}
+    </MapCanvas>
   )
 }
