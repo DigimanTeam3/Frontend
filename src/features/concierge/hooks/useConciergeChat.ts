@@ -102,8 +102,9 @@ export function useConciergeChat() {
           retryText: text,
         }
         // A rejected question goes back to the text box (the page does that), so drop its slip.
+        // Also on a retry: the slip of the retried question is the last entry.
         const kept =
-          conciergeError.kind === 'invalid' && addQuestion
+          conciergeError.kind === 'invalid' && entriesRef.current.at(-1)?.role === 'user'
             ? entriesRef.current.slice(0, -1)
             : entriesRef.current
         update([...kept, entry])

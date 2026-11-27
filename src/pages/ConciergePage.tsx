@@ -23,10 +23,19 @@ export function ConciergePage() {
   const thinkingRef = useRef<HTMLDivElement | null>(null)
   const canSpeak = isSpeechSupported()
 
+  // The server rejected the question: give it back so it can be fixed. Text typed while
+  // waiting is newer, so it is kept.
+  const restoreRejected = (entry: ChatEntry | null) => {
+    if (entry?.role !== 'error' || entry.error.kind !== 'invalid') return
+    const text = entry.retryText ?? ''
+    setDraft((current) => (current.trim() ? current : text))
+  }
+
   const recorder = useVoiceRecorder(async (audio) => {
     const entry = await chat.sendVoice(audio)
     // Asked by voice: answer by voice too.
     if (entry?.role === 'assistant') speech.speak(entry.id, entry.reply.reply)
+    restoreRejected(entry)
   })
 
   const notice =
@@ -41,9 +50,11 @@ export function ConciergePage() {
   const sendText = async (text: string) => {
     recorder.clearError()
     speech.cancel()
-    const entry = await chat.send(text)
-    // The server rejected the text: give it back so it can be fixed.
-    if (entry?.role === 'error' && entry.error.kind === 'invalid') setDraft(text)
+    restoreRejected(await chat.send(text))
+  }
+
+  const retry = async () => {
+    restoreRejected(await chat.retry())
   }
 
   const onSendDraft = () => {
@@ -110,7 +121,7 @@ export function ConciergePage() {
           <ErrorSlip
             error={entry.error}
             canRetry={isLast && entry.retryText !== null && !busy}
-            onRetry={() => void chat.retry()}
+            onRetry={() => void retry()}
           />
         )
     }
