@@ -180,7 +180,9 @@ export const companionHandlers = [
     if (params.action === 'reject') {
       target.status = 'REJECTED'
     } else {
-      if (statusOf(post) !== 'OPEN') return errorResponse(409, 'POST_FULL', 'post is full')
+      const status = statusOf(post)
+      if (status === 'CLOSED') return errorResponse(409, 'POST_CLOSED', 'post is closed')
+      if (status === 'FULL') return errorResponse(409, 'POST_FULL', 'post is full')
       acceptRequest(post, target)
     }
     return HttpResponse.json(toDetail(post, meId))
