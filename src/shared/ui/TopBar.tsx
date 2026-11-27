@@ -15,7 +15,7 @@ export interface TopBarProps {
 
 // Top bar for sub screens (Figma: Concept 切符 / top bar). Sticks to the top below the status bar.
 export function TopBar({ title, leading = 'back', fallback = '/', trailing }: TopBarProps) {
-  const goBack = useGoBack(fallback, leading)
+  const goBack = useGoBack(fallback)
   const icon = leading === 'close' ? closeIcon : chevronLeftIcon
 
   return (
@@ -40,18 +40,16 @@ export function TopBar({ title, leading = 'back', fallback = '/', trailing }: To
   )
 }
 
-// Back: go to the previous screen in this app, or to `fallback` when this is the first screen opened.
+// Back and close: go to the previous screen in this app, or to `fallback` when this is the first
+// screen opened. Going back (instead of replacing this screen with `fallback`) avoids a duplicate history entry.
 // React Router keeps the history position in history.state.idx (0 = first entry of this app,
 // also after a redirect with replace, e.g. /me -> /login).
-// Close: always leave the flow for `fallback`, so closing S10 does not land on S09 again.
-function useGoBack(fallback: string, leading: 'back' | 'close') {
+// A flow that must not return to an earlier step on close (e.g. S09 -> S10) moves between its
+// steps with replace.
+function useGoBack(fallback: string) {
   const navigate = useNavigate()
 
   return () => {
-    if (leading === 'close') {
-      navigate(fallback, { replace: true })
-      return
-    }
     const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0
     if (idx > 0) navigate(-1)
     else navigate(fallback, { replace: true })
