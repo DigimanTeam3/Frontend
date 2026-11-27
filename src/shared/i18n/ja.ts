@@ -323,4 +323,75 @@ export const ja = {
     // A title or venue that is too long for its line in the share image.
     shareImageCut: (text: string) => `${text}…`,
   },
+  // My Page (S15: src/features/mypage/MyPageScreen.tsx).
+  myPage: {
+    // Screen name for screen readers in the states without the visible heading.
+    screenName: 'マイページ',
+    loginStatus: {
+      line: 'LINEでログイン中',
+      demo: 'ゲストでログイン中',
+    },
+    stats: {
+      verified: '参加',
+      complete: '完走',
+      recruitment: '募集',
+    },
+    // Keys are API error codes of GET /me and GET /me/summary, plus UNKNOWN (network, server and
+    // every other error).
+    errors: {
+      UNAUTHORIZED: {
+        title: 'ログインが必要です',
+        body: 'ログインし直してから、もう一度お試しください',
+      },
+      UNKNOWN: {
+        title: '読み込めませんでした',
+        body: '通信状態を確認して、もう一度お試しください',
+      },
+    },
+    // One line under the heading of a section that could not load (the retry button is the
+    // shared state.retry).
+    sectionError: 'うまく読み込めませんでした',
+    badges: {
+      title: 'バッジ',
+      count: (count: number) => `${count}`,
+      listLabel: '手に入れたバッジ',
+      empty: 'まだバッジはありません',
+      // The dashed "?" at the end of the row.
+      placeholder: 'まだ手に入れていないバッジ',
+      // Accessible name of a badge: the event it was earned at.
+      name: {
+        participation: (eventTitle: string) => `${eventTitle} の参加バッジ`,
+        complete: (eventTitle: string) => `${eventTitle} の完走バッジ`,
+      },
+      // The glyph text on the stamps (Figma: Shippori Mincho).
+      label: {
+        participation: '参加',
+        complete: '完走',
+      },
+      placeholderMark: '?',
+    },
+    cards: {
+      title: '思い出カード',
+      showAll: 'すべて見る',
+      showLess: '閉じる',
+      // Accessible name of a card thumbnail (it is a link to the card).
+      cardName: (eventTitle: string) => `${eventTitle} の思い出カード`,
+      empty: {
+        title: 'カードはまだありません',
+        body: 'ミッションを終えると、ここに思い出カードが並びます',
+      },
+    },
+    menu: {
+      participations: '参加したイベント',
+      recruitments: '書いた募集文',
+      tickets: '予約券',
+      language: '言語 · 日本語',
+      logout: 'ログアウト',
+    },
+    participations: {
+      verified: '認証済み',
+      unverified: '未認証',
+      empty: '参加したイベントはまだありません',
+    },
+  },
 } as const

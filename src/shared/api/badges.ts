@@ -9,8 +9,10 @@ const BADGE_PAGE_SIZE = 100
 
 // TODO(api): GET /me/badges has no eventId filter, so the screens that need the badge of one
 // event load the first page and look for it there.
-export function getMyBadges(badgeType: BadgeType) {
-  const query = new URLSearchParams({ badgeType, page: '1', size: String(BADGE_PAGE_SIZE) })
+export function getMyBadges(badgeType?: BadgeType) {
+  const query = new URLSearchParams({ page: '1', size: String(BADGE_PAGE_SIZE) })
+  // Without a type the answer holds both kinds (My Page).
+  if (badgeType) query.set('badgeType', badgeType)
   return apiClient<Page<Badge>>(`/me/badges?${query}`)
 }
 

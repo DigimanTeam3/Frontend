@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw/http'
 import { listBadges } from '@/mocks/data/journey'
 import { currentUserId, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { mypageForcedError } from '@/mocks/mypageMock'
 import type { Badge, BadgeType } from '@/shared/types/badge'
 import type { Page } from '@/shared/types/page'
 
@@ -22,6 +23,11 @@ export const badgeHandlers = [
 
     const url = new URL(request.url)
     const type = url.searchParams.get('badgeType')
+    // The list without a type is My Page's (S15); its error switch is in mypageMock.ts.
+    if (type === null) {
+      const forced = mypageForcedError('badges')
+      if (forced) return forced
+    }
     const badgeType =
       type === 'participation' || type === 'complete' ? (type as BadgeType) : undefined
     const page = parsePositiveInt(url.searchParams.get('page'), 1)

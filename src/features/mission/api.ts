@@ -62,6 +62,8 @@ export function useSubmitMissionMutation(eventId: number) {
       }
       void queryClient.invalidateQueries({ queryKey: queryKeys.badges.all })
       void queryClient.invalidateQueries({ queryKey: queryKeys.cards.all })
+      // My Page counts and badges.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.me.all })
     },
     onError: (error) => {
       // Sent before (another tab or device): reload so the screen shows that submission.

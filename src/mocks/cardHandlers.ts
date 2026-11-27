@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw/http'
 import { findCard, listCards, updateCard } from '@/mocks/data/journey'
 import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { mypageForcedError } from '@/mocks/mypageMock'
 import type { ExperienceCard, ExperienceCardUpdate } from '@/shared/types/card'
 import type { Page } from '@/shared/types/page'
 
@@ -50,6 +51,9 @@ export const cardHandlers = [
   http.get('/api/me/experience-cards', async ({ request }) => {
     await mockDelay()
     if (currentUserId(request) === null) return unauthorizedResponse()
+    // Error switch of My Page's card section (S15), see mypageMock.ts.
+    const forced = mypageForcedError('cards')
+    if (forced) return forced
 
     const url = new URL(request.url)
     const page = parsePositiveInt(url.searchParams.get('page'), 1)
