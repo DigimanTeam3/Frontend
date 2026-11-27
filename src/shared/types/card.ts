@@ -22,7 +22,7 @@ export interface ExperienceCard {
 
 /** Body of PATCH /experience-cards/{cardId}: only the given fields change. */
 export interface ExperienceCardUpdate {
-  /** Up to 500 characters. */
-  memo?: string
+  /** Up to 500 characters; null removes the memo. */
+  memo?: string | null
   userImage?: string
 }

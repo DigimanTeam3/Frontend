@@ -1,6 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
-import { retryUnlessClientError } from '@/shared/api/journey'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { apiErrorCode } from '@/shared/lib/apiError'
 import type { ExperienceCard } from '@/shared/types/card'
@@ -12,19 +11,8 @@ import type {
 } from '@/shared/types/mission'
 import type { Page } from '@/shared/types/page'
 
-// The auth header is optional here: without a login the answer has isVerified false and no submissions.
-export function getMissions(eventId: number) {
-  return apiClient<MissionListResponse>(`/events/${eventId}/missions`)
-}
-
-export function useMissionsQuery(eventId: number | null) {
-  return useQuery({
-    queryKey: queryKeys.missions.byEvent(eventId ?? 0),
-    queryFn: () => getMissions(eventId ?? 0),
-    enabled: eventId !== null,
-    retry: retryUnlessClientError,
-  })
-}
+// The list itself (getMissions / useMissionsQuery) is in @/shared/api/missions: the card detail
+// (S14) reads it too.
 
 /** Photo mission: `{ image, text? }`. Text mission: `{ text }`. Approved at once. */
 export function submitMission(missionId: number, body: SubmissionRequest) {

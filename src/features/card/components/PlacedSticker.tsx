@@ -1,8 +1,8 @@
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
-import { STICKER_SIZE, STICKER_TILT, type StickerPlacement } from '@/features/card/stickers'
+import { StickerFace } from '@/features/card/components/StickerFace'
+import { STICKER_LOOK, stickerBoxStyle, type StickerPlacement } from '@/features/card/stickers'
 import { DRAG_THRESHOLD_PX, type StickerBoard } from '@/features/card/useStickerBoard'
 import { ja } from '@/shared/i18n/ja'
-import { BadgeSticker } from '@/shared/ui/BadgeSticker'
 import { CloseIcon } from '@/shared/ui/icons/CloseIcon'
 
 export interface PlacedStickerProps {
@@ -37,6 +37,7 @@ interface Drag {
 // One badge sticker on the card: tap selects it, dragging moves it, the × takes it off.
 export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) {
   const { type, x, y } = placement
+  const look = STICKER_LOOK[type]
   const { complete: copy } = ja
   const selected = board.selected === type
   const drag = useRef<Drag | null>(null)
@@ -98,8 +99,8 @@ export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) 
   return (
     <div
       data-sticker-ui
-      className={`absolute -translate-1/2 ${STICKER_SIZE[type]} ${selected ? 'z-10' : ''}`}
-      style={{ left: `${x * 100}%`, top: `${y * 100}%` }}
+      className={`absolute -translate-1/2 ${selected ? 'z-10' : ''}`}
+      style={stickerBoxStyle({ x, y, size: look.size })}
     >
       {/* touch-none: dragging a sticker never scrolls or refreshes the page. */}
       <button
@@ -116,7 +117,7 @@ export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) 
         onKeyDown={handleKeyDown}
         className="outline-gate block w-full cursor-grab touch-none rounded-full outline-offset-2 select-none focus-visible:outline-2"
       >
-        <BadgeSticker kind={type} className={STICKER_TILT[type]} />
+        <StickerFace type={type} tilt={look.tilt} />
       </button>
       {selected && (
         <>

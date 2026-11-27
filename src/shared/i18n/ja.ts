@@ -291,4 +291,29 @@ export const ja = {
       action: 'ミッションへ',
     },
   },
+  // Card detail (S14: src/features/card/CardDetailScreen.tsx).
+  cardDetail: {
+    title: 'カード',
+    missionLabel: 'ミッション',
+    missionValue: (done: number, total: number) => `${done} / ${total} 完了`,
+    memoLabel: 'メモ',
+    memoEmpty: 'メモはまだありません',
+    editMemo: 'メモを編集',
+    memoCounter: (length: number, max: number) => `${length} / ${max}`,
+    saveMemo: '保存する',
+    savingMemo: '保存中…',
+    cancelMemo: 'キャンセル',
+    memoSaved: 'メモを保存しました',
+    // Keys are API error codes of PATCH /experience-cards/{cardId}, plus UNKNOWN (network,
+    // server and every other error).
+    memoErrors: {
+      VALIDATION_ERROR: 'メモは500文字以内で入力してください',
+      UNKNOWN: '保存できませんでした。もう一度お試しください。',
+    },
+    notFound: {
+      title: 'カードが見つかりません',
+      body: 'URLが正しいか、もう一度ご確認ください',
+      action: 'マイページへ',
+    },
+  },
 } as const
