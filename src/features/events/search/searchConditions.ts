@@ -5,6 +5,8 @@ import type { EventArea, EventCategory } from '@/shared/types/event'
 
 // S03 search conditions. They live in the URL (?q=&category=&date=&area=&sort=) so the back button
 // and a shared link bring the same results back. The position is never put in the URL.
+// "Today" is passed in by the screen, fixed when it opens, so the date conditions stay the same
+// on every render.
 
 export const CATEGORIES: EventCategory[] = ['festival', 'exhibition', 'performance']
 export const AREAS: EventArea[] = [
@@ -41,21 +43,21 @@ function isValidDay(value: string) {
   return date.getUTCMonth() === month - 1 && date.getUTCDate() === day
 }
 
-function parseDate(value: string | null): DateChoice | undefined {
+function parseDate(value: string | null, today: string): DateChoice | undefined {
   if (!value) return undefined
   if ((DATE_PRESETS as readonly string[]).includes(value)) return value as DatePreset
   // Past days would only list ended events.
-  return isValidDay(value) && value >= seoulDateString() ? (value as DateChoice) : undefined
+  return isValidDay(value) && value >= today ? (value as DateChoice) : undefined
 }
 
-/** Reads the URL. Unknown values are ignored rather than sent to the API. */
-export function readConditions(params: URLSearchParams): SearchConditions {
+/** Reads the URL. Unknown values are ignored rather than sent to the API. `today` is YYYY-MM-DD (Seoul). */
+export function readConditions(params: URLSearchParams, today: string): SearchConditions {
   const category = params.get('category')
   const area = params.get('area')
   return {
     keyword: (params.get('q') ?? '').trim().slice(0, KEYWORD_MAX),
     category: CATEGORIES.find((c) => c === category),
-    date: parseDate(params.get('date')),
+    date: parseDate(params.get('date'), today),
     area: AREAS.find((a) => a === area),
     sort: params.get('sort') === 'distance' ? 'distance' : 'date',
   }
@@ -84,7 +86,7 @@ export function countFilters(filters: SearchFilters) {
  * Date button → dateFrom/dateTo (issue #13). No date: from today on, ended events left out.
  * 今週末 is Saturday–Sunday; on a Saturday or Sunday it starts today.
  */
-export function dateRange(choice: DateChoice | undefined, now = new Date()) {
+export function dateRange(choice: DateChoice | undefined, now: Date) {
   const today = seoulDateString(now)
   switch (choice) {
     case undefined:
@@ -108,7 +110,7 @@ export function dateRange(choice: DateChoice | undefined, now = new Date()) {
 export function toListParams(
   conditions: SearchConditions,
   position: { lat: number; lng: number } | null,
-  now = new Date(),
+  now: Date,
 ): Omit<EventListParams, 'page' | 'size'> {
   const byDistance = conditions.sort === 'distance' && position !== null
   return {

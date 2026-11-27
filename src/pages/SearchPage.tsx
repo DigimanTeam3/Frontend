@@ -5,6 +5,7 @@ import filterIcon from '@/features/events/assets/filter.svg'
 import searchIcon from '@/features/events/assets/search.svg'
 import xSmallIcon from '@/features/events/assets/x-small.svg'
 import { categoryLabel } from '@/features/events/lib/eventText'
+import { seoulDateString } from '@/features/events/lib/seoulDate'
 import { useNextPageTrigger } from '@/features/events/lib/useNextPageTrigger'
 import { FilterSheet } from '@/features/events/search/FilterSheet'
 import { SearchResultCard, SearchResultSkeleton } from '@/features/events/search/SearchResultCard'
@@ -35,7 +36,10 @@ const isPreset = (value: string): value is DatePreset =>
 export function SearchPage() {
   const t = ja.search
   const [searchParams, setSearchParams] = useSearchParams()
-  const conditions = readConditions(searchParams)
+  // Fixed when the screen opens so the date conditions (and the query) don't move between renders.
+  const [now] = useState(() => new Date())
+  const today = seoulDateString(now)
+  const conditions = readConditions(searchParams, today)
   const [sheetOpen, setSheetOpen] = useState(false)
   const filterButtonRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -46,10 +50,13 @@ export function SearchPage() {
   useEffect(() => {
     setParamsRef.current = setSearchParams
   })
-  const update = useCallback((next: Partial<SearchConditions>) => {
-    const current = readConditions(new URLSearchParams(window.location.search))
-    setParamsRef.current(writeConditions({ ...current, ...next }), { replace: true })
-  }, [])
+  const update = useCallback(
+    (next: Partial<SearchConditions>) => {
+      const current = readConditions(new URLSearchParams(window.location.search), today)
+      setParamsRef.current(writeConditions({ ...current, ...next }), { replace: true })
+    },
+    [today],
+  )
 
   // Keyword: typed text is sent 300 ms after the last key, or at once on Enter.
   const [draft, setDraft] = useState(conditions.keyword)
@@ -83,12 +90,13 @@ export function SearchPage() {
       const id = ++lastAsk.current
       void ask().then((found) => {
         if (found || id !== lastAsk.current) return
-        if (readConditions(new URLSearchParams(window.location.search)).sort !== 'distance') return
+        if (readConditions(new URLSearchParams(window.location.search), today).sort !== 'distance')
+          return
         setLocationNotice(true)
         update({ sort: 'date' })
       })
     },
-    [update],
+    [today, update],
   )
 
   // Opened with ?sort=distance (back button, shared link): ask for the position once.
@@ -109,7 +117,7 @@ export function SearchPage() {
 
   const waitingForPosition = conditions.sort === 'distance' && location.status !== 'ready'
   const query = useEventPagesQuery(
-    toListParams(conditions, location.position),
+    toListParams(conditions, location.position, now),
     PAGE_SIZE,
     !waitingForPosition,
   )
@@ -283,6 +291,7 @@ export function SearchPage() {
         <FilterSheet
           initial={{ category: conditions.category, date: conditions.date, area: conditions.area }}
           keyword={conditions.keyword}
+          now={now}
           onApply={applyFilters}
           onClose={closeSheet}
         />

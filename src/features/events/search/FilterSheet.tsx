@@ -59,20 +59,25 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 export interface FilterSheetProps {
   initial: SearchFilters
   keyword: string
+  /** The search screen's "now", so the sheet counts and limits days the same way. */
+  now: Date
   onApply: (filters: SearchFilters) => void
   onClose: () => void
 }
 
 // Bottom sheet with category / date / area (Figma: S03 BottomSheet（絞り込み）).
 // Native <dialog>: focus stays inside, Esc closes, the page behind is inert.
-export function FilterSheet({ initial, keyword, onApply, onClose }: FilterSheetProps) {
+export function FilterSheet({ initial, keyword, now, onApply, onClose }: FilterSheetProps) {
   const t = ja.search
   const titleId = useId()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const pressedOutside = useRef(false)
   const [draft, setDraft] = useState<SearchFilters>(initial)
   const [showPicker, setShowPicker] = useState(isPickedDay(initial.date))
-  const count = useEventCountQuery(toListParams({ ...draft, keyword, sort: 'date' }, null), true)
+  const count = useEventCountQuery(
+    toListParams({ ...draft, keyword, sort: 'date' }, null, now),
+    true,
+  )
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -98,7 +103,7 @@ export function FilterSheet({ initial, keyword, onApply, onClose }: FilterSheetP
   const toggle = <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) =>
     setDraft((current) => ({ ...current, [key]: current[key] === value ? undefined : value }))
 
-  const today = seoulDateString()
+  const today = seoulDateString(now)
   const pickedDay = isPickedDay(draft.date) ? draft.date : undefined
 
   return (
