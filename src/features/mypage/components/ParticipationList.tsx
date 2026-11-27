@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useMyParticipationsQuery } from '@/features/mypage/api'
-import { SectionError, SectionLoading } from '@/features/mypage/components/SectionStatus'
+import { SectionError } from '@/features/mypage/components/SectionError'
+import { SectionLoading } from '@/features/mypage/components/SectionLoading'
 import { ja } from '@/shared/i18n/ja'
 import { formatDateRange } from '@/shared/lib/formatDate'
 import { paths } from '@/shared/lib/paths'
