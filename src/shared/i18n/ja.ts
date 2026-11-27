@@ -399,6 +399,17 @@ export const ja = {
       language: '言語 · 日本語',
       logout: 'ログアウト',
     },
+    // My companion record under "書いた募集文": posts I wrote and posts I joined.
+    companions: {
+      empty: '同行の記録はまだありません',
+      // Meeting day and people: "11/28(土) ・ 2/3人".
+      meta: (date: string, memberCount: number, capacity: number) =>
+        `${date} ・ ${memberCount}/${capacity}人`,
+      // After the line above, on a post of someone else that I joined.
+      joinedSuffix: ' ・ 参加',
+      // Same words as the companion screens (S06).
+      status: { OPEN: '募集中', FULL: '満席', CLOSED: '締切' },
+    },
     participations: {
       verified: '認証済み',
       unverified: '未認証',

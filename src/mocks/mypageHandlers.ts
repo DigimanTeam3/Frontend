@@ -1,8 +1,8 @@
 import { http, HttpResponse } from 'msw/http'
-import { listParticipations, summarize } from '@/mocks/data/journey'
+import { listMyCompanions, listParticipations, summarize } from '@/mocks/data/journey'
 import { currentUserId, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
 import { mypageForcedError, mypageLongName } from '@/mocks/mypageMock'
-import type { MyParticipation, User } from '@/shared/types/me'
+import type { MyCompanion, MyParticipation, User } from '@/shared/types/me'
 import type { Page } from '@/shared/types/page'
 import type { ParticipationStatus } from '@/shared/types/participation'
 
@@ -69,6 +69,26 @@ export const mypageHandlers = [
         : undefined,
     )
     const body: Page<MyParticipation> = {
+      items: all.slice((page - 1) * size, page * size),
+      total: all.length,
+      page,
+      size,
+    }
+    return HttpResponse.json(body)
+  }),
+
+  http.get('/api/me/companions', async ({ request }) => {
+    await mockDelay()
+    const userId = currentUserId(request)
+    if (userId === null) return unauthorizedResponse()
+    const forced = mypageForcedError('companions')
+    if (forced) return forced
+
+    const url = new URL(request.url)
+    const page = parsePositiveInt(url.searchParams.get('page'), 1)
+    const size = parsePositiveInt(url.searchParams.get('size'), DEFAULT_PAGE_SIZE)
+    const all = listMyCompanions()
+    const body: Page<MyCompanion> = {
       items: all.slice((page - 1) * size, page * size),
       total: all.length,
       page,

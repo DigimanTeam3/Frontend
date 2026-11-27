@@ -56,7 +56,7 @@ export function BadgeSection() {
           <ul
             aria-label={copy.listLabel}
             tabIndex={0}
-            className="-mx-[var(--spacing-gutter,16px)] flex gap-3 overflow-x-auto px-[var(--spacing-gutter,16px)]"
+            className="-mx-[var(--spacing-gutter,16px)] flex [scrollbar-width:none] gap-3 overflow-x-auto px-[var(--spacing-gutter,16px)]"
           >
             {badges.map((badge) => (
               <li key={badge.id} className="shrink-0">

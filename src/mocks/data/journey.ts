@@ -9,7 +9,7 @@ import type {
   Submission,
   SubmissionResult,
 } from '@/shared/types/mission'
-import type { MyParticipation, MySummary } from '@/shared/types/me'
+import type { MyCompanion, MyParticipation, MySummary } from '@/shared/types/me'
 import { isCheckedIn } from '@/shared/lib/participationStatus'
 import type { Participation, ParticipationStatus } from '@/shared/types/participation'
 
@@ -456,9 +456,47 @@ export function summarize(userId: number): MySummary {
     participationBadgeCount: state.badges.filter((b) => b.badgeType === 'participation').length,
     completeBadgeCount: state.badges.filter((b) => b.badgeType === 'complete').length,
     experienceCardCount: state.cards.length,
-    // TODO(api): no companion-post API yet; fixed.
-    recruitmentCount: 0,
+    recruitmentCount: listMyCompanions().filter((post) => post.isMine).length,
   }
+}
+
+// TODO(api): GET /me/companions is not spelled out in the spec (v2). Fixed sample posts: two I
+// wrote and one I joined. The posts themselves belong to the companion mock (S06–S08), which
+// does not know these ids.
+const myCompanionSeeds: Omit<MyCompanion, 'event'>[] = [
+  {
+    id: 301,
+    meetAt: '2026-11-28T18:00:00+09:00',
+    capacity: 3,
+    memberCount: 2,
+    status: 'OPEN',
+    isMine: true,
+  },
+  {
+    id: 302,
+    meetAt: '2026-11-29T14:00:00+09:00',
+    capacity: 2,
+    memberCount: 2,
+    status: 'FULL',
+    isMine: true,
+  },
+  {
+    id: 303,
+    meetAt: '2026-11-15T19:00:00+09:00',
+    capacity: 4,
+    memberCount: 3,
+    status: 'CLOSED',
+    isMine: false,
+  },
+]
+const MY_COMPANION_EVENT_IDS = [1, INDOOR_DEMO_EVENT_ID, 5]
+
+/** My companion posts with their events, like GET /me/companions. */
+export function listMyCompanions(): MyCompanion[] {
+  return myCompanionSeeds.flatMap((post, index) => {
+    const event = findJourneyEvent(MY_COMPANION_EVENT_IDS[index] ?? 0)
+    return event ? [{ ...post, event: toEventBrief(event) }] : []
+  })
 }
 
 /** Create-or-get, like POST /events/{eventId}/participation. */
