@@ -15,7 +15,7 @@
 npx vercel@latest deploy --prod --yes --build-env VITE_USE_MOCK=true --build-env VITE_API_BASE_URL=/api
 ```
 
-- 백엔드를 연결한 뒤에는 `VITE_USE_MOCK=false`로 바꿉니다.
+- mock 없이 실제 API로 배포할 때는 `/api` rewrite(2장)를 추가한 뒤 `--build-env VITE_USE_MOCK=false`로 바꿉니다.
 
 ### 처음 한 번 설정
 
@@ -45,10 +45,10 @@ npx vercel@latest deploy --prod --yes --build-env VITE_USE_MOCK=true --build-env
 
 배포 명령의 `--build-env`로 넘깁니다 (Vercel 프로젝트 설정에는 두지 않음).
 
-| 변수                | 백엔드 연결 전 | 연결 후 | 설명            |
-| ------------------- | -------------- | ------- | --------------- |
-| `VITE_API_BASE_URL` | `/api`         | `/api`  | rewrites로 넘김 |
-| `VITE_USE_MOCK`     | `true`         | `false` | MSW mock        |
+| 변수                | mock 배포 | 실제 API 배포 | 설명            |
+| ------------------- | --------- | ------------- | --------------- |
+| `VITE_API_BASE_URL` | `/api`    | `/api`        | rewrites로 넘김 |
+| `VITE_USE_MOCK`     | `true`    | `false`       | MSW mock        |
 
 - `VITE_` 값은 번들에 들어갑니다. 비밀 값은 넣지 않습니다. `API_PROXY_TARGET`은 로컬 개발 전용입니다.
 
