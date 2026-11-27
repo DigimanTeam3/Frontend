@@ -15,22 +15,25 @@ export const DEPARTURE_VIEW = { ...SEOUL_CENTER, zoom: 10.6, pitch: 0, bearing: 
 
 const ARRIVAL = { zoom: 15.6, pitch: 58 } as const
 
+/** The 2D mode looks straight down with north up; every move keeps it that way. */
+const FLAT = { pitch: 0, bearing: 0 } as const
+
 // Each destination gets its own slight heading, so flying between tickets feels like a turn.
 const headingFor = (id: number) => -28 + ((id * 37) % 24)
 
 const duration = (ms: number) => (prefersReducedMotion() ? 0 : ms)
 
-/** Flies to one event: a high arc across the city, landing tilted over the venue. */
+/** Flies to one event: a high arc across the city, landing tilted over the venue (flat in 2D). */
 export function flyToSpot(
   map: MapLibreMap,
   spot: Spot,
   padding: PaddingOptions,
-  { first = false } = {},
+  { first = false, is3d = true } = {},
 ) {
   map.flyTo({
     center: [spot.lng, spot.lat],
-    ...ARRIVAL,
-    bearing: headingFor(spot.id),
+    zoom: ARRIVAL.zoom,
+    ...(is3d ? { pitch: ARRIVAL.pitch, bearing: headingFor(spot.id) } : FLAT),
     padding,
     // The first flight from the departure view is slower so the city can unfold.
     duration: duration(first ? 2800 : 1700),
@@ -39,13 +42,17 @@ export function flyToSpot(
   })
 }
 
-/** Shows every event at once, slightly tilted. */
-export function fitAll(map: MapLibreMap, bounds: LngLatBoundsLike, padding: PaddingOptions) {
+/** Shows every event at once, slightly tilted (flat in 2D). */
+export function fitAll(
+  map: MapLibreMap,
+  bounds: LngLatBoundsLike,
+  padding: PaddingOptions,
+  { is3d = true } = {},
+) {
   map.fitBounds(bounds, {
     padding,
     maxZoom: 14,
-    pitch: 40,
-    bearing: -12,
+    ...(is3d ? { pitch: 40, bearing: -12 } : FLAT),
     duration: duration(1200),
   })
 }
@@ -58,8 +65,7 @@ export function flyToUser(map: MapLibreMap, lat: number, lng: number, padding: P
 /** Flat map ↔ tilted 3D city. */
 export function togglePitch(map: MapLibreMap, to3d: boolean) {
   map.easeTo({
-    pitch: to3d ? ARRIVAL.pitch : 0,
-    bearing: to3d ? map.getBearing() || -20 : 0,
+    ...(to3d ? { pitch: ARRIVAL.pitch, bearing: map.getBearing() || -20 } : FLAT),
     duration: duration(600),
   })
 }

@@ -83,16 +83,18 @@ export function MapScreen() {
   // Latest values for callbacks that outlive a render (carousel settle timer, map load).
   const mappedRef = useRef(mapped)
   const mapReadyRef = useRef(mapReady)
+  const is3dRef = useRef(is3d)
   useEffect(() => {
     mappedRef.current = mapped
     mapReadyRef.current = mapReady
-  }, [mapped, mapReady])
+    is3dRef.current = is3d
+  }, [mapped, mapReady, is3d])
 
   const flyTo = useCallback((eventId: number) => {
     const event = mappedRef.current.find((e) => e.id === eventId)
     const map = mapRef.current?.getMap()
     if (!event || !map) return
-    flyToSpot(map, event, CAMERA_PADDING, { first: !hasFlown.current })
+    flyToSpot(map, event, CAMERA_PADDING, { first: !hasFlown.current, is3d: is3dRef.current })
     hasFlown.current = true
     // Set after flyTo: starting a flight ends the previous one, whose moveend clears the label.
     // No label when moves are instant (reduced motion), since no moveend would follow.
@@ -153,7 +155,7 @@ export function MapScreen() {
   const showOverview = () => {
     const map = mapRef.current?.getMap()
     const bounds = boundsOf(visible)
-    if (map && bounds) fitAll(map, bounds, OVERVIEW_PADDING)
+    if (map && bounds) fitAll(map, bounds, OVERVIEW_PADDING, { is3d })
   }
 
   // Fly to the user's position, or explain why not.
