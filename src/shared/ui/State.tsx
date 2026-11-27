@@ -72,9 +72,9 @@ export function State(props: StateProps) {
 
 function LoadingState({ className }: { className?: string }) {
   return (
+    // No aria-busy here: a region that stays busy may never be announced by screen readers.
     <div
       role="status"
-      aria-busy="true"
       className={`flex w-full flex-col gap-3 motion-safe:animate-pulse ${className ?? ''}`}
     >
       <span className="sr-only">{ja.state.loading}</span>

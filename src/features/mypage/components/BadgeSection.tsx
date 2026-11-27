@@ -1,6 +1,7 @@
 import { useAllMyBadgesQuery } from '@/features/mypage/api'
 import { SectionHead } from '@/features/mypage/components/SectionHead'
-import { SectionError, SectionLoading } from '@/features/mypage/components/SectionStatus'
+import { SectionError } from '@/features/mypage/components/SectionError'
+import { SectionLoading } from '@/features/mypage/components/SectionLoading'
 import { ja } from '@/shared/i18n/ja'
 import type { BadgeType } from '@/shared/types/badge'
 

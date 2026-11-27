@@ -22,10 +22,11 @@ import type { VerifyRequest, VerifyResult } from '@/shared/types/participation'
 //   9002  500 INTERNAL_ERROR
 //   9003  the event loads, but verify always answers 400 LOW_ACCURACY
 //   9004  the event loads, but verify always answers 500 INTERNAL_ERROR
+//   9005  the event is over: joining answers 400 EVENT_ENDED
 //   any other unknown id → 404 EVENT_NOT_FOUND
 // The other failures come from the data: event 1 is far away unless you stand at the venue
-// (OUT_OF_RANGE), event 3 has not started (EVENT_NOT_STARTED), event 5 is over (EVENT_ENDED),
-// and checking in twice answers ALREADY_VERIFIED.
+// (OUT_OF_RANGE), event 3 has not started (EVENT_NOT_STARTED), and checking in twice answers
+// ALREADY_VERIFIED (event 5 is seeded as checked in, so it shows this one from the start).
 
 const RADIUS_M = 300
 const MAX_ACCURACY_M = 200

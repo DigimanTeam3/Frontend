@@ -1,7 +1,8 @@
 import { useId, useState } from 'react'
 import { CardThumbnail } from '@/features/mypage/components/CardThumbnail'
 import { SectionHead } from '@/features/mypage/components/SectionHead'
-import { SectionError, SectionLoading } from '@/features/mypage/components/SectionStatus'
+import { SectionError } from '@/features/mypage/components/SectionError'
+import { SectionLoading } from '@/features/mypage/components/SectionLoading'
 import { useMyCardsQuery } from '@/shared/api/cards'
 import { ja } from '@/shared/i18n/ja'
 
