@@ -121,7 +121,8 @@ export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) 
       {selected && (
         <>
           {/* Figma: dashed box 6px around the sticker, remove button on its top corner
-              (sizes as shares of the 283.5px card). */}
+              (sizes as shares of the 283.5px card). The button's ::before widens the 24px
+              circle to a 40px touch target. */}
           <span
             aria-hidden="true"
             className="border-gate pointer-events-none absolute -inset-[2.12cqw] rounded-[2.12cqw] border-[1.5px] border-dashed"
@@ -130,7 +131,7 @@ export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) 
             type="button"
             aria-label={copy.removeBadge[type]}
             onClick={() => board.remove(type)}
-            className={`bg-gate absolute -top-[2.12cqw] flex size-[max(24px,8.47cqw)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-white ${
+            className={`bg-gate absolute -top-[2.12cqw] flex size-[max(24px,8.47cqw)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-white before:absolute before:-inset-2.5 before:rounded-full before:content-[''] ${
               x > REMOVE_BUTTON_FLIP_X
                 ? '-left-[2.12cqw] -translate-x-1/2'
                 : '-right-[2.12cqw] translate-x-1/2'

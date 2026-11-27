@@ -19,6 +19,9 @@ export function CompleteScreen() {
   const eventQuery = useJourneyEventQuery(eventId)
   const cardsQuery = useMyCardsQuery(eventId !== null)
   const card = cardsQuery.data?.items.find((item) => item.event.id === eventId)
+  // A list kept from before this visit may be older than the card: while its first refetch
+  // runs, "no card yet" is not known, so the screen waits instead of showing the empty state.
+  const cardsChecking = cardsQuery.isFetching && !cardsQuery.isFetchedAfterMount
 
   // Every state but the card itself has no visible heading.
   const heading = <h1 className="sr-only">{ja.complete.screenName}</h1>
@@ -48,7 +51,7 @@ export function CompleteScreen() {
         />
       </>
     )
-  } else if (eventQuery.data && cardsQuery.data) {
+  } else if (eventQuery.data && cardsQuery.data && !cardsChecking) {
     // The card and the complete badge only exist after every required mission is done.
     const { noCard } = ja.complete
     content = (

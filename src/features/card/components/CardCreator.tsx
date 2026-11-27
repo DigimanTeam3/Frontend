@@ -56,7 +56,15 @@ export function CardCreator({ card }: CardCreatorProps) {
 
       <div className="mt-auto flex flex-col gap-6 pt-6">
         <StickerTray board={board} />
-        <Button variant="accent" shape="pill" fullWidth onClick={handleSave}>
+        {/* Figma S13 draws this button 54px high with 16px text. The `!` makes these win over the
+            shared 52px / 15px size classes whatever their order in the stylesheet. */}
+        <Button
+          variant="accent"
+          shape="pill"
+          fullWidth
+          className="h-[54px]! text-base!"
+          onClick={handleSave}
+        >
           {copy.save}
         </Button>
       </div>

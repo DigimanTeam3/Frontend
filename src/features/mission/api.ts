@@ -3,12 +3,14 @@ import { apiClient } from '@/shared/api/client'
 import { retryUnlessClientError } from '@/shared/api/journey'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { apiErrorCode } from '@/shared/lib/apiError'
+import type { ExperienceCard } from '@/shared/types/card'
 import type {
   MissionListResponse,
   Submission,
   SubmissionRequest,
   SubmissionResult,
 } from '@/shared/types/mission'
+import type { Page } from '@/shared/types/page'
 
 // The auth header is optional here: without a login the answer has isVerified false and no submissions.
 export function getMissions(eventId: number) {
@@ -44,19 +46,32 @@ function withSubmission(list: MissionListResponse, submission: Submission): Miss
   }
 }
 
+/** My card list with the new card in front, so the completion screen has it before the refetch answers. */
+function withCard(page: Page<ExperienceCard>, card: ExperienceCard): Page<ExperienceCard> {
+  const others = page.items.filter((item) => item.id !== card.id)
+  const isNew = others.length === page.items.length
+  return { ...page, items: [card, ...others], total: isNew ? page.total + 1 : page.total }
+}
+
 export function useSubmitMissionMutation(eventId: number) {
   const queryClient = useQueryClient()
   const missionsKey = queryKeys.missions.byEvent(eventId)
   return useMutation({
     mutationFn: (input: { missionId: number; body: SubmissionRequest }) =>
       submitMission(input.missionId, input.body),
-    onSuccess: ({ submission }) => {
+    onSuccess: ({ submission, experienceCard }) => {
       queryClient.setQueryData<MissionListResponse>(
         missionsKey,
         (list) => list && withSubmission(list, submission),
       )
       void queryClient.invalidateQueries({ queryKey: missionsKey })
       // The last required mission also hands out the complete badge and the experience card.
+      if (experienceCard) {
+        queryClient.setQueryData<Page<ExperienceCard>>(
+          queryKeys.cards.mine(),
+          (page) => page && withCard(page, experienceCard),
+        )
+      }
       void queryClient.invalidateQueries({ queryKey: queryKeys.badges.all })
       void queryClient.invalidateQueries({ queryKey: queryKeys.cards.all })
     },
