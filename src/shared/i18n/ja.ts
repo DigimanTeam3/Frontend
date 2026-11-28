@@ -222,4 +222,11 @@ export const ja = {
     message: 'ページが見つかりません。',
     backHome: 'ホームに戻る',
   },
+  // Shared loading / empty / error block (C9: src/shared/ui/State.tsx).
+  state: {
+    loading: '読み込み中…',
+    errorTitle: '読み込めませんでした',
+    errorBody: '通信状態を確認して、もう一度お試しください',
+    retry: '再読み込み',
+  },
 } as const
