@@ -69,13 +69,13 @@ src/
     ticket/        S17 予約券                         — 김태효
     notification/  S18 알림으로 들어온 행사            — 김태효
   shared/          여러 기능이 같이 쓰는 것 (바꾸면 상대에게 알림)
-    api/           fetch 래퍼(client.ts), queryClient, queryKeys
+    api/           fetch 래퍼(client.ts), 에러 헬퍼(errors.ts), queryClient, queryKeys — 쓰는 법: docs/api/README.md
     ui/            공통 컴포넌트 (ScreenPlaceholder, Button, Card …)
     i18n/          ja.ts — 화면 문구(일본어)
     lib/           유틸 (날짜 포맷, 거리 계산, safeRedirect …)
     types/         API 응답 타입
     stores/        Zustand 스토어 (로그인 정보)
-  mocks/           MSW handlers.ts, data/
+  mocks/           MSW handlers.ts, <feature>Handlers.ts, data/, utils.ts(지연·에러 응답·시험용 id)
   styles/          index.css (Tailwind, @theme 디자인 토큰)
 ```
 
