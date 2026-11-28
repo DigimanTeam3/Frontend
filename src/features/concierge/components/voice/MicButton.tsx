@@ -8,16 +8,17 @@ export type MicState = 'ready' | 'listening' | 'busy'
 // Heights of the sound bars on each side of the mic while recording (Figma 「mic listening」).
 const BARS = [10, 18, 26, 14, 30, 20, 12, 22]
 
-function SoundBars({ flip }: { flip?: boolean }) {
+/** Always laid out (hidden when not recording) so the mic never shifts sideways. */
+function SoundBars({ visible, flip }: { visible: boolean; flip?: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex items-center gap-[3px] ${flip ? 'flex-row-reverse' : ''}`}
+      className={`flex items-center gap-[3px] transition-opacity duration-200 ease-out motion-reduce:transition-none ${flip ? 'flex-row-reverse' : ''} ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
       {BARS.map((height, i) => (
         <span
           key={i}
-          className="digu-bar w-[3px] rounded-full bg-[var(--digu-pink)]"
+          className={`w-[3px] rounded-full bg-[var(--digu-pink)] ${visible ? 'digu-bar' : ''}`}
           style={{ height, animationDelay: `${(i % 4) * 0.12}s` }}
         />
       ))}
@@ -50,22 +51,12 @@ export function MicButton({
 
   const button = (
     <span className="relative flex items-center justify-center">
-      {listening && !small && (
-        <>
-          <span
-            aria-hidden="true"
-            className="digu-ring absolute size-[76px] rounded-full bg-[var(--digu-pink)]/30"
-          />
-          <span
-            aria-hidden="true"
-            className="digu-ring absolute size-[76px] rounded-full bg-[var(--digu-pink)]/25"
-            style={{ animationDelay: '0.6s' }}
-          />
-          <span
-            aria-hidden="true"
-            className="absolute size-[132px] rounded-full bg-[var(--digu-pink-soft)]/70"
-          />
-        </>
+      {/* Soft halo while recording: fades in and stays still (no pulsing rings). */}
+      {!small && (
+        <span
+          aria-hidden="true"
+          className={`absolute size-[108px] rounded-full bg-[var(--digu-pink-soft)] transition-opacity duration-200 ease-out motion-reduce:transition-none ${listening ? 'opacity-80' : 'opacity-0'}`}
+        />
       )}
       <button
         type="button"
@@ -82,9 +73,9 @@ export function MicButton({
   if (small) return button
   return (
     <div className="flex w-full items-center justify-center gap-5">
-      {listening && <SoundBars />}
+      <SoundBars visible={listening} />
       {button}
-      {listening && <SoundBars flip />}
+      <SoundBars visible={listening} flip />
     </div>
   )
 }

@@ -84,7 +84,7 @@ export function ChatCounter({ session }: { session: ConciergeSession }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="concierge-fade flex flex-1 flex-col">
       <TopBar
         title={t.topBarTitle}
         fallback="/"
