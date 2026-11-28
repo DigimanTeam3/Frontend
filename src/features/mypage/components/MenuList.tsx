@@ -37,7 +37,7 @@ function RowBody({ icon, label, value, chevron }: RowBodyProps) {
         {label}
       </span>
       {value !== undefined && (
-        <span className="text-ink-faint shrink-0 text-[13px] leading-[1.6] whitespace-nowrap">
+        <span className="shrink-0 text-[13px] leading-[1.6] whitespace-nowrap text-ink-faint">
           {value}
         </span>
       )}
