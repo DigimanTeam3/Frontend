@@ -115,7 +115,7 @@ export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) 
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onKeyDown={handleKeyDown}
-        className="outline-gate block w-full cursor-grab touch-none rounded-full outline-offset-2 select-none focus-visible:outline-2"
+        className="block w-full cursor-grab touch-none rounded-full outline-offset-2 outline-gate select-none focus-visible:outline-2"
       >
         <StickerFace type={type} tilt={look.tilt} />
       </button>
@@ -126,13 +126,13 @@ export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) 
               circle to a 40px touch target. */}
           <span
             aria-hidden="true"
-            className="border-gate pointer-events-none absolute -inset-[2.12cqw] rounded-[2.12cqw] border-[1.5px] border-dashed"
+            className="pointer-events-none absolute -inset-[2.12cqw] rounded-[2.12cqw] border-[1.5px] border-dashed border-gate"
           />
           <button
             type="button"
             aria-label={copy.removeBadge[type]}
             onClick={() => board.remove(type)}
-            className={`bg-gate absolute -top-[2.12cqw] flex size-[max(24px,8.47cqw)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-white before:absolute before:-inset-2.5 before:rounded-full before:content-[''] ${
+            className={`absolute -top-[2.12cqw] flex size-[max(24px,8.47cqw)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gate text-white before:absolute before:-inset-2.5 before:rounded-full before:content-[''] ${
               x > REMOVE_BUTTON_FLIP_X
                 ? '-left-[2.12cqw] -translate-x-1/2'
                 : '-right-[2.12cqw] translate-x-1/2'
