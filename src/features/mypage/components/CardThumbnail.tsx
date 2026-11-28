@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { ja } from '@/shared/i18n/ja'
 import { paths } from '@/shared/lib/paths'
 import { polaroidCardText } from '@/shared/lib/polaroidCardText'
-import { detailStickers } from '@/shared/lib/stickers'
+import { detailStickers, fromSavedPlacements } from '@/shared/lib/stickers'
 import { useStickerStore } from '@/shared/stores/stickerStore'
 import type { ExperienceCard } from '@/shared/types/card'
 import { CardStickers } from '@/shared/ui/CardStickers'
@@ -13,9 +13,10 @@ export interface CardThumbnailProps {
 }
 
 // A small polaroid that links to the card. It shows the stickers as arranged in this session,
-// else at the default places of the card detail, like S14.
+// else as the card keeps them, else at the default places of the card detail, like S14.
 export function CardThumbnail({ card }: CardThumbnailProps) {
-  const stickers = detailStickers(useStickerStore((state) => state.placementsByCard[card.id]))
+  const arranged = useStickerStore((state) => state.placementsByCard[card.id])
+  const stickers = detailStickers(arranged ?? fromSavedPlacements(card.stickerPlacements))
 
   return (
     <Link

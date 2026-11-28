@@ -33,9 +33,9 @@ export const STICKER_LOOK: Record<BadgeType, StickerLook> = {
   participation: { size: 0.271, tilt: 0 },
 }
 
-// Figma S14: a saved card whose arrangement is not known (the placements are kept in memory
-// only, so e.g. after a reload). Complete at the top-right corner, participation hanging off the
-// bottom-right one. The Figma "photo" badge cannot be earned yet and is left out.
+// Figma S14: a saved card whose arrangement was never saved (`stickerPlacements` null on the
+// server). Complete at the top-right corner, participation hanging off the bottom-right one.
+// The Figma "photo" badge cannot be earned yet and is left out.
 const DETAIL_STICKERS: DrawnSticker[] = [
   { type: 'complete', x: 0.905, y: 0.045, size: 0.278, tilt: 10 },
   { type: 'participation', x: 0.918, y: 0.93, size: 0.2576, tilt: -8 },
@@ -45,9 +45,46 @@ export function defaultPlacements(): StickerPlacement[] {
   return STICKER_TYPES.map((type) => ({ type, ...DEFAULT_STICKER_POSITION[type] }))
 }
 
+// What PATCH /experience-cards/{cardId} takes as `stickerPlacements`: x and y from -0.5 to 1.5
+// (kept with 4 decimals), one sticker per badge.
+const SAVED_MIN = -0.5
+const SAVED_MAX = 1.5
+const toSavedNumber = (value: number) =>
+  Math.round(Math.min(SAVED_MAX, Math.max(SAVED_MIN, value)) * 10_000) / 10_000
+
+/** The arrangement as the server takes it. An empty list means "no sticker on the card". */
+export function toSavedPlacements(placements: StickerPlacement[]): StickerPlacement[] {
+  return STICKER_TYPES.flatMap((type) => {
+    const placement = placements.find((item) => item.type === type)
+    return placement ? [{ type, x: toSavedNumber(placement.x), y: toSavedNumber(placement.y) }] : []
+  })
+}
+
+/**
+ * The arrangement the server sent with a card (`stickerPlacements`), checked. Undefined when it
+ * was never saved (null or missing): the caller then uses its default places.
+ */
+export function fromSavedPlacements(value: unknown): StickerPlacement[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  return STICKER_TYPES.flatMap((type) => {
+    const item: unknown = value.find(
+      (entry: unknown) =>
+        typeof entry === 'object' && entry !== null && (entry as { type?: unknown }).type === type,
+    )
+    const { x, y } = (item ?? {}) as { x?: unknown; y?: unknown }
+    return typeof x === 'number' &&
+      Number.isFinite(x) &&
+      typeof y === 'number' &&
+      Number.isFinite(y)
+      ? [{ type, x, y }]
+      : []
+  })
+}
+
 /**
  * The stickers of a saved card: as arranged on the completion screen (same look as there) when
- * that is known, else at the Figma places of the card detail.
+ * that is known, else at the Figma places of the card detail. `saved` is what this session
+ * arranged, else what the server keeps: `local ?? fromSavedPlacements(card.stickerPlacements)`.
  */
 export function detailStickers(saved: StickerPlacement[] | undefined): DrawnSticker[] {
   if (!saved) return DETAIL_STICKERS

@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import { CardInfo } from '@/features/card/components/CardInfo'
 import { ShareImagePreview } from '@/features/card/components/ShareImagePreview'
 import { CardStickers } from '@/shared/ui/CardStickers'
-import { detailStickers } from '@/shared/lib/stickers'
+import { detailStickers, fromSavedPlacements } from '@/shared/lib/stickers'
 import { useStickerStore } from '@/shared/stores/stickerStore'
 import { useShareCard } from '@/features/card/useShareCard'
 import { ja } from '@/shared/i18n/ja'
@@ -32,8 +32,10 @@ const EXIT_LINK =
 // list with the memo, the actions, and the ways out.
 export function CardDetail({ card }: CardDetailProps) {
   const { cardDetail: copy } = ja
-  // What was arranged on the completion screen in this session, else the Figma places.
-  const stickers = detailStickers(useStickerStore((state) => state.placementsByCard[card.id]))
+  // What was arranged on the completion screen in this session, else what the card keeps, else
+  // the Figma places.
+  const arranged = useStickerStore((state) => state.placementsByCard[card.id])
+  const stickers = detailStickers(arranged ?? fromSavedPlacements(card.stickerPlacements))
   const [editing, setEditing] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const editButton = useRef<HTMLButtonElement>(null)

@@ -781,6 +781,9 @@ export const ja = {
     trayTitle: 'バッジをはる',
     trayHint: 'ドラッグして好きな場所に',
     save: 'カードを保存する',
+    // While the badge places are being saved on the card, and when that failed.
+    saving: '保存中…',
+    saveError: 'バッジの位置を保存できませんでした。もう一度お試しください。',
     badgeName: {
       participation: '参加バッジ',
       complete: '完走バッジ',
