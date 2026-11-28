@@ -113,8 +113,8 @@ export function MenuList({ summary }: MenuListProps) {
         >
           <RowBody
             icon={<PenIcon />}
-            label={copy.recruitments}
-            value={summary.recruitmentCount}
+            label={copy.companions}
+            value={summary.companionCount}
             chevron={
               <ChevronRightIcon
                 className={`${CHEVRON} motion-safe:transition-transform ${

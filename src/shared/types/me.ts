@@ -19,6 +19,8 @@ export interface MySummary {
   experienceCardCount: number
   /** Companion posts written by me. */
   recruitmentCount: number
+  /** Companion groups I am in: posts I wrote and posts I joined. The size of GET /me/companions. */
+  companionCount: number
 }
 
 export type MyCompanionStatus = 'OPEN' | 'FULL' | 'CLOSED'
