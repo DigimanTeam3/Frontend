@@ -138,6 +138,48 @@
   display: none;
 }
 
+/* k1 → k2 (tickets printed → the list): ディグ shrinks to the corner, its line and each ticket
+   glide to their places, the bottom bar comes up last. Names are set in VoiceCounter. */
+::view-transition-group(digu),
+::view-transition-group(digu-line),
+::view-transition-group(digu-ticket-0),
+::view-transition-group(digu-ticket-1),
+::view-transition-group(digu-ticket-2) {
+  /* Long, soft settle: starts at once and eases in slowly at the end. */
+  animation-duration: 640ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+::view-transition-group(digu-ticket-1) {
+  animation-delay: 50ms;
+}
+::view-transition-group(digu-ticket-2) {
+  animation-delay: 100ms;
+}
+/* Everything else (the light behind ディグ, the background) cross-fades at the same pace. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 420ms;
+  animation-timing-function: ease-in-out;
+}
+/* The line changes words on the way: the old one fades out, the new one fades in after it. */
+::view-transition-old(digu-line) {
+  animation: digu-fade 280ms ease-in-out reverse both;
+}
+::view-transition-new(digu-line) {
+  animation: digu-fade 360ms ease-in-out 200ms both;
+}
+@keyframes digu-dock-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+::view-transition-new(digu-dock):only-child {
+  animation: digu-dock-in 460ms cubic-bezier(0.32, 0.72, 0, 1) 280ms both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .digu-breathe,
   .digu-lean,

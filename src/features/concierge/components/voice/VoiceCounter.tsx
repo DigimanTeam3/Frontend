@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useNavigate } from 'react-router'
 import { CheckIcon } from '@/features/concierge/components/icons'
 import { ErrorSlip } from '@/features/concierge/components/Slips'
@@ -66,11 +67,7 @@ function usePhase(session: ConciergeSession): Phase {
   }
   const last = entries.at(-1)
   if (last?.role === 'assistant') {
-    return {
-      kind: 'reply',
-      entry: last,
-      question: questionBefore(entries, entries.length - 1),
-    }
+    return { kind: 'reply', entry: last, question: questionBefore(entries, entries.length - 1) }
   }
   if (last?.role === 'error') {
     // A rejected question has no slip any more (it waits in the text box); show what was sent.
@@ -84,6 +81,18 @@ function usePhase(session: ConciergeSession): Phase {
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+const canViewTransition = () =>
+  typeof document !== 'undefined' && typeof document.startViewTransition === 'function'
+
+// view-transition-names shared by k1 (tickets printing) and k2 (the list), so ディグ, its line and
+// each ticket glide from one layout to the other instead of cutting (see voice.css).
+const MORPH = {
+  digu: 'digu',
+  line: 'digu-line',
+  dock: 'digu-dock',
+  ticket: (i: number) => `digu-ticket-${i}`,
+} as const
 
 /** ディグ's line while the server thinks: changes every few seconds so a long wait feels alive. */
 function ThinkingBubble() {
@@ -252,7 +261,7 @@ function Stage({
             className={`absolute top-1/2 left-1/2 aspect-square w-[121%] -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-200 ease-out motion-reduce:transition-none ${listening ? 'bg-[var(--digu-pink-soft)]' : 'bg-[var(--digu-glow)]'}`}
           />
           <div className="relative">
-            <Digu face={face} size="lg" motion={motion} smooth={smooth} />
+            <Digu face={face} size="lg" motion={motion} smooth={smooth} name={MORPH.digu} />
           </div>
         </div>
       </div>
@@ -339,7 +348,15 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
   useEffect(() => {
     if (!printing || !replyEntry) return
     const id = replyEntry.id
-    const timer = window.setTimeout(() => setIssuedId(id), reducedMotion ? 0 : printMs)
+    const timer = window.setTimeout(
+      () => {
+        const issue = () => setIssuedId(id)
+        // k1 → k2 as one move: the browser animates each named part to its new place.
+        if (reducedMotion || !canViewTransition()) issue()
+        else document.startViewTransition(() => flushSync(issue))
+      },
+      reducedMotion ? 0 : printMs,
+    )
     return () => window.clearTimeout(timer)
   }, [printing, replyEntry, printMs, reducedMotion])
 
@@ -437,15 +454,19 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
     // S16-5 k2: small ディグ reads the answer, then each reason; the ticket being read is framed.
     const reading = readingIndex !== null ? recommendations[readingIndex] : undefined
     body = (
-      <div key="tickets" className="digu-fade flex flex-1 flex-col">
+      <div
+        key="tickets"
+        className={`flex flex-1 flex-col ${reducedMotion || !canViewTransition() ? 'digu-fade' : ''}`}
+      >
         <div className="flex items-start gap-3.5 px-4 pt-3 pb-5">
           <Digu
             face={talking ? talkFace : 'speakingHalf'}
             size="sm"
             motion={talking ? null : 'breathe'}
             smooth={!talking}
+            name={MORPH.digu}
           />
-          <div className="min-w-0 flex-1 pt-0.5">
+          <div className="min-w-0 flex-1 pt-0.5" style={{ viewTransitionName: MORPH.line }}>
             <DiguBubble
               tail="left"
               size="md"
@@ -471,13 +492,17 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
                 ticketRefs.current[i] = node
               }}
               className="scroll-mt-20 scroll-mb-28"
+              style={{ viewTransitionName: MORPH.ticket(i) }}
             >
               <VoiceTicket recommendation={item} reading={readingIndex === i} />
             </li>
           ))}
         </ol>
         {notice && <div className="px-4 pb-3">{hint('')}</div>}
-        <div className="sticky bottom-0 z-10 mt-auto flex items-center gap-2 bg-white px-4 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] shadow-[0_-2px_5px_rgba(0,0,0,0.08)]">
+        <div
+          className="sticky bottom-0 z-10 mt-auto flex items-center gap-2 bg-white px-4 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] shadow-[0_-2px_5px_rgba(0,0,0,0.08)]"
+          style={{ viewTransitionName: MORPH.dock }}
+        >
           <Link
             to="/map"
             className="flex min-h-10 shrink-0 items-center rounded-[10px] border border-[var(--digu-line)] bg-white px-4 text-sm font-bold transition-transform duration-150 ease-out active:scale-[0.97]"
@@ -527,18 +552,12 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
         if (pendingReservation && isLoggedIn) {
           // Back from login with conditions to keep.
           face = 'speaking'
-          lines.push({
-            key: 'digu:resume',
-            node: <DiguBubble text={t.resume} />,
-          })
+          lines.push({ key: 'digu:resume', node: <DiguBubble text={t.resume} /> })
           dockKey = 'reservation'
           dock = reservation(PENDING_RESERVATION_ID, pendingReservation)
           break
         }
-        lines.push({
-          key: 'digu:greeting',
-          node: <DiguBubble text={t.greeting} />,
-        })
+        lines.push({ key: 'digu:greeting', node: <DiguBubble text={t.greeting} /> })
         slotKey = 'starters'
         slot = <Chips items={t.starters} disabled={busy} onPick={onPick} />
         break
@@ -580,10 +599,12 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
           lines.push({
             key: `digu:${entry.id}`,
             node: (
-              <DiguBubble
-                text={t.found(recommendations.length)}
-                status={talking ? t.speaking : null}
-              />
+              <div style={{ viewTransitionName: MORPH.line }}>
+                <DiguBubble
+                  text={t.found(recommendations.length)}
+                  status={talking ? t.speaking : null}
+                />
+              </div>
             ),
           })
           dockKey = 'printing'
@@ -593,7 +614,11 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
               className="flex h-full flex-col gap-3 px-4"
             >
               {recommendations.map((item, i) => (
-                <li key={item.event.id} className="shrink-0 overflow-hidden pt-1">
+                <li
+                  key={item.event.id}
+                  className="shrink-0 overflow-hidden pt-1"
+                  style={{ viewTransitionName: MORPH.ticket(i) }}
+                >
                   <div
                     className="concierge-print"
                     style={{ animationDelay: `${i * PRINT_STAGGER_MS}ms` }}

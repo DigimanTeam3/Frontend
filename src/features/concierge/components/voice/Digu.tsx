@@ -42,15 +42,19 @@ export function Digu({
   size,
   motion = null,
   smooth = true,
+  name,
 }: {
   face: DiguFace
   size: keyof typeof SIZE
   motion?: DiguMotion
   smooth?: boolean
+  /** view-transition-name, so ディグ can move from one layout to the other. */
+  name?: string
 }) {
   return (
     <div
       aria-hidden="true"
+      style={name ? { viewTransitionName: name } : undefined}
       className={`relative shrink-0 overflow-hidden rounded-full bg-[#f2c6d3] ${SIZE[size]}`}
     >
       <div className={`absolute inset-0 ${motion ? MOTION[motion] : ''}`}>
