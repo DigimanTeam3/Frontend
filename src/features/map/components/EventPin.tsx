@@ -1,19 +1,23 @@
 import { Marker } from '@vis.gl/react-maplibre'
-import { categoryLabel, preferJa } from '@/shared/lib/eventText'
-import type { EventCategory, EventSummary } from '@/shared/types/event'
+import { homeCategoryLabel, ticketCategory, type HomeCategory } from '@/features/events/lib/popup'
+import { preferJa } from '@/shared/lib/eventText'
+import type { EventSummary } from '@/shared/types/event'
 
-// Category print colors from Figma kippu/* (祭り festival, 展示 exhibit, 公演 stage).
-const CATEGORY_TEXT: Record<EventCategory, string> = {
+// Category print colors from Figma kippu/* (祭り festival, 展示 exhibit, 公演 stage), and the
+// gate pink for pop-up stores.
+const CATEGORY_TEXT: Record<HomeCategory, string> = {
   festival: 'text-festival',
   exhibition: 'text-exhibit',
   performance: 'text-stage',
+  popup: 'text-gate-ink',
 }
 const PIN_BOX = 'flex min-h-11 min-w-11 flex-col items-center justify-end'
 
-const CATEGORY_BAR: Record<EventCategory, string> = {
+const CATEGORY_BAR: Record<HomeCategory, string> = {
   festival: 'bg-festival',
   exhibition: 'bg-exhibit',
   performance: 'bg-stage',
+  popup: 'bg-gate',
 }
 
 export interface EventPinProps {
@@ -30,7 +34,8 @@ export interface EventPinProps {
  */
 export function EventPin({ event, selected = false, onSelect }: EventPinProps) {
   const title = preferJa(event.titleJa, event.title)
-  const label = `${categoryLabel(event.category)} ${title}`
+  const kind = ticketCategory(event)
+  const label = `${homeCategoryLabel(kind)} ${title}`
   const tag = (
     <>
       <span
@@ -38,11 +43,11 @@ export function EventPin({ event, selected = false, onSelect }: EventPinProps) {
           selected ? 'scale-110 ring-ink' : 'ring-ink/15'
         }`}
       >
-        <span aria-hidden className={`w-1 ${CATEGORY_BAR[event.category]}`} />
+        <span aria-hidden className={`w-1 ${CATEGORY_BAR[kind]}`} />
         <span
-          className={`px-1.5 py-0.5 font-mincho text-[11px] leading-[1.5] font-bold ${CATEGORY_TEXT[event.category]}`}
+          className={`px-1.5 py-0.5 font-mincho text-[11px] leading-[1.5] font-bold ${CATEGORY_TEXT[kind]}`}
         >
-          {categoryLabel(event.category)}
+          {homeCategoryLabel(kind)}
         </span>
         {selected && (
           <span className="max-w-[140px] truncate border-l border-dashed border-line px-1.5 py-0.5 text-[11px] leading-[1.5] font-bold text-ink">

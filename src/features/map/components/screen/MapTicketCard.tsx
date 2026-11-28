@@ -1,32 +1,38 @@
 import { Link } from 'react-router'
 import { eventStatus } from '@/features/events/lib/eventText'
+import { homeCategoryLabel, ticketCategory, type HomeCategory } from '@/features/events/lib/popup'
 import routeIcon from '@/features/map/assets/route.svg'
 import { DirectionsLink } from '@/features/map/components/DirectionsLink'
 import { ticketNumber, ticketPeriod } from '@/features/map/lib/ticketText'
 import { ja } from '@/shared/i18n/ja'
-import { categoryLabel, preferJa } from '@/shared/lib/eventText'
-import type { EventCategory, EventSummary } from '@/shared/types/event'
+import { preferJa } from '@/shared/lib/eventText'
+import type { EventSummary } from '@/shared/types/event'
 
-// Ticket paper and print color per category (Figma Concept 切符 / kippu).
-const PAPER: Record<EventCategory, string> = {
+// Ticket paper and print color per category (Figma Concept 切符 / kippu), and the gate pink for
+// pop-up stores.
+const PAPER: Record<HomeCategory, string> = {
   festival: 'bg-festival-soft',
   exhibition: 'bg-exhibit-soft',
   performance: 'bg-stage-soft',
+  popup: 'bg-gate-soft',
 }
-const PRINT: Record<EventCategory, string> = {
+const PRINT: Record<HomeCategory, string> = {
   festival: 'text-festival',
   exhibition: 'text-exhibit',
   performance: 'text-stage',
+  popup: 'text-gate-ink',
 }
-const BAR: Record<EventCategory, string> = {
+const BAR: Record<HomeCategory, string> = {
   festival: 'bg-festival',
   exhibition: 'bg-exhibit',
   performance: 'bg-stage',
+  popup: 'bg-gate',
 }
-const STAMP: Record<EventCategory, string> = {
+const STAMP: Record<HomeCategory, string> = {
   festival: 'border-festival text-festival',
   exhibition: 'border-exhibit text-exhibit',
   performance: 'border-stage text-stage',
+  popup: 'border-gate-ink text-gate-ink',
 }
 
 export interface MapTicketCardProps {
@@ -42,10 +48,11 @@ export function MapTicketCard({ event, selected }: MapTicketCardProps) {
   const t = ja.map
   const title = preferJa(event.titleJa, event.title)
   const status = eventStatus(event.startDate, event.endDate)
+  const kind = ticketCategory(event)
 
   return (
     <article
-      className={`relative flex h-[128px] overflow-hidden rounded-[10px] ${PAPER[event.category]} shadow-[0_8px_24px_rgb(30_34_48/0.18)] transition-transform duration-300 ease-out ${
+      className={`relative flex h-[128px] overflow-hidden rounded-[10px] ${PAPER[kind]} shadow-[0_8px_24px_rgb(30_34_48/0.18)] transition-transform duration-300 ease-out ${
         selected ? 'scale-100' : 'scale-[0.94]'
       }`}
     >
@@ -54,19 +61,21 @@ export function MapTicketCard({ event, selected }: MapTicketCardProps) {
         className="flex min-w-0 flex-1 flex-col justify-between py-3 pr-2 pl-3.5"
       >
         <div className="flex items-center gap-1.5">
-          <span aria-hidden className={`h-3.5 w-[3px] rounded-full ${BAR[event.category]}`} />
-          <span className={`font-mincho text-xs font-bold ${PRINT[event.category]}`}>
-            {categoryLabel(event.category)}
+          <span aria-hidden className={`h-3.5 w-[3px] rounded-full ${BAR[kind]}`} />
+          <span
+            className={`shrink-0 font-mincho text-xs font-bold whitespace-nowrap ${PRINT[kind]}`}
+          >
+            {homeCategoryLabel(kind)}
           </span>
           <span
             aria-hidden
-            className={`font-mono text-[9px] font-semibold tracking-[0.14em] ${PRINT[event.category]}`}
+            className={`shrink-0 font-mono text-[9px] font-semibold tracking-[0.14em] ${PRINT[kind]}`}
           >
-            {t.categoryCode[event.category]}
+            {t.categoryCode[kind]}
           </span>
           {status !== 'upcoming' && (
             <span
-              className={`rounded-sm px-1 text-[10px] leading-[1.6] font-bold ${
+              className={`shrink-0 rounded-sm px-1 text-[10px] leading-[1.6] font-bold whitespace-nowrap ${
                 status === 'ongoing' ? 'bg-warn-soft text-warn' : 'bg-line text-ink-muted'
               }`}
             >
@@ -75,7 +84,7 @@ export function MapTicketCard({ event, selected }: MapTicketCardProps) {
           )}
           <span
             aria-hidden
-            className="ml-auto font-mono text-[9px] tracking-[0.08em] text-ink-muted"
+            className="ml-auto truncate font-mono text-[9px] tracking-[0.08em] text-ink-muted"
           >
             {t.ticketNo}
             {ticketNumber(event)}
@@ -110,7 +119,7 @@ export function MapTicketCard({ event, selected }: MapTicketCardProps) {
       {event.isFree && (
         // Fare stamp (Figma kippu/FareStamp): free events are stamped 無料 like a paid fare.
         <span
-          className={`pointer-events-none absolute right-[78px] bottom-2.5 flex size-11 -rotate-12 flex-col items-center justify-center rounded-full border-[1.5px] leading-none opacity-85 ${STAMP[event.category]}`}
+          className={`pointer-events-none absolute right-[78px] bottom-2.5 flex size-11 -rotate-12 flex-col items-center justify-center rounded-full border-[1.5px] leading-none opacity-85 ${STAMP[kind]}`}
         >
           <span className="font-mincho text-[11px] font-bold">{ja.eventDetail.free}</span>
           <span aria-hidden className="mt-0.5 font-mono text-[6px] tracking-[0.14em]">

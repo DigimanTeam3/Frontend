@@ -251,7 +251,12 @@ export const ja = {
     mode3d: '3D',
     mode2d: '2D',
     // Small printed codes on the ticket (decoration, like on a real ticket)
-    categoryCode: { festival: 'FESTIVAL', exhibition: 'EXHIBIT', performance: 'STAGE' },
+    categoryCode: {
+      festival: 'FESTIVAL',
+      exhibition: 'EXHIBIT',
+      performance: 'STAGE',
+      popup: 'POPUP',
+    },
     ticketNo: 'No.',
     dateCode: 'DATE',
     venueCode: 'VENUE',
