@@ -1,6 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
-import { Navigate, useLocation, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { useCompanionActionMutation, useCompanionQuery } from '@/features/companion/api'
 import { EventStrip } from '@/features/companion/components/EventStrip'
 import { InitialAvatar } from '@/features/companion/components/InitialAvatar'
@@ -8,9 +6,7 @@ import { JoinPanel } from '@/features/companion/components/JoinPanel'
 import { KippuTicket } from '@/features/companion/components/KippuTicket'
 import { RequestList } from '@/features/companion/components/RequestList'
 import { StatusTag } from '@/features/companion/components/StatusTag'
-import { ApiError } from '@/shared/api/client'
 import { apiErrorCode } from '@/shared/api/errors'
-import { queryKeys } from '@/shared/api/queryKeys'
 import { ja } from '@/shared/i18n/ja'
 
 const text = ja.companionDetail
@@ -18,8 +14,6 @@ const text = ja.companionDetail
 // S08. Companion post: ask to join → the author accepts → names are printed on the ticket seats.
 export function CompanionDetailPage() {
   const postId = Number(useParams().postId)
-  const location = useLocation()
-  const queryClient = useQueryClient()
   const action = useCompanionActionMutation(postId)
   // No polling while an action is on its way, so an older answer cannot replace the new one.
   const {
@@ -31,18 +25,8 @@ export function CompanionDetailPage() {
     isRefetching,
   } = useCompanionQuery(postId, { paused: action.isPending })
 
-  // A 401 from loading or from an action (request, cancel, accept, reject) both go to login.
-  const unauthorized = [error, action.error].some(
-    (value) => value instanceof ApiError && value.status === 401,
-  )
-  // Drop the cached post so it is not shown again after signing in as someone else.
-  useEffect(() => {
-    if (unauthorized) queryClient.removeQueries({ queryKey: queryKeys.companions.detail(postId) })
-  }, [unauthorized, postId, queryClient])
-  if (unauthorized) {
-    const redirect = encodeURIComponent(location.pathname + location.search)
-    return <Navigate to={`/login?redirect=${redirect}`} replace />
-  }
+  // A 401 needs nothing here: apiClient logs out and clears the cache, and RequireAuth sends
+  // the user to login with this page as the redirect.
 
   const validPostId = Number.isInteger(postId) && postId > 0
   const notFound = !validPostId || apiErrorCode(error) === 'COMPANION_NOT_FOUND'
