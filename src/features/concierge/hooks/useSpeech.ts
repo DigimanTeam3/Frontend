@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchSpeech, SPEECH_MAX_LENGTH } from '@/features/concierge/api'
+import { splitIntoChunks } from '@/features/concierge/lib/speechChunks'
 
 export function isSpeechSupported() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window
 }
 
-/** How long a part may keep us waiting, once it is its turn, before the browser voice takes over. */
-const SERVER_PART_WAIT_MS = 4000
+/** How long a chunk may keep us waiting, once it is its turn, before the browser voice takes over. */
+const SERVER_CHUNK_WAIT_MS = 4000
+
+/** Text to read, and the index of the reply part it belongs to. */
+interface Piece {
+  text: string
+  part: number
+}
 
 // 1 ms of silence (WAV). Played in a tap so iPhone Safari lets the same element play later.
 const SILENT_CLIP =
@@ -20,7 +27,7 @@ function serverVoiceEnabled() {
   )
 }
 
-/** Resolves with the part's audio, or rejects if it is not there within `ms`. */
+/** Resolves with the chunk's audio, or rejects if it is not there within `ms`. */
 function within<T>(promise: Promise<T>, ms: number) {
   return new Promise<T>((resolve, reject) => {
     const timer = window.setTimeout(() => reject(new Error('timeout')), ms)
@@ -39,8 +46,9 @@ function within<T>(promise: Promise<T>, ms: number) {
 
 /**
  * Reads replies aloud in Japanese. One reply at a time.
- * The server voice (natural, mp3 per part) is used first; if a part cannot be fetched in time or
- * will not play, the browser voice reads from that part to the end. Never both at once.
+ * The server voice (natural) is used first: each part is cut into sentence-sized chunks, all are
+ * fetched at once and played in order. If a chunk cannot be fetched in time or will not play, the
+ * browser voice reads the rest of that part and the parts after it. Never both at once.
  * A reply can be several parts (the answer, then each ticket's reason); `part` is the index of
  * the part being read, so the screen can point at it.
  */
@@ -49,7 +57,7 @@ export function useSpeech() {
   const [part, setPart] = useState(0)
   // Bumped on every speak / cancel, so callbacks of an older reply do nothing.
   const runRef = useRef(0)
-  // One element for every server part, so the unlock done in prime() covers all of them.
+  // One element for every server chunk, so the unlock done in prime() covers all of them.
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const urlsRef = useRef<string[]>([])
@@ -83,19 +91,18 @@ export function useSpeech() {
     [stopServerVoice],
   )
 
-  /** The browser voice reads parts[from..] (indexes stay those of the whole reply). */
+  /** The browser voice reads the pieces in order, each one pointing at its part. */
   const speakWithBrowser = useCallback(
-    (run: number, parts: string[], from: number) => {
+    (run: number, pieces: Piece[]) => {
       const voice = window.speechSynthesis.getVoices().find((v) => v.lang.startsWith('ja'))
-      parts.slice(from).forEach((item, offset) => {
-        const i = from + offset
-        const utterance = new SpeechSynthesisUtterance(item)
+      pieces.forEach((piece, i) => {
+        const utterance = new SpeechSynthesisUtterance(piece.text)
         utterance.lang = 'ja-JP'
         if (voice) utterance.voice = voice
         utterance.onstart = () => {
-          if (runRef.current === run) setPart(i)
+          if (runRef.current === run) setPart(piece.part)
         }
-        if (i === parts.length - 1) {
+        if (i === pieces.length - 1) {
           utterance.onend = () => finish(run)
         }
         // A failed part ends the whole reply (the rest would be read out of order).
@@ -112,32 +119,43 @@ export function useSpeech() {
     [finish],
   )
 
-  /** Fetches every part at once and plays them in order; falls back to the browser voice. */
+  /** Fetches every chunk at once and plays them in order; falls back to the browser voice. */
   const speakWithServer = useCallback(
-    (run: number, parts: string[]) => {
+    (run: number, parts: string[], chunks: Piece[]) => {
       const controller = new AbortController()
       abortRef.current = controller
-      const clips = parts.map((item) => fetchSpeech(item, controller.signal))
-      // A part we never wait for (after a fallback or a cancel) must not report an unhandled error.
+      const clips = chunks.map((chunk) => fetchSpeech(chunk.text, controller.signal))
+      // A chunk we never wait for (after a fallback or a cancel) must not report an unhandled error.
       clips.forEach((clip) => clip.catch(() => undefined))
       let switched = false
 
+      // The browser voice reads from chunk i: the rest of its part, then the following parts.
       const fallBack = (i: number) => {
         if (runRef.current !== run || switched) return
         switched = true
         stopServerVoice()
-        speakWithBrowser(run, parts, i)
+        const { part } = chunks[i]
+        const rest = chunks
+          .slice(i)
+          .filter((chunk) => chunk.part === part)
+          .map((chunk) => chunk.text)
+          .join('')
+        const following = parts.slice(part + 1).map((text, offset) => ({
+          text,
+          part: part + 1 + offset,
+        }))
+        speakWithBrowser(run, [{ text: rest, part }, ...following])
       }
 
-      const playPart = async (i: number) => {
+      const playChunk = async (i: number) => {
         if (runRef.current !== run || switched) return
-        if (i === parts.length) {
+        if (i === chunks.length) {
           finish(run)
           return
         }
         let blob: Blob
         try {
-          blob = await within(clips[i], SERVER_PART_WAIT_MS)
+          blob = await within(clips[i], SERVER_CHUNK_WAIT_MS)
         } catch {
           fallBack(i)
           return
@@ -147,7 +165,7 @@ export function useSpeech() {
         urlsRef.current.push(url)
         const audio = audioElement()
         audio.onended = () => {
-          if (runRef.current === run) void playPart(i + 1)
+          if (runRef.current === run) void playChunk(i + 1)
         }
         audio.onerror = () => fallBack(i)
         audio.src = url
@@ -157,10 +175,10 @@ export function useSpeech() {
           fallBack(i)
           return
         }
-        if (runRef.current === run && !switched) setPart(i)
+        if (runRef.current === run && !switched) setPart(chunks[i].part)
       }
 
-      void playPart(0)
+      void playChunk(0)
     },
     [audioElement, finish, speakWithBrowser, stopServerVoice],
   )
@@ -185,10 +203,17 @@ export function useSpeech() {
         setSpeakingId(null)
         return
       }
-      if (serverVoiceEnabled() && parts.every((item) => item.length <= SPEECH_MAX_LENGTH)) {
-        speakWithServer(run, parts)
+      const chunks = parts.flatMap((item, part) =>
+        splitIntoChunks(item).map((chunk) => ({ text: chunk, part })),
+      )
+      // splitIntoChunks keeps chunks far below the limit; the check only guards against a change.
+      if (serverVoiceEnabled() && chunks.every((chunk) => chunk.text.length <= SPEECH_MAX_LENGTH)) {
+        speakWithServer(run, parts, chunks)
       } else {
-        speakWithBrowser(run, parts, 0)
+        speakWithBrowser(
+          run,
+          parts.map((item, part) => ({ text: item, part })),
+        )
       }
       setPart(0)
       setSpeakingId(id)
