@@ -19,10 +19,18 @@ export interface CategoryChipsProps {
   onChange: (value: CategoryFilter) => void
 }
 
-/** すべて / 祭り / 展示 / 公演 / ポップアップ with counts. Filters the pins and the tickets together. */
+/**
+ * すべて / 祭り / 展示 / 公演 / ポップアップ with counts. Filters the pins and the tickets together.
+ * Wider than a phone: the row scrolls sideways, edge to edge (the parent pads 16px), with room for
+ * the chip shadows.
+ */
 export function CategoryChips({ value, counts, onChange }: CategoryChipsProps) {
   return (
-    <div role="group" aria-label={ja.map.filterLabel} className="flex gap-2 overflow-x-auto">
+    <div
+      role="group"
+      aria-label={ja.map.filterLabel}
+      className="-mx-4 -my-2 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 py-2"
+    >
       {FILTERS.map((filter) => {
         const active = filter === value
         return (
