@@ -20,6 +20,28 @@ export function transcribeAudio(audio: Blob) {
   return apiClient<ConciergeTranscription>('/concierge/transcribe', { method: 'POST', body: form })
 }
 
+/** Longest text the speech endpoint accepts (400 above it). */
+export const SPEECH_MAX_LENGTH = 600
+
+/**
+ * The text read aloud by the server voice, as audio (mp3). No login needed.
+ * Its own fetch because `apiClient` parses JSON; same base URL rule as `apiClient`.
+ */
+export async function fetchSpeech(text: string, signal: AbortSignal) {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api'
+  const response = await fetch(`${baseUrl}/concierge/speech`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+    signal,
+  })
+  // Also refuse a 200 that is not audio (e.g. an HTML page when /api is not forwarded).
+  if (!response.ok || !response.headers.get('Content-Type')?.startsWith('audio/')) {
+    throw new ApiError(response.status, await response.text())
+  }
+  return response.blob()
+}
+
 /** Keeps the conditions as a 予約券 (S17). Needs login. Answers the new ticket (201). */
 export function saveCondition(body: TicketCreateRequest) {
   return apiClient<Ticket>('/saved-conditions', { method: 'POST', body: JSON.stringify(body) })
