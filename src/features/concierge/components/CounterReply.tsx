@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { EventTicket } from '@/features/concierge/components/EventTicket'
 import { SpeakerIcon } from '@/features/concierge/components/icons'
+import type { ReservationStatus } from '@/features/concierge/hooks/useConciergeSession'
 import { conditionLabels } from '@/features/concierge/lib/format'
 import { offersReservation, validRecommendations } from '@/features/concierge/lib/reply'
 import { saveReservationConditions } from '@/features/concierge/lib/reservationDraft'
@@ -46,21 +47,49 @@ function ConditionsLine({ conditions }: { conditions: ConciergeConditions }) {
   )
 }
 
-/** Offered when nothing matched: keep the conditions as a 予約券 (S17). */
-function ReservationOffer({ conditions }: { conditions: ConciergeConditions }) {
+/**
+ * Offered when nothing matched: keep the conditions as a 予約券 (S17). When the voice counter
+ * already saved (or is saving) this reply's 予約券, the link only opens the list, so the same
+ * conditions are not handed over a second time.
+ */
+function ReservationOffer({
+  conditions,
+  status,
+}: {
+  conditions: ConciergeConditions
+  status: ReservationStatus
+}) {
+  const kept = status === 'saved' || status === 'saving'
+  const linkClass =
+    'mt-3 flex min-h-11 items-center justify-center rounded-full bg-ink px-4 text-sm font-bold text-surface transition-transform duration-150 ease-out active:scale-[0.97]'
   return (
     <div className="concierge-rise rounded-xl border-2 border-dashed border-ink/30 bg-surface px-4 py-3.5">
       <p className="font-mono text-[9px] tracking-[0.16em] text-ink-muted">{t.reservation.code}</p>
       <p className="font-mincho text-lg font-extrabold">{t.reservation.title}</p>
-      <p className="mt-1 text-[13px] leading-[1.6] text-ink-muted">{t.reservation.body}</p>
-      <Link
-        to="/me/tickets"
-        state={{ conciergeConditions: conditions }}
-        onClick={() => saveReservationConditions(conditions)}
-        className="mt-3 flex min-h-11 items-center justify-center rounded-full bg-ink px-4 text-sm font-bold text-surface transition-transform duration-150 ease-out active:scale-[0.97]"
+      <p
+        role={kept ? 'status' : undefined}
+        className="mt-1 text-[13px] leading-[1.6] text-ink-muted"
       >
-        {t.reservation.cta}
-      </Link>
+        {status === 'saved'
+          ? t.reservation.saved
+          : status === 'saving'
+            ? t.voice.reservation.saving
+            : t.reservation.body}
+      </p>
+      {kept ? (
+        <Link to="/me/tickets" className={linkClass}>
+          {t.reservation.open}
+        </Link>
+      ) : (
+        <Link
+          to="/me/tickets"
+          state={{ conciergeConditions: conditions }}
+          onClick={() => saveReservationConditions(conditions)}
+          className={linkClass}
+        >
+          {t.reservation.cta}
+        </Link>
+      )}
     </div>
   )
 }
@@ -74,6 +103,8 @@ export interface CounterReplyProps {
   speaking: boolean
   /** null when the browser cannot read aloud. */
   onToggleSpeech: (() => void) | null
+  /** The 予約券 of this reply, if the voice counter already saved it. */
+  reservationStatus: ReservationStatus
 }
 
 /** The counter's answer: text, then tickets printed out of the slot one by one. */
@@ -84,6 +115,7 @@ export function CounterReply({
   onSuggestion,
   speaking,
   onToggleSpeech,
+  reservationStatus,
 }: CounterReplyProps) {
   const recommendations = validRecommendations(reply)
   const suggestions = reply.suggestions.filter((s) => s.trim()).slice(0, 4)
@@ -139,7 +171,9 @@ export function CounterReply({
         </section>
       )}
 
-      {offersReservation(reply) && <ReservationOffer conditions={reply.conditions} />}
+      {offersReservation(reply) && (
+        <ReservationOffer conditions={reply.conditions} status={reservationStatus} />
+      )}
 
       {showSuggestions && suggestions.length > 0 && (
         <div>

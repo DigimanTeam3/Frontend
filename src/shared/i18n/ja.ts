@@ -333,6 +333,8 @@ export const ja = {
       title: '予約券',
       body: '条件に合うイベントが出たら、LINEでお知らせします。',
       cta: 'この条件で予約券をつくる',
+      saved: 'この条件の予約券はつくってあります。',
+      open: '予約券を見る',
     },
     // Voice counter (default view): ディグ talks in a casual voice, notices stay polite.
     voice: {

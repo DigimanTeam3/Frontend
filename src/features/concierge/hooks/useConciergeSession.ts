@@ -1,14 +1,22 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useRef, useState } from 'react'
+import { saveCondition } from '@/features/concierge/api'
 import { type ChatEntry, useConciergeChat } from '@/features/concierge/hooks/useConciergeChat'
 import { useSpeech } from '@/features/concierge/hooks/useSpeech'
 import { useVoiceRecorder } from '@/features/concierge/hooks/useVoiceRecorder'
 import { validRecommendations } from '@/features/concierge/lib/reply'
+import { toTicketCreateRequest } from '@/features/concierge/lib/savedCondition'
+import { queryKeys } from '@/shared/api/queryKeys'
 import { ja } from '@/shared/i18n/ja'
+import type { ConciergeConditions } from '@/shared/types/concierge'
 
 const t = ja.concierge
 
 /** Which counter is on screen. Both use the same conversation. */
 export type ConciergeView = 'voice' | 'chat'
+
+/** Where the 予約券 offered by one reply stands. */
+export type ReservationStatus = 'idle' | 'saving' | 'saved' | 'failed'
 
 /**
  * Everything S16 keeps while the page is open: the conversation, the microphone and the voice
@@ -21,6 +29,31 @@ export function useConciergeSession() {
   const [view, setViewState] = useState<ConciergeView>('voice')
   const [draft, setDraft] = useState('')
   const viewRef = useRef(view)
+  const queryClient = useQueryClient()
+
+  // 予約券 saved in this conversation, by the id of the reply that offered them. Kept here and not
+  // in the card, so switching views neither forgets a saved one nor lets it be saved twice.
+  const [savedReservations, setSavedReservations] = useState<ReadonlySet<string>>(() => new Set())
+  const reservationSave = useMutation({
+    mutationFn: ({ conditions }: { id: string; conditions: ConciergeConditions }) =>
+      saveCondition(toTicketCreateRequest(conditions, t.voice.reservation.noConditions)),
+    onSuccess: (_ticket, { id }) => {
+      setSavedReservations((current) => new Set(current).add(id))
+      return queryClient.invalidateQueries({ queryKey: queryKeys.tickets.all })
+    },
+  })
+
+  const reservationStatus = (id: string): ReservationStatus => {
+    if (savedReservations.has(id)) return 'saved'
+    if (reservationSave.variables?.id !== id) return 'idle'
+    if (reservationSave.isPending) return 'saving'
+    return reservationSave.isError ? 'failed' : 'idle'
+  }
+
+  const saveReservation = (id: string, conditions: ConciergeConditions) => {
+    if (savedReservations.has(id) || reservationSave.isPending) return
+    reservationSave.mutate({ id, conditions })
+  }
 
   // The server rejected the question: give it back to the text box so it can be fixed.
   // Text typed while waiting is newer, so it is kept.
@@ -108,6 +141,8 @@ export function useConciergeSession() {
     retry,
     startRecording,
     stopRecording,
+    reservationStatus,
+    saveReservation,
   }
 }
 

@@ -61,6 +61,7 @@ export function ChatCounter({ session }: { session: ConciergeSession }) {
             disabled={busy || recorder.isRecording}
             onSuggestion={(text) => void session.sendText(text)}
             speaking={speech.speakingId === entry.id}
+            reservationStatus={session.reservationStatus(entry.id)}
             onToggleSpeech={
               canSpeak
                 ? () =>

@@ -33,6 +33,8 @@ const PRINT_MS = 640
 const ISSUED_HOLD_MS = 900
 const THINKING_LINE_MS = 2800
 const MOUTH_MS = 170
+// Session key of the 予約券 offered again after coming back from login (reply ids are c1, c2, …).
+const PENDING_RESERVATION_ID = 'pending'
 
 /** What the counter is doing, from the conversation and the microphone. */
 type Phase =
@@ -444,6 +446,8 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
           <ReservationCard
             key={phase.entry.id}
             conditions={phase.entry.reply.conditions}
+            status={session.reservationStatus(phase.entry.id)}
+            onSave={() => session.saveReservation(phase.entry.id, phase.entry.reply.conditions)}
             trailing={mic(true)}
           />
         </div>
@@ -457,7 +461,12 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
           <DiguBubble text={t.resume} />
         </Stage>
         <div className="flex flex-1 flex-col gap-4 px-4 pt-4">
-          <ReservationCard conditions={pendingReservation} trailing={mic(true)} />
+          <ReservationCard
+            conditions={pendingReservation}
+            status={session.reservationStatus(PENDING_RESERVATION_ID)}
+            onSave={() => session.saveReservation(PENDING_RESERVATION_ID, pendingReservation)}
+            trailing={mic(true)}
+          />
         </div>
       </>
     )
