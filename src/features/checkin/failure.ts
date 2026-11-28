@@ -1,5 +1,5 @@
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorInfo } from '@/shared/lib/apiError'
+import { isApiError } from '@/shared/api/errors'
 import { formatDistance } from '@/shared/lib/formatDistance'
 import type { GeolocationErrorCode } from '@/shared/lib/geolocation'
 import { formatMonthDay } from '@/shared/lib/seoulDate'
@@ -52,7 +52,7 @@ export function failureFromGeolocation(code: GeolocationErrorCode): CheckInFailu
 
 /** Picks the reason by the error `code`; the server `message` is never shown. */
 export function failureFromApiError(error: unknown): CheckInFailure {
-  const info = apiErrorInfo(error)
+  const info = isApiError(error) ? error.body : null
   const code = info?.code
   switch (code) {
     case 'OUT_OF_RANGE': {

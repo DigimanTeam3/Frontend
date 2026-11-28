@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { useNotificationQuery } from '@/features/notification/api'
 import { MatchedEventCard } from '@/features/notification/components/MatchedEventCard'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorCode, apiErrorStatus } from '@/shared/lib/apiError'
+import { apiErrorCode, isApiError } from '@/shared/api/errors'
 import { paths, parseIdParam } from '@/shared/lib/paths'
 import { buttonClassName } from '@/shared/ui/buttonStyles'
 import { SearchIcon } from '@/shared/ui/icons/SearchIcon'
@@ -15,7 +15,7 @@ function isNotificationNotFound(error: unknown) {
   return (
     code === 'NOTIFICATION_NOT_FOUND' ||
     code === 'FORBIDDEN' ||
-    (code === null && apiErrorStatus(error) === 404)
+    (code === null && isApiError(error, 404))
   )
 }
 

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/queryKeys'
-import { apiErrorCode, apiErrorStatus } from '@/shared/lib/apiError'
+import { apiErrorCode, isApiError } from '@/shared/api/errors'
 import type { JourneyEvent } from '@/shared/types/eventBrief'
 import type { Participation } from '@/shared/types/participation'
 
@@ -10,7 +10,7 @@ import type { Participation } from '@/shared/types/participation'
 
 /** One retry for network / server trouble; a 4xx answer will not change by asking again. */
 export function retryUnlessClientError(failureCount: number, error: unknown) {
-  const status = apiErrorStatus(error)
+  const status = isApiError(error) ? error.status : null
   if (status !== null && status >= 400 && status < 500) return false
   return failureCount < 1
 }

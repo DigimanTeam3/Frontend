@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/queryKeys'
-import { apiErrorCode } from '@/shared/lib/apiError'
+import { apiErrorCode } from '@/shared/api/errors'
 import type { Participation, VerifyRequest, VerifyResult } from '@/shared/types/participation'
 
 /** Create-or-get: answers the participation I already have when there is one. */

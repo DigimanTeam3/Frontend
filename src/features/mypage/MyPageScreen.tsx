@@ -5,7 +5,7 @@ import { MenuList } from '@/features/mypage/components/MenuList'
 import { ProfileBlock } from '@/features/mypage/components/ProfileBlock'
 import { StatsCard } from '@/features/mypage/components/StatsCard'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorCode } from '@/shared/lib/apiError'
+import { apiErrorCode } from '@/shared/api/errors'
 import { State } from '@/shared/ui/State'
 
 // My Page (/me, Figma: S15 My Page): profile, counts, badges, memory cards and the menu. The

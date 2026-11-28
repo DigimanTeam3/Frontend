@@ -5,7 +5,7 @@ import {
   removeTicket,
   ticketsMockMode,
 } from '@/mocks/data/tickets'
-import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import type { TicketListResponse } from '@/shared/types/ticket'
 
 // Saved conditions mock (S17). Both calls need login (401 without it).

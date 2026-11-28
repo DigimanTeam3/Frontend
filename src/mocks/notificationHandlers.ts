@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw/http'
 import { findJourneyEvent, toEventBrief } from '@/mocks/data/journey'
-import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import type { EventNotification } from '@/shared/types/notification'
 
 // LINE alert page mock (S18). Needs login (401 without it).

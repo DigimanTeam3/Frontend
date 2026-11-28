@@ -7,7 +7,7 @@ import {
   listMissions,
   submitMission,
 } from '@/mocks/data/journey'
-import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import { isCheckedIn } from '@/shared/lib/participationStatus'
 
 // Mission mock (S11 list, S12 submission). The submission follows the backend API spec v2
@@ -45,8 +45,8 @@ const SUBMIT_ERRORS = {
 type SubmitErrorCode = keyof typeof SUBMIT_ERRORS
 
 function submitError(code: SubmitErrorCode, field?: string) {
-  const { status, ...extra } = SUBMIT_ERRORS[code]
-  return errorResponse(status, code, `mock: ${code}`, field ? { ...extra, field } : extra)
+  const known: { status: number; field?: string } = SUBMIT_ERRORS[code]
+  return errorResponse(known.status, code, `mock: ${code}`, field ?? known.field)
 }
 
 const TEXT_MAX_LENGTH = 200

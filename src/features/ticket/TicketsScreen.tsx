@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDeleteTicketMutation, useTicketsQuery } from '@/features/ticket/api'
 import { TicketCard } from '@/features/ticket/components/TicketCard'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorCode } from '@/shared/lib/apiError'
+import { apiErrorCode } from '@/shared/api/errors'
 import { State } from '@/shared/ui/State'
 import { Toast } from '@/shared/ui/Toast'
 

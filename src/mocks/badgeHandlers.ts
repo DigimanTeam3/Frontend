@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw/http'
 import { listBadges } from '@/mocks/data/journey'
-import { currentUserId, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import { mypageForcedError } from '@/mocks/mypageMock'
 import type { Badge, BadgeType } from '@/shared/types/badge'
 import type { Page } from '@/shared/types/page'

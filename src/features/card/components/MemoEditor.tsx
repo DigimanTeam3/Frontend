@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useUpdateCardMutation } from '@/features/card/api'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorCode } from '@/shared/lib/apiError'
+import { apiErrorCode } from '@/shared/api/errors'
 import type { ExperienceCard } from '@/shared/types/card'
 import { Button } from '@/shared/ui/Button'
 import { AlertIcon } from '@/shared/ui/icons/AlertIcon'
