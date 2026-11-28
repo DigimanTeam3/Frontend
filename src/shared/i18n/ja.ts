@@ -599,10 +599,15 @@ export const ja = {
   participationBadge: {
     title: '改札完了',
     // Two lines. The second one carries the number of missions when the event tells it
-    // (`missionCount` of the event detail).
+    // (`missionCount` of the event detail). An event without missions says so: most events
+    // have none, and then there is nothing to open.
     body: (missionCount: number | undefined) => [
       '参加バッジを手に入れました。',
-      missionCount ? `ミッションが開きました（${missionCount}つ）。` : 'ミッションが開きました。',
+      missionCount === 0
+        ? 'このイベントにミッションはありません。'
+        : missionCount
+          ? `ミッションが開きました（${missionCount}つ）。`
+          : 'ミッションが開きました。',
     ],
     // Date, time and the venue name (a separate element, so a Korean original can be marked
     // lang="ko"). The double spaces around the dot are part of the design.
@@ -618,6 +623,9 @@ export const ja = {
     actions: {
       missions: 'ミッションを見る',
       later: 'あとで',
+      // For an event without missions.
+      backToEvent: 'イベントに戻る',
+      myPage: '切符入れを見る',
     },
   },
   // Mission list (S11: src/features/mission).
