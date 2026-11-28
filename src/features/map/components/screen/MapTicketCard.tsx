@@ -62,18 +62,20 @@ export function MapTicketCard({ event, selected }: MapTicketCardProps) {
       >
         <div className="flex items-center gap-1.5">
           <span aria-hidden className={`h-3.5 w-[3px] rounded-full ${BAR[kind]}`} />
-          <span className={`font-mincho text-xs font-bold ${PRINT[kind]}`}>
+          <span
+            className={`shrink-0 font-mincho text-xs font-bold whitespace-nowrap ${PRINT[kind]}`}
+          >
             {homeCategoryLabel(kind)}
           </span>
           <span
             aria-hidden
-            className={`font-mono text-[9px] font-semibold tracking-[0.14em] ${PRINT[kind]}`}
+            className={`shrink-0 font-mono text-[9px] font-semibold tracking-[0.14em] ${PRINT[kind]}`}
           >
             {t.categoryCode[kind]}
           </span>
           {status !== 'upcoming' && (
             <span
-              className={`rounded-sm px-1 text-[10px] leading-[1.6] font-bold ${
+              className={`shrink-0 rounded-sm px-1 text-[10px] leading-[1.6] font-bold whitespace-nowrap ${
                 status === 'ongoing' ? 'bg-warn-soft text-warn' : 'bg-line text-ink-muted'
               }`}
             >
@@ -82,7 +84,7 @@ export function MapTicketCard({ event, selected }: MapTicketCardProps) {
           )}
           <span
             aria-hidden
-            className="ml-auto font-mono text-[9px] tracking-[0.08em] text-ink-muted"
+            className="ml-auto truncate font-mono text-[9px] tracking-[0.08em] text-ink-muted"
           >
             {t.ticketNo}
             {ticketNumber(event)}
