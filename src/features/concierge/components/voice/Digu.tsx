@@ -17,12 +17,12 @@ const FACES = {
 } as const
 
 export type DiguFace = keyof typeof FACES
-export type DiguMotion = 'breathe' | 'lean' | 'sniff' | 'hop' | null
+export type DiguMotion = 'breathe' | 'lean' | 'sniff' | null
 
 const SIZE = {
-  // 240px in Figma; smaller on narrow or short screens so the mic stays in view.
-  lg: 'size-[min(240px,64vw,30dvh)]',
-  md: 'size-[min(176px,48vw,26dvh)]',
+  // 240px in Figma; smaller on narrow or short screens so ディグ's lines still fit above it
+  // (the counter frame keeps the dock under ディグ at a fixed height).
+  lg: 'size-[min(240px,64vw,max(150px,calc(100dvh_-_470px)))]',
   sm: 'size-[84px] min-[360px]:size-[104px]',
 } as const
 
@@ -30,21 +30,23 @@ const MOTION: Record<Exclude<DiguMotion, null>, string> = {
   breathe: 'digu-breathe',
   lean: 'digu-lean',
   sniff: 'digu-sniff',
-  hop: 'digu-hop',
 }
 
 /**
  * All expressions are stacked and only one is shown, so switching (the mouth moving while
- * ディグ talks) never waits for an image to load.
+ * ディグ talks) never waits for an image to load. `smooth` cross-fades a new expression; the
+ * mouth flap stays instant.
  */
 export function Digu({
   face,
   size,
   motion = null,
+  smooth = true,
 }: {
   face: DiguFace
   size: keyof typeof SIZE
   motion?: DiguMotion
+  smooth?: boolean
 }) {
   return (
     <div
@@ -59,7 +61,7 @@ export function Digu({
             alt=""
             draggable={false}
             decoding="async"
-            className={`absolute inset-0 size-full object-cover ${key === face ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute inset-0 size-full object-cover ${smooth ? 'transition-opacity duration-200 ease-out motion-reduce:transition-none' : ''} ${key === face ? 'opacity-100' : 'opacity-0'}`}
           />
         ))}
       </div>

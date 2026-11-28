@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { CheckIcon } from '@/features/concierge/components/icons'
 import { ErrorSlip } from '@/features/concierge/components/Slips'
@@ -66,7 +66,11 @@ function usePhase(session: ConciergeSession): Phase {
   }
   const last = entries.at(-1)
   if (last?.role === 'assistant') {
-    return { kind: 'reply', entry: last, question: questionBefore(entries, entries.length - 1) }
+    return {
+      kind: 'reply',
+      entry: last,
+      question: questionBefore(entries, entries.length - 1),
+    }
   }
   if (last?.role === 'error') {
     // A rejected question has no slip any more (it waits in the text box); show what was sent.
@@ -146,48 +150,113 @@ function VoiceTopBar({
   )
 }
 
-/** The counter ディグ sits behind, with the slot tickets come out of (Figma 「counter」). */
-function CounterBar() {
+// Bubbles that move when one comes in or goes away slide to their new place (no jump).
+const SLIDE_MS = 220
+
+/** One line in the bubble column. `key` follows the line across states so it can slide. */
+interface BubbleLine {
+  key: string
+  node: ReactNode
+  /** Kept above the new line, dimmed (the last answer while the visitor talks). */
+  dim?: boolean
+}
+
+/**
+ * The lines above ディグ, newest at the bottom right above its head. The column has a fixed
+ * place, so lines coming and going never move ディグ; when they do not fit, the column scrolls
+ * under a soft top edge. It stops growing at 300px, so on a tall screen ディグ stays near
+ * the top and the extra room is left below it.
+ */
+function BubbleColumn({ lines, reducedMotion }: { lines: BubbleLine[]; reducedMotion: boolean }) {
+  const boxRef = useRef<HTMLDivElement>(null)
+  const topsRef = useRef(new Map<string, number>())
+  const keysRef = useRef('')
+  const keys = lines.map((line) => line.key).join('|')
+
+  useLayoutEffect(() => {
+    const box = boxRef.current
+    if (!box) return
+    // A new line: show the newest one.
+    if (keysRef.current !== keys) box.scrollTop = box.scrollHeight
+    keysRef.current = keys
+    const tops = new Map<string, number>()
+    for (const node of box.querySelectorAll<HTMLElement>('[data-line]')) {
+      const key = node.dataset.line ?? ''
+      const top = node.offsetTop - box.scrollTop
+      tops.set(key, top)
+      const before = topsRef.current.get(key)
+      if (before === undefined || reducedMotion || Math.abs(before - top) < 1) continue
+      node.animate([{ transform: `translateY(${before - top}px)` }, { transform: 'none' }], {
+        duration: SLIDE_MS,
+        easing: 'ease-out',
+      })
+    }
+    topsRef.current = tops
+  })
+
   return (
     <div
-      aria-hidden="true"
-      className="relative z-[2] mx-2 -mt-2.5 flex h-[30px] items-end justify-center rounded-[10px] bg-[var(--digu-ink)] pb-[7px]"
+      ref={boxRef}
+      className="digu-bubbles relative z-[1] flex max-h-[300px] min-h-0 flex-1 flex-col overflow-y-auto px-4"
     >
-      <span className="h-1.5 w-[240px] max-w-[64%] rounded-[3px] border border-white bg-black" />
+      <div className="mt-auto flex flex-col gap-4 pt-4 pb-5">
+        {lines.map((line) => (
+          <div
+            key={line.key}
+            data-line={line.key}
+            className={`flex flex-col transition-opacity duration-200 ease-out motion-reduce:transition-none ${line.dim ? 'opacity-45' : ''}`}
+          >
+            {line.node}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
 
-/** ディグ in the big window with the soft light behind it. */
+// Height of the area under ディグ (chips, hint and mic; or the 予約券; or printing tickets).
+// Fixed, so ディグ stays put whatever is shown there.
+const DOCK = 'h-[calc(236px+max(20px,env(safe-area-inset-bottom)))]'
+
+/**
+ * The frame used by every state except the ticket list: bubbles on top, ディグ in a fixed
+ * place, and a fixed-height dock below. Only what is inside each part changes.
+ */
 function Stage({
   face,
   motion,
-  size = 'lg',
-  listening = false,
-  children,
+  smooth,
+  listening,
+  lines,
+  dock,
+  dockOpen = false,
+  reducedMotion,
 }: {
   face: DiguFace
   motion: DiguMotion
-  size?: 'lg' | 'md'
-  listening?: boolean
-  children?: ReactNode
+  smooth: boolean
+  listening: boolean
+  lines: BubbleLine[]
+  dock: ReactNode
+  /** Let the dock's content run on below it (tickets printing out on a tall screen). */
+  dockOpen?: boolean
+  reducedMotion: boolean
 }) {
   return (
-    <div className="flex flex-1 flex-col justify-end">
-      {/* Bubbles above ディグ */}
-      <div className="relative z-[1] flex flex-col items-center gap-4 px-4 pb-5">{children}</div>
-      <div className="flex justify-center">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <BubbleColumn lines={lines} reducedMotion={reducedMotion} />
+      <div className="flex shrink-0 justify-center">
         <div className="relative">
           <span
             aria-hidden="true"
-            className={`absolute top-1/2 left-1/2 aspect-square w-[121%] -translate-x-1/2 -translate-y-1/2 rounded-full ${listening ? 'digu-glow-pulse bg-[var(--digu-pink-soft)]' : 'bg-[var(--digu-glow)]'}`}
+            className={`absolute top-1/2 left-1/2 aspect-square w-[121%] -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-200 ease-out motion-reduce:transition-none ${listening ? 'bg-[var(--digu-pink-soft)]' : 'bg-[var(--digu-glow)]'}`}
           />
           <div className="relative">
-            <Digu face={face} size={size} motion={motion} />
+            <Digu face={face} size="lg" motion={motion} smooth={smooth} />
           </div>
         </div>
       </div>
-      <CounterBar />
+      <div className={`relative shrink-0 ${dockOpen ? '' : 'overflow-hidden'} ${DOCK}`}>{dock}</div>
     </div>
   )
 }
@@ -320,20 +389,17 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
       </button>
     )
 
-  // Hint above the mic: a notice from the recorder wins over the usual line.
+  // Hint above the mic: a notice from the recorder wins over the usual line. Two lines are kept
+  // for it, so a longer notice does not push the mic down.
+  const hintText = notice ?? (canRecord ? null : '')
   const hint = (line: string, tone: 'sub' | 'pink' = 'sub') => (
     <p
+      key={hintText ?? line}
       role={notice ? 'alert' : undefined}
-      className={`min-h-[18px] px-4 text-center text-xs leading-[1.5] font-bold ${notice ? 'text-danger' : tone === 'pink' ? 'text-[var(--digu-pink)]' : 'text-[var(--digu-ink-sub)]'}`}
+      className={`digu-fade flex h-9 shrink-0 items-end justify-center px-4 text-center text-xs leading-[1.5] font-bold ${notice ? 'text-danger' : tone === 'pink' ? 'text-[var(--digu-pink)]' : 'text-[var(--digu-ink-sub)]'}`}
     >
-      {notice ?? (canRecord ? line : '')}
+      {hintText ?? line}
     </p>
-  )
-
-  const bottom = (children: ReactNode) => (
-    <div className="flex flex-col items-center gap-4 pt-4 pb-[max(20px,env(safe-area-inset-bottom))]">
-      {children}
-    </div>
   )
 
   const liveLine =
@@ -349,46 +415,35 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
             ? phase.entry.reply.reply
             : ''
 
+  // Keys that follow each line across states (see BubbleColumn): the visitor's question is keyed
+  // by the place its entry has (or will have) in the conversation, ディグ's lines by reply id.
+  const count = chat.entries.length
+  const youLine = (key: string, text: string | null, past: boolean): BubbleLine => ({
+    key: `you:${key}`,
+    node: <YouBubble text={text} past={past} />,
+  })
+  const askedLine =
+    phase.kind !== 'greeting' && phase.kind !== 'listening' && phase.question !== null
+      ? youLine(
+          phase.kind === 'thinking' ? String(count - 1) : String(count - 2),
+          phase.question,
+          true,
+        )
+      : null
+
   let body: ReactNode
 
-  if (phase.kind === 'reply' && recommendations.length > 0 && printing) {
-    // S16-5 k1: ディグ comes back with tickets in its mouth; they print out of the slot.
-    body = (
-      <>
-        <Stage face="happy" motion="hop">
-          <DiguBubble text={t.found(recommendations.length)} status={talking ? t.speaking : null} />
-        </Stage>
-        <ol
-          aria-label={t.ticketsLabel(recommendations.length)}
-          className="flex flex-col gap-3 px-4 pt-1 pb-6"
-        >
-          {recommendations.map((item, i) => (
-            <li key={item.event.id} className="overflow-hidden pt-1">
-              <div
-                className="concierge-print"
-                style={{ animationDelay: `${i * PRINT_STAGGER_MS}ms` }}
-              >
-                <VoiceTicket
-                  recommendation={item}
-                  revealDelay={i * PRINT_STAGGER_MS + PRINT_MS}
-                  actions={false}
-                />
-              </div>
-            </li>
-          ))}
-        </ol>
-      </>
-    )
-  } else if (phase.kind === 'reply' && recommendations.length > 0) {
+  if (phase.kind === 'reply' && recommendations.length > 0 && !printing) {
     // S16-5 k2: small ディグ reads the answer, then each reason; the ticket being read is framed.
     const reading = readingIndex !== null ? recommendations[readingIndex] : undefined
     body = (
-      <>
+      <div key="tickets" className="digu-fade flex flex-1 flex-col">
         <div className="flex items-start gap-3.5 px-4 pt-3 pb-5">
           <Digu
             face={talking ? talkFace : 'speakingHalf'}
             size="sm"
             motion={talking ? null : 'breathe'}
+            smooth={!talking}
           />
           <div className="min-w-0 flex-1 pt-0.5">
             <DiguBubble
@@ -439,73 +494,69 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
           </button>
           <span className="ml-auto">{mic(true)}</span>
         </div>
-      </>
-    )
-  } else if (phase.kind === 'reply' && offersReservation(phase.entry.reply)) {
-    // S16-6: nothing matched. ディグ suggests a 予約券.
-    const suggestions = phase.entry.reply.suggestions.filter((s) => s.trim()).slice(0, 3)
-    body = (
-      <>
-        <Stage face={talkFace} motion={talking ? null : 'breathe'} size="md">
-          <DiguBubble text={phase.entry.reply.reply} status={talking ? t.speaking : null} />
-        </Stage>
-        <div className="flex flex-1 flex-col gap-4 px-4 pt-4">
-          <Chips items={suggestions} disabled={busy} onPick={onPick} />
-          {notice && hint('')}
-          <ReservationCard
-            key={phase.entry.id}
-            conditions={phase.entry.reply.conditions}
-            status={session.reservationStatus(phase.entry.id)}
-            onSave={() => session.saveReservation(phase.entry.id, phase.entry.reply.conditions)}
-            trailing={mic(true)}
-          />
-        </div>
-      </>
-    )
-  } else if (phase.kind === 'greeting' && pendingReservation && isLoggedIn) {
-    // Back from login with conditions to keep.
-    body = (
-      <>
-        <Stage face="speaking" motion="breathe" size="md">
-          <DiguBubble text={t.resume} />
-        </Stage>
-        <div className="flex flex-1 flex-col gap-4 px-4 pt-4">
-          <ReservationCard
-            conditions={pendingReservation}
-            status={session.reservationStatus(PENDING_RESERVATION_ID)}
-            onSave={() => session.saveReservation(PENDING_RESERVATION_ID, pendingReservation)}
-            trailing={mic(true)}
-          />
-        </div>
-      </>
+      </div>
     )
   } else {
-    // S16-1 greeting, S16-2 listening, S16-3 thinking, S16-4 asking back, and errors.
+    // Every other state shares one frame; only the lines, ディグ's face and the dock change.
     let face: DiguFace = 'speakingHalf'
     let motion: DiguMotion = 'breathe'
-    let bubbles: ReactNode = null
-    let below: ReactNode = null
+    const lines: BubbleLine[] = []
+    // Dock: the 予約券 or printing tickets in place of the chips / hint / mic.
+    let dock: ReactNode = null
+    let dockKey = 'talk'
+    let slot: ReactNode = null
+    let slotKey = 'none'
     let hintLine: string = t.hint.ready
     let hintTone: 'sub' | 'pink' = 'sub'
 
+    const reservation = (id: string, keep: ConciergeConditions) => (
+      <div className="flex h-full flex-col overflow-y-auto px-4 pt-3">
+        {notice && <div className="pb-2">{hint('')}</div>}
+        <ReservationCard
+          key={id}
+          conditions={keep}
+          status={session.reservationStatus(id)}
+          onSave={() => session.saveReservation(id, keep)}
+          trailing={mic(true)}
+        />
+      </div>
+    )
+
     switch (phase.kind) {
       case 'greeting':
-        bubbles = <DiguBubble text={t.greeting} />
-        below = <Chips items={t.starters} disabled={busy} onPick={onPick} />
+        if (pendingReservation && isLoggedIn) {
+          // Back from login with conditions to keep.
+          face = 'speaking'
+          lines.push({
+            key: 'digu:resume',
+            node: <DiguBubble text={t.resume} />,
+          })
+          dockKey = 'reservation'
+          dock = reservation(PENDING_RESERVATION_ID, pendingReservation)
+          break
+        }
+        lines.push({
+          key: 'digu:greeting',
+          node: <DiguBubble text={t.greeting} />,
+        })
+        slotKey = 'starters'
+        slot = <Chips items={t.starters} disabled={busy} onPick={onPick} />
         break
       case 'listening': {
         face = 'listening'
         motion = 'lean'
-        const previous = lastReply?.role === 'assistant' ? lastReply.reply.reply : t.greeting
-        bubbles = (
-          <>
-            <div className="w-full opacity-45">
-              <DiguBubble text={previous} size="md" />
-            </div>
-            <YouBubble text={null} />
-          </>
-        )
-        below = <ConditionStamps conditions={conditions} />
+        lines.push({
+          key: lastReply ? `digu:${lastReply.id}` : 'digu:greeting',
+          node: (
+            <DiguBubble
+              text={lastReply?.role === 'assistant' ? lastReply.reply.reply : t.greeting}
+            />
+          ),
+          dim: true,
+        })
+        lines.push(youLine(String(count), null, false))
+        slotKey = 'stamps'
+        slot = <ConditionStamps conditions={conditions} />
         hintLine = t.hint.listening
         hintTone = 'pink'
         break
@@ -513,77 +564,149 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
       case 'thinking':
         face = 'thinking'
         motion = 'sniff'
-        bubbles = (
-          <>
-            <YouBubble text={phase.question} past={phase.question !== null} />
-            <ThinkingBubble />
-          </>
-        )
-        below = <ConditionStamps conditions={conditions} />
+        lines.push(askedLine ?? youLine(String(count), null, false))
+        lines.push({ key: 'digu:thinking', node: <ThinkingBubble /> })
+        slotKey = 'stamps'
+        slot = <ConditionStamps conditions={conditions} />
         hintLine = t.hint.thinking
         break
       case 'reply': {
-        // S16-4 asking back (clarify), or an answer without tickets.
-        face = talkFace
+        face = printing ? 'happy' : talkFace
         motion = talking ? null : 'breathe'
-        const suggestions = phase.entry.reply.suggestions.filter((s) => s.trim()).slice(0, 4)
-        bubbles = (
-          <>
-            {phase.question && <YouBubble text={phase.question} past />}
-            <DiguBubble text={phase.entry.reply.reply} status={talking ? t.speaking : null} />
-          </>
-        )
-        below = (
-          <>
+        if (askedLine) lines.push(askedLine)
+        const { entry } = phase
+        if (printing) {
+          // S16-5 k1: ディグ comes back with tickets in its mouth; they print out of the slot.
+          lines.push({
+            key: `digu:${entry.id}`,
+            node: (
+              <DiguBubble
+                text={t.found(recommendations.length)}
+                status={talking ? t.speaking : null}
+              />
+            ),
+          })
+          dockKey = 'printing'
+          dock = (
+            <ol
+              aria-label={t.ticketsLabel(recommendations.length)}
+              className="flex h-full flex-col gap-3 px-4"
+            >
+              {recommendations.map((item, i) => (
+                <li key={item.event.id} className="shrink-0 overflow-hidden pt-1">
+                  <div
+                    className="concierge-print"
+                    style={{ animationDelay: `${i * PRINT_STAGGER_MS}ms` }}
+                  >
+                    <VoiceTicket
+                      recommendation={item}
+                      revealDelay={i * PRINT_STAGGER_MS + PRINT_MS}
+                      actions={false}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )
+          break
+        }
+        lines.push({
+          key: `digu:${entry.id}`,
+          node: <DiguBubble text={entry.reply.reply} status={talking ? t.speaking : null} />,
+        })
+        if (offersReservation(entry.reply)) {
+          // S16-6: nothing matched. ディグ suggests a 予約券.
+          const suggestions = entry.reply.suggestions.filter((s) => s.trim()).slice(0, 3)
+          if (suggestions.length > 0) {
+            lines.push({
+              key: `chips:${entry.id}`,
+              node: (
+                <div className="-mx-4">
+                  <Chips items={suggestions} disabled={busy} onPick={onPick} />
+                </div>
+              ),
+            })
+          }
+          dockKey = `reservation:${entry.id}`
+          dock = reservation(entry.id, entry.reply.conditions)
+          break
+        }
+        // S16-4 asking back (clarify), or an answer without tickets.
+        const suggestions = entry.reply.suggestions.filter((s) => s.trim()).slice(0, 4)
+        slotKey = `reply:${entry.id}`
+        slot = (
+          <div className="flex flex-col gap-2">
             <ConditionStamps conditions={conditions} />
             <Chips items={suggestions} disabled={busy} onPick={onPick} />
-          </>
+          </div>
         )
         // 「えらんでも」 only when there is something to pick.
-        if (phase.entry.reply.kind === 'clarify') {
+        if (entry.reply.kind === 'clarify') {
           hintLine = suggestions.length > 0 ? t.hint.clarify : t.hint.clarifySpeak
         }
         break
       }
       case 'error':
         face = 'idle'
-        bubbles = phase.question ? <YouBubble text={phase.question} past /> : null
-        below = (
-          <div className="flex justify-center px-4">
+        if (askedLine) lines.push(askedLine)
+        lines.push({
+          key: `error:${phase.entry.id}`,
+          node: (
             <ErrorSlip
               error={phase.entry.error}
               canRetry={phase.entry.retryText !== null && !busy}
               onRetry={() => void session.retry()}
             />
-          </div>
-        )
+          ),
+        })
         break
     }
 
+    // S16-1 greeting, S16-2 listening, S16-3 thinking, S16-4 asking back, k1, S16-6 and errors.
     body = (
-      <>
-        <Stage face={face} motion={motion} listening={phase.kind === 'listening'}>
-          {bubbles}
-        </Stage>
-        {bottom(
-          <>
-            {below}
-            {hint(hintLine, hintTone)}
-            {mic()}
-          </>,
-        )}
-      </>
+      <Stage
+        face={face}
+        motion={motion}
+        smooth={!talking}
+        listening={phase.kind === 'listening'}
+        lines={lines}
+        dockOpen={dockKey === 'printing'}
+        reducedMotion={reducedMotion}
+        dock={
+          <div key={dockKey} className="digu-fade h-full">
+            {dock ?? (
+              <div className="flex h-full flex-col items-center gap-3 pt-3 pb-[max(20px,env(safe-area-inset-bottom))]">
+                <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto">
+                  <div key={slotKey} className="digu-fade mt-auto">
+                    {slot}
+                  </div>
+                </div>
+                {hint(hintLine, hintTone)}
+                <div className="flex h-[76px] w-full shrink-0 items-center justify-center">
+                  {mic()}
+                </div>
+              </div>
+            )}
+          </div>
+        }
+      />
     )
   }
 
+  // The frame is exactly one screen tall (flex-none: long lines must not stretch it); the ticket
+  // list scrolls as a page.
+  const framed = !(phase.kind === 'reply' && recommendations.length > 0 && !printing)
+
   return (
-    <div className="digu-screen flex min-h-dvh flex-1 flex-col text-[var(--digu-ink)]">
+    <div
+      className={`digu-screen digu-fade flex flex-col text-[var(--digu-ink)] ${framed ? 'h-dvh flex-none overflow-hidden' : 'min-h-dvh flex-1'}`}
+    >
       <VoiceTopBar session={session} highlightChat={!canRecord || recorder.error === 'denied'} />
       {/* ディグ's lines are announced as they change (errors announce themselves). */}
       <p aria-live="polite" className="sr-only">
         {liveLine}
       </p>
-      <div className="flex flex-1 flex-col">{body}</div>
+      <div className="flex min-h-0 flex-1 flex-col">{body}</div>
     </div>
   )
 }
