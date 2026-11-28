@@ -10,7 +10,7 @@ export type GateTicketLook = 'plain' | 'glowing' | 'dimmed'
 export interface GateTicketProps {
   event: Pick<
     JourneyEvent,
-    'title' | 'titleJa' | 'venueName' | 'venueNameJa' | 'imageUrl' | 'category'
+    'title' | 'titleJa' | 'venueName' | 'venueNameJa' | 'imageUrl' | 'category' | 'source'
   >
   /** Participation id, printed as "No.1129-0042" and on the stub. null: no number yet. */
   ticketNumber: number | null
@@ -58,6 +58,9 @@ export function GateTicket({
 }: GateTicketProps) {
   // A photo URL that does not load falls back to the lantern picture too.
   const [photoFailed, setPhotoFailed] = useState(false)
+  // Until the contract has a pop-up category, pop-up stores arrive as "exhibition" and are told
+  // apart by their source (backend note of 11/28).
+  const tag = event.source === 'popup_map_kr' ? 'popup' : event.category
   const photo = event.imageUrl && !photoFailed ? event.imageUrl : lanternPhoto
 
   const { month, day, weekday } = seoulDateParts(visitDate)
@@ -98,10 +101,10 @@ export function GateTicket({
         <div className="flex flex-col gap-2.5 px-5 pt-4 pb-[18px]">
           <div className="flex items-start gap-1.5">
             <span
-              className={`inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${TAG_COLORS[event.category] ?? OTHER_TAG_COLOR}`}
+              className={`inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${TAG_COLORS[tag] ?? OTHER_TAG_COLOR}`}
             >
               <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
-              {TAG_LABELS[event.category] ?? ja.gateTicket.otherCategory}
+              {TAG_LABELS[tag] ?? ja.gateTicket.otherCategory}
             </span>
             {serial && (
               <span className={`${LABEL} ml-auto text-right`}>

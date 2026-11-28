@@ -19,6 +19,8 @@ export type JourneyEventCategory = 'festival' | 'exhibition' | 'performance' | '
 // (S09–S14) read. Use EventDetail instead once src/shared/types/event.ts has it on main.
 export interface JourneyEvent extends EventBrief {
   category: JourneyEventCategory
+  /** Where the event data comes from, e.g. "popup_map_kr" for pop-up stores. Null when unknown. */
+  source?: string | null
   /** Venue position; null when the server has none (then nobody can check in). */
   lat: number | null
   lng: number | null
