@@ -50,13 +50,13 @@ export function CardInfo({
         <div className="flex flex-col gap-1 py-3">
           <div className="flex items-center justify-between gap-3">
             <h2 className={LABEL}>{copy.memoLabel}</h2>
-            {/* 40px touch area around the 18px icon, without making the row taller. */}
+            {/* 44px touch area around the 18px icon, without making the row taller. */}
             <button
               type="button"
               ref={editButtonRef}
               aria-label={copy.editMemo}
               onClick={onEdit}
-              className="-my-2.5 -mr-2.5 flex size-10 shrink-0 items-center justify-center rounded-full text-gate-ink"
+              className="-my-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-gate-ink"
             >
               <PenIcon className="size-[18px]" />
             </button>
