@@ -8,6 +8,8 @@ export function isSpeechSupported() {
 
 /** How long a chunk may keep us waiting, once it is its turn, before the browser voice takes over. */
 const SERVER_CHUNK_WAIT_MS = 4000
+/** Speech requests in flight at once. More slow each other down (measured: 3.1 s instead of 2.0 s). */
+const SERVER_MAX_IN_FLIGHT = 3
 
 /** Text to read, and the index of the reply part it belongs to. */
 interface Piece {
@@ -119,15 +121,41 @@ export function useSpeech() {
     [finish],
   )
 
-  /** Fetches every chunk at once and plays them in order; falls back to the browser voice. */
+  /**
+   * Fetches the chunks in reading order, at most SERVER_MAX_IN_FLIGHT at a time, and plays them in
+   * order; falls back to the browser voice.
+   */
   const speakWithServer = useCallback(
     (run: number, parts: string[], chunks: Piece[]) => {
       const controller = new AbortController()
       abortRef.current = controller
-      const clips = chunks.map((chunk) => fetchSpeech(chunk.text, controller.signal))
-      // A chunk we never wait for (after a fallback or a cancel) must not report an unhandled error.
-      clips.forEach((clip) => clip.catch(() => undefined))
       let switched = false
+      const clips: Promise<Blob>[] = []
+      let inFlight = 0
+      let next = 0 // the first chunk whose request has not started
+
+      const startFetch = (i: number) => {
+        inFlight += 1
+        const clip = fetchSpeech(chunks[i].text, controller.signal)
+        clips[i] = clip
+        // Also handles the error of a chunk we never wait for (after a fallback or a cancel).
+        const settled = () => {
+          inFlight -= 1
+          startMore()
+        }
+        clip.then(settled, settled)
+        return clip
+      }
+      const startMore = () => {
+        if (runRef.current !== run || switched || controller.signal.aborted) return
+        while (inFlight < SERVER_MAX_IN_FLIGHT && next < chunks.length) {
+          if (clips[next] === undefined) startFetch(next)
+          next += 1
+        }
+      }
+      // A chunk whose turn has come is started at once, never behind later chunks.
+      const clipFor = (i: number) => clips[i] ?? startFetch(i)
+      startMore()
 
       // The browser voice reads from chunk i: the rest of its part, then the following parts.
       const fallBack = (i: number) => {
@@ -155,7 +183,7 @@ export function useSpeech() {
         }
         let blob: Blob
         try {
-          blob = await within(clips[i], SERVER_CHUNK_WAIT_MS)
+          blob = await within(clipFor(i), SERVER_CHUNK_WAIT_MS)
         } catch {
           fallBack(i)
           return
