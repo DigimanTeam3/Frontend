@@ -49,7 +49,9 @@ export function CompanionRecordList() {
                 </span>
                 <span
                   className={`shrink-0 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${
-                    post.status === 'OPEN' ? 'bg-gate text-white' : 'bg-ink/5 text-ink-muted'
+                    post.status === 'OPEN'
+                      ? 'bg-gate-soft text-gate-ink'
+                      : 'bg-surface-2 text-ink-muted'
                   }`}
                 >
                   {copy.status[post.status]}

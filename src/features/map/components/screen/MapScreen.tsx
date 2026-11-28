@@ -299,7 +299,7 @@ export function MapScreen() {
           </p>
         )}
 
-        {/* Bottom: leaves room under the tickets for the map attribution line. */}
+        {/* Bottom: leaves room under the tickets for the map attribution button. */}
         <div className="absolute inset-x-0 bottom-[18px]">
           {status === 'ready' ? (
             <TicketCarousel events={visible} selectedId={selectedId} onSwipe={select} />

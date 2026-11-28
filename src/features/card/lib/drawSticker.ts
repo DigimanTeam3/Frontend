@@ -39,9 +39,9 @@ export function drawSticker(
   width: number,
   style: CardImageStyle,
 ) {
-  // Only the complete badge has a light face; its icon and label take the point colour.
+  // Only the complete badge has a light face; its icon and label take the dark point colour.
   const light = sticker.type === 'complete'
-  const ink = light ? style.gate : 'white'
+  const ink = light ? style.gateInk : style.ink
 
   context.save()
   context.translate(centerX, centerY)

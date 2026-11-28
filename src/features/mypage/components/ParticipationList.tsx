@@ -49,7 +49,7 @@ export function ParticipationList() {
                 <span
                   className={`shrink-0 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${
                     isCheckedIn(participation.status)
-                      ? 'bg-gate text-white'
+                      ? 'bg-gate text-ink'
                       : 'bg-ink/5 text-ink-muted'
                   }`}
                 >

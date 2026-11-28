@@ -24,6 +24,7 @@ import {
 } from '@/features/events/search/searchConditions'
 import { useSearchPosition } from '@/features/events/search/useSearchPosition'
 import { ja } from '@/shared/i18n/ja'
+import { State } from '@/shared/ui/State'
 import type { EventListItem } from '@/shared/types/event'
 
 const PAGE_SIZE = 20
@@ -218,7 +219,7 @@ export function SearchPage() {
             {filterCount > 0 && (
               <span
                 aria-hidden="true"
-                className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full border-2 border-surface bg-kippu-festival text-[10px] font-bold text-surface"
+                className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full border-2 border-surface bg-gate text-[10px] font-bold text-ink"
               >
                 {filterCount}
               </span>
@@ -239,7 +240,7 @@ export function SearchPage() {
                   filterButtonRef.current?.focus()
                 }}
                 aria-label={t.removeCondition(item.label)}
-                className="flex min-h-9 items-center gap-1.5 rounded-full bg-ink py-1 pr-2.5 pl-3.5 text-[13px] font-bold text-surface active:opacity-85"
+                className="flex min-h-9 items-center gap-1.5 rounded-full bg-ink py-1 pr-2.5 pl-3.5 text-[13px] font-bold text-white active:opacity-85"
               >
                 {item.label}
                 <img src={xSmallIcon} alt="" width={10} height={10} />
@@ -251,7 +252,7 @@ export function SearchPage() {
 
       <div className="flex items-end gap-3 pb-3">
         <div className="flex min-w-0 flex-1 flex-col">
-          <h1 className="truncate font-mincho text-xl/[1.4] font-extrabold">
+          <h1 className="truncate text-base/[1.5] font-bold">
             {t.resultTitle(conditions.keyword)}
           </h1>
           <p aria-live="polite" className="font-mono text-xs/[1.5] text-ink-muted">
@@ -329,33 +330,18 @@ function ResultList({ query, events, onReset }: ResultListProps) {
   }
 
   if (query.isError && events.length === 0) {
-    return (
-      <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="text-sm text-danger">{ja.common.error}</p>
-        <button
-          type="button"
-          onClick={() => void query.refetch()}
-          className="rounded-[14px] bg-ink px-5 py-3 text-[15px] font-bold text-surface"
-        >
-          {t.retry}
-        </button>
-      </div>
-    )
+    return <State kind="error" className="py-16" onRetry={() => void query.refetch()} />
   }
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-[10px] border border-dashed border-line px-6 py-12 text-center">
-        <p className="text-sm font-bold text-ink">{t.empty}</p>
-        <p className="text-xs text-ink-muted">{t.emptyHint}</p>
-        <button
-          type="button"
-          onClick={onReset}
-          className="mt-2 min-h-11 text-sm font-bold text-ink underline underline-offset-4"
-        >
-          {t.resetAll}
-        </button>
-      </div>
+      <State
+        kind="empty"
+        className="py-16"
+        title={t.empty}
+        body={t.emptyHint}
+        action={{ label: t.resetAll, onClick: onReset }}
+      />
     )
   }
 

@@ -44,7 +44,7 @@ export function CheckInReady({
       <h1 className="sr-only">{ja.checkIn.title}</h1>
       <p
         role="status"
-        className="inline-flex items-center gap-2 rounded-full bg-gate/15 px-3.5 py-2 text-[15px] leading-[1.65] font-bold text-gate"
+        className="inline-flex items-center gap-2 rounded-full bg-gate-soft px-3.5 py-2 text-[15px] leading-[1.65] font-bold text-gate-ink"
       >
         <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full bg-gate" />
         {ready.chip}

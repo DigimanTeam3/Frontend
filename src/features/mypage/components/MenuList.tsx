@@ -8,7 +8,6 @@ import { paths } from '@/shared/lib/paths'
 import { useAuthStore } from '@/shared/stores/authStore'
 import type { MySummary } from '@/shared/types/me'
 import { ChevronRightIcon } from '@/shared/ui/icons/ChevronRightIcon'
-import { GlobeIcon } from '@/shared/ui/icons/GlobeIcon'
 import { LogoutIcon } from '@/shared/ui/icons/LogoutIcon'
 import { PenIcon } from '@/shared/ui/icons/PenIcon'
 import { PeopleIcon } from '@/shared/ui/icons/PeopleIcon'
@@ -135,9 +134,6 @@ export function MenuList({ summary }: MenuListProps) {
             chevron={<ChevronRightIcon className={CHEVRON} />}
           />
         </Link>
-      </li>
-      <li className={ROW_CLASS}>
-        <RowBody icon={<GlobeIcon />} label={copy.language} />
       </li>
       <li>
         <button type="button" onClick={logout} className={ROW_CLASS}>

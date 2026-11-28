@@ -9,7 +9,7 @@ export function InitialAvatar({ name, size = 'md' }: InitialAvatarProps) {
   return (
     <span
       aria-hidden
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary ${sizeClass}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-exhibit-soft font-bold text-exhibit ${sizeClass}`}
     >
       {Array.from(name)[0] ?? '?'}
     </span>

@@ -16,9 +16,9 @@ export interface BadgeStickerProps {
 
 // Face, and the color of the icon and label on it. Only the complete badge has a light face.
 const LOOK: Record<BadgeStickerKind, { face: string; ink: string }> = {
-  participation: { face: 'bg-gate', ink: 'text-white' },
-  complete: { face: 'border-gate/40 bg-app border-[3.125cqw]', ink: 'text-gate' },
-  photo: { face: 'bg-gate/40', ink: 'text-white' },
+  participation: { face: 'bg-gate', ink: 'text-ink' },
+  complete: { face: 'border-gate/40 bg-app border-[3.125cqw]', ink: 'text-gate-ink' },
+  photo: { face: 'bg-gate/40', ink: 'text-ink' },
 }
 
 // Round badge sticker (Figma: Badge, 64px): white edge with a shadow, colored face, shine, icon

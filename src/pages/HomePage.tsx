@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useEventPagesQuery } from '@/features/events/api'
+import chevronIcon from '@/features/events/assets/chevron.svg'
+import mapEntryIcon from '@/features/events/assets/map-entry.svg'
 import searchIcon from '@/features/events/assets/search.svg'
 import { EventTicket, EventTicketSkeleton } from '@/features/events/components/ticket/EventTicket'
 import { categoryLabel } from '@/features/events/lib/eventText'
 import { seoulDateString, seoulHeaderDate } from '@/features/events/lib/seoulDate'
 import { useNextPageTrigger } from '@/features/events/lib/useNextPageTrigger'
 import { ja } from '@/shared/i18n/ja'
+import { State } from '@/shared/ui/State'
 import type { EventCategory, EventSummary } from '@/shared/types/event'
 
 const PAGE_SIZE = 10
@@ -35,28 +38,45 @@ export function HomePage() {
         <p className="font-mono text-[10px]/[1.4] font-medium tracking-[0.14em] whitespace-pre text-ink-muted">
           {`${t.place}  ·  ${seoulHeaderDate()}`}
         </p>
-        <h1 className="font-mincho text-2xl/[1.4] font-extrabold">{t.title}</h1>
+        <h1 className="text-[22px]/[1.4] font-bold">{t.greeting}</h1>
       </header>
 
       {/* Entrances to S03 search and S16 AI desk. Not in Figma yet (proposal). */}
       <div className="flex gap-2 pb-4">
         <Link
           to="/search"
-          className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm text-ink-muted transition-colors duration-150 ease-out active:bg-line/40"
+          className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm text-ink-muted transition-colors duration-150 ease-out active:bg-surface-2"
         >
           <img src={searchIcon} alt="" width={18} height={18} />
           <span className="truncate">{t.search}</span>
         </Link>
         <Link
           to="/concierge"
-          className="flex h-11 shrink-0 items-center rounded-full bg-ink px-4 text-sm font-bold text-surface transition-opacity duration-150 ease-out active:opacity-80"
+          className="flex h-11 shrink-0 items-center rounded-full bg-ink px-4 text-sm font-bold text-white transition-opacity duration-150 ease-out active:opacity-80"
         >
           {t.askAi}
         </Link>
       </div>
 
-      <nav aria-label={t.categories} className="pb-3">
-        <ul className="flex gap-5">
+      {/* Entrance to S04 map (Figma: ui / MapEntry). */}
+      <Link
+        to="/map"
+        className="mb-4 flex h-[72px] items-center gap-3 rounded-2xl border border-line bg-surface pr-4 pl-3 transition-colors duration-150 ease-out active:bg-surface-2"
+      >
+        <span className="h-12 w-14 shrink-0 overflow-hidden rounded-[10px] bg-exhibit-soft">
+          <img src={mapEntryIcon} alt="" width={56} height={48} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-[15px]/[1.65] font-bold">{t.mapEntry.title}</span>
+          <span className="truncate text-xs/[1.5] text-ink-muted">{t.mapEntry.body}</span>
+        </span>
+        <img src={chevronIcon} alt="" width={20} height={20} className="shrink-0" />
+      </Link>
+
+      <h2 className="pb-4 text-lg/[1.45] font-bold">{t.title}</h2>
+
+      <nav aria-label={t.categories} className="pb-4">
+        <ul className="flex gap-2">
           {[undefined, ...CATEGORIES].map((value) => {
             const active = value === category
             return (
@@ -65,15 +85,13 @@ export function HomePage() {
                   type="button"
                   aria-pressed={active}
                   onClick={() => selectCategory(value)}
-                  className={`flex min-h-11 flex-col items-center justify-center gap-1 text-sm/[1.4] transition-colors duration-150 ease-out ${
-                    active ? 'font-bold text-ink' : 'text-ink-muted'
+                  className={`relative flex h-9 items-center rounded-full border px-3.5 text-[13px]/[1.6] transition-colors duration-150 ease-out before:absolute before:-inset-1 before:content-[''] ${
+                    active
+                      ? 'border-ink bg-ink font-bold text-white'
+                      : 'border-line bg-surface text-ink active:bg-surface-2'
                   }`}
                 >
                   {value ? categoryLabel(value) : t.all}
-                  <span
-                    aria-hidden="true"
-                    className={`h-0.5 w-7 transition-colors duration-150 ${active ? 'bg-ink' : 'bg-transparent'}`}
-                  />
                 </button>
               </li>
             )
@@ -119,34 +137,17 @@ function HomeList({ query, events, category, onShowAll }: HomeListProps) {
   }
 
   if (query.isError && events.length === 0) {
-    return (
-      <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="text-sm text-danger">{ja.common.error}</p>
-        <button
-          type="button"
-          onClick={() => void query.refetch()}
-          className="rounded-[14px] bg-ink px-5 py-3 text-[15px] font-bold text-surface"
-        >
-          {t.retry}
-        </button>
-      </div>
-    )
+    return <State kind="error" className="py-16" onRetry={() => void query.refetch()} />
   }
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-[10px] border border-dashed border-line px-6 py-12 text-center">
-        <p className="text-sm text-ink-muted">{category ? t.emptyCategory : t.empty}</p>
-        {category && (
-          <button
-            type="button"
-            onClick={onShowAll}
-            className="text-sm font-bold text-ink underline underline-offset-4"
-          >
-            {t.showAll}
-          </button>
-        )}
-      </div>
+      <State
+        kind="empty"
+        className="py-16"
+        title={category ? t.emptyCategory : t.empty}
+        action={category ? { label: t.showAll, onClick: onShowAll } : undefined}
+      />
     )
   }
 

@@ -69,7 +69,7 @@ export function PolaroidCard({
               {title}
             </p>
             <div className="flex items-center justify-between gap-[2.96cqw] whitespace-nowrap">
-              <p className="min-w-0 truncate text-[length:4.07cqw] font-medium text-gate">
+              <p className="min-w-0 truncate text-[length:4.07cqw] font-medium text-gate-ink">
                 {ja.polaroidCard.metaBeforeVenue(dateText)}
                 <span lang={venueLang}>{venueText}</span>
               </p>

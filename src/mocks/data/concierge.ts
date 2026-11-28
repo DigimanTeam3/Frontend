@@ -111,6 +111,7 @@ export function mockConciergeReply({ text, conditions }: ConciergeMessageRequest
       recommendations: [],
       suggestions: ['今週末のおすすめ', '雨でも楽しめるもの'],
       conditions: { ...base, keywords: ['スキー'] },
+      suggestTicket: true,
     }
   }
 
