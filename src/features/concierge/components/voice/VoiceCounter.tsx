@@ -44,27 +44,36 @@ type Phase =
   | { kind: 'reply'; entry: AssistantEntry; question: string | null }
   | { kind: 'error'; entry: ErrorEntry; question: string | null }
 
-function lastQuestion(entries: ChatEntry[]) {
-  const entry = entries.findLast((item) => item.role === 'user')
+/**
+ * The question shown above entry `index`: only a question right before it. An older question was
+ * already answered, so it is never shown again (e.g. when a recording could not be read).
+ */
+function questionBefore(entries: ChatEntry[], index: number) {
+  const entry = entries[index - 1]
   return entry?.role === 'user' ? entry.text : null
 }
 
 function usePhase(session: ConciergeSession): Phase {
   const { chat, recorder } = session
+  const { entries } = chat
   if (recorder.isRecording) return { kind: 'listening' }
   if (chat.pending) {
     return {
       kind: 'thinking',
       // While the recording is being read, the words are not known yet.
-      question: chat.pending === 'messages' ? lastQuestion(chat.entries) : null,
+      question: chat.pending === 'messages' ? questionBefore(entries, entries.length) : null,
     }
   }
-  const last = chat.entries.at(-1)
+  const last = entries.at(-1)
   if (last?.role === 'assistant') {
-    return { kind: 'reply', entry: last, question: lastQuestion(chat.entries) }
+    return { kind: 'reply', entry: last, question: questionBefore(entries, entries.length - 1) }
   }
   if (last?.role === 'error') {
-    return { kind: 'error', entry: last, question: lastQuestion(chat.entries) }
+    // A rejected question has no slip any more (it waits in the text box); show what was sent.
+    const question =
+      questionBefore(entries, entries.length - 1) ??
+      (last.error.kind === 'invalid' ? last.retryText : null)
+    return { kind: 'error', entry: last, question }
   }
   return { kind: 'greeting' }
 }
