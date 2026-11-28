@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
-import { retryUnlessClientError } from '@/shared/api/journey'
 import { queryKeys } from '@/shared/api/queryKeys'
 import type { MissionListAnswer, MissionListResponse } from '@/shared/types/mission'
 
@@ -27,6 +26,5 @@ export function useMissionsQuery(eventId: number | null) {
     queryKey: queryKeys.missions.byEvent(eventId ?? 0),
     queryFn: () => getMissions(eventId ?? 0),
     enabled: eventId !== null,
-    retry: retryUnlessClientError,
   })
 }

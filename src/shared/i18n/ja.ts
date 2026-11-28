@@ -434,10 +434,8 @@ export const ja = {
   },
   // Shared loading / empty / error block (C9: src/shared/ui/State.tsx).
   state: {
-    loading: '読み込み中…',
     errorTitle: '読み込めませんでした',
     errorBody: '通信状態を確認して、もう一度お試しください。',
-    retry: 'もう一度試す',
   },
   // Photo picker with preview and upload (C8: src/shared/ui/ImageUploader.tsx).
   imageUploader: {
@@ -536,7 +534,7 @@ export const ja = {
       retry: 'もう一度試す',
       retryCheck: 'もう一度確認',
       later: 'あとで',
-      venueMap: '地図で会場',
+      venueMap: '地図で会場を見る',
       otherEvents: 'ほかのイベント',
       missions: 'ミッションへ',
     },

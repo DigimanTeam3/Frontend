@@ -70,14 +70,15 @@ export function CheckInFailed(props: CheckInFailedProps) {
         </div>
       </div>
 
-      <div className="mt-auto flex gap-2.5 pt-6">
+      <div className="mt-auto flex flex-wrap gap-2.5 pt-6">
         <FailureActions {...props} />
       </div>
     </>
   )
 }
 
-const PRIMARY = 'min-w-0 flex-1'
+// Labels stay on one line; on a narrow phone the buttons go onto two rows instead.
+const PRIMARY = 'flex-1 whitespace-nowrap'
 
 // Second action on the left, main action on the right (Figma bottom bar).
 function FailureActions({ event, failure, busy, onRetry }: CheckInFailedProps) {
@@ -110,7 +111,7 @@ function FailureActions({ event, failure, busy, onRetry }: CheckInFailedProps) {
               href={directionsUrl(event.lat, event.lng)}
               target="_blank"
               rel="noreferrer"
-              className={buttonClassName({ variant: 'outline' })}
+              className={`${buttonClassName({ variant: 'outline' })} ${PRIMARY}`}
             >
               {actions.venueMap}
             </a>

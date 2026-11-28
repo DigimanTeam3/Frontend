@@ -10,7 +10,7 @@ export interface SectionLoadingProps {
 export function SectionLoading({ children }: SectionLoadingProps) {
   return (
     <div role="status" className="motion-safe:animate-pulse">
-      <span className="sr-only">{ja.state.loading}</span>
+      <span className="sr-only">{ja.common.loading}</span>
       <div aria-hidden="true">{children}</div>
     </div>
   )

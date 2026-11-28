@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
-import { retryUnlessClientError } from '@/shared/api/journey'
 import { queryKeys } from '@/shared/api/queryKeys'
 import type { ExperienceCard } from '@/shared/types/card'
 import type { Page } from '@/shared/types/page'
@@ -22,6 +21,5 @@ export function useMyCardsQuery(enabled = true) {
     queryKey: queryKeys.cards.mine(),
     queryFn: getMyCards,
     enabled,
-    retry: retryUnlessClientError,
   })
 }

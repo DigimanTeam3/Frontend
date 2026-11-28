@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
-import { retryUnlessClientError } from '@/shared/api/journey'
 import { queryKeys } from '@/shared/api/queryKeys'
 import type { ExperienceCard, ExperienceCardUpdate } from '@/shared/types/card'
 import type { Page } from '@/shared/types/page'
@@ -16,7 +15,6 @@ export function useCardQuery(cardId: number | null) {
     queryKey: queryKeys.cards.detail(cardId ?? 0),
     queryFn: () => getCard(cardId ?? 0),
     enabled: cardId !== null,
-    retry: retryUnlessClientError,
     // Coming from the completion screen (S13) or My Page, the card is in my list already: it is
     // shown at once, as old as that list is.
     initialData: () =>

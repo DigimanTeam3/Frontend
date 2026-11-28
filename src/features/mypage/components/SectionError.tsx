@@ -14,7 +14,7 @@ export function SectionError({ onRetry }: SectionErrorProps) {
         onClick={onRetry}
         className="-my-2 shrink-0 px-2 py-2 text-[13px] leading-[1.6] font-bold text-ink underline"
       >
-        {ja.state.retry}
+        {ja.common.retry}
       </button>
     </div>
   )
