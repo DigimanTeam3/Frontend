@@ -17,7 +17,7 @@ export function ParticipationStamp({ date, className, style }: ParticipationStam
       role="img"
       style={style}
       aria-label={ja.participationBadge.stampLabel(date)}
-      className={`border-festival bg-festival-soft text-festival relative flex size-[120px] -rotate-10 flex-col items-center justify-center rounded-full border-[3px] ${className ?? ''}`}
+      className={`relative flex size-[120px] -rotate-10 flex-col items-center justify-center rounded-full border-[3px] border-festival bg-festival-soft text-festival ${className ?? ''}`}
     >
       <img
         src={ringImage}
