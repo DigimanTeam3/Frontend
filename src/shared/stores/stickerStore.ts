@@ -7,9 +7,9 @@ interface StickerState {
   savePlacements: (cardId: number, placements: StickerPlacement[]) => void
 }
 
-// The server has no field for the sticker placements yet, so they live here, in memory only
-// (not persisted): the card detail (S14) shows what was arranged during the same session, and a
-// reload goes back to the default placements.
+// What was arranged in this session, in memory only. The arrangement itself is saved on the
+// card (`stickerPlacements`); this copy shows it at once, also when that save has not answered
+// yet or has failed.
 export const useStickerStore = create<StickerState>((set) => ({
   placementsByCard: {},
   savePlacements: (cardId, placements) =>

@@ -90,7 +90,7 @@ export const cardHandlers = [
     const card = findCard(cardId)
     if (!card) return cardNotFound()
 
-    let body: { memo?: unknown; userImage?: unknown }
+    let body: { memo?: unknown; userImage?: unknown; stickerPlacements?: unknown }
     try {
       body = (await request.json()) as typeof body
     } catch {
@@ -119,6 +119,32 @@ export const cardHandlers = [
         return errorResponse(400, 'VALIDATION_ERROR', 'userImage must be an image URL', 'userImage')
       }
       changes.userImage = body.userImage
+    }
+    // Like the live server: null removes the arrangement; a list needs known badge types (each
+    // once) and x, y from -0.5 to 1.5.
+    if (body.stickerPlacements !== undefined) {
+      const placements = body.stickerPlacements
+      const valid =
+        placements === null ||
+        (Array.isArray(placements) &&
+          new Set(placements.map((item: { type?: unknown }) => item?.type)).size ===
+            placements.length &&
+          placements.every(
+            (item: { type?: unknown; x?: unknown; y?: unknown }) =>
+              (item?.type === 'participation' || item?.type === 'complete') &&
+              [item.x, item.y].every(
+                (value) => typeof value === 'number' && value >= -0.5 && value <= 1.5,
+              ),
+          ))
+      if (!valid) {
+        return errorResponse(
+          400,
+          'VALIDATION_ERROR',
+          'stickerPlacements is not valid',
+          'stickerPlacements',
+        )
+      }
+      changes.stickerPlacements = placements as ExperienceCardUpdate['stickerPlacements']
     }
     return HttpResponse.json(updateCard(card, changes))
   }),
