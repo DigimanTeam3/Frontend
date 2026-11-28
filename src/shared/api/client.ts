@@ -10,7 +10,11 @@ export { ApiError }
 export async function apiClient<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().accessToken
   const headers = new Headers(init.headers)
-  if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+  // FormData (file upload) sets its own multipart Content-Type with the boundary.
+  const isFormData = init.body instanceof FormData
+  if (init.body && !isFormData && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
   const response = await fetch(`${BASE_URL}${path}`, { ...init, headers })
