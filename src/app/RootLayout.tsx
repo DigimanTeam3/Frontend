@@ -1,32 +1,33 @@
-import { NavLink, Outlet } from 'react-router'
-import { ja } from '@/shared/i18n/ja'
+import { Outlet, ScrollRestoration, useLocation, useParams } from 'react-router'
+import { getLayoutChrome } from '@/app/layoutChrome'
+import { TabBar } from '@/shared/ui/TabBar'
+import { TopBar } from '@/shared/ui/TopBar'
 
-const navItems = [
-  { to: '/', label: ja.nav.events },
-  { to: '/map', label: ja.nav.map },
-]
+const MAIN_PADDING = {
+  // No top bar: keep clear of the status bar / notch. The tab bar handles the bottom.
+  tabs: 'px-gutter pt-[calc(env(safe-area-inset-top)+16px)] pb-6',
+  // The top bar handles the top. No tab bar, so keep clear of the home indicator here.
+  back: 'px-gutter pt-2 pb-[calc(env(safe-area-inset-bottom)+24px)]',
+  // Full-screen scenes lay out edge to edge and handle safe areas themselves.
+  bare: '',
+} as const
 
+// Mobile frame for every screen: 390px design, up to 430px wide, centered on larger screens.
+// Bars per screen are decided in layoutChrome.ts. Safe areas need viewport-fit=cover (index.html).
 export function RootLayout() {
+  const { pathname } = useLocation()
+  // Only the catch-all (404) route has a "*" param.
+  const isNotFound = useParams()['*'] !== undefined
+  const chrome = getLayoutChrome(pathname, isNotFound)
+
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-surface text-ink">
-      <main className="flex-1 px-4 py-6">
+    <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col bg-app text-ink">
+      {chrome.kind === 'back' && <TopBar leading={chrome.leading} fallback={chrome.fallback} />}
+      <main className={`flex flex-1 flex-col ${MAIN_PADDING[chrome.kind]}`}>
         <Outlet />
       </main>
-      {/* Keep the tab bar above the iPhone home indicator (needs viewport-fit=cover). */}
-      <nav className="sticky bottom-0 flex border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end
-            className={({ isActive }) =>
-              `flex-1 py-3 text-center text-sm ${isActive ? 'font-bold text-primary' : 'text-ink-muted'}`
-            }
-          >
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
+      {chrome.kind === 'tabs' && <TabBar />}
+      <ScrollRestoration />
     </div>
   )
 }

@@ -15,7 +15,7 @@ export function TicketCard({ ticket, onDelete }: TicketCardProps) {
   return (
     <li
       className={`flex flex-col gap-2.5 rounded-[14px] bg-surface px-4 py-3.5 ${
-        ticket.matched ? 'border-gate border-2' : 'border-ink-faint border-[1.5px] border-dashed'
+        ticket.matched ? 'border-gate border-2' : 'border-[1.5px] border-dashed border-ink-faint'
       }`}
     >
       <div className="flex items-center gap-1.5">
@@ -45,7 +45,7 @@ export function TicketCard({ ticket, onDelete }: TicketCardProps) {
         </ul>
       )}
 
-      <div className="border-ink-faint flex items-center gap-2 border-t border-dashed pt-2.5">
+      <div className="flex items-center gap-2 border-t border-dashed border-ink-faint pt-2.5">
         <p className="min-w-0 flex-1 text-xs leading-normal text-ink-muted">
           {copy.savedOn(formatDate(ticket.createdAt))}
         </p>

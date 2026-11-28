@@ -32,7 +32,7 @@ export function BadgeSection() {
         // earned count is shown.
         trailing={
           data && (
-            <span className="text-ink-faint font-mono text-[11px] leading-[1.4] font-medium tracking-[0.08em]">
+            <span className="font-mono text-[11px] leading-[1.4] font-medium tracking-[0.08em] text-ink-faint">
               {copy.count(data.total)}
             </span>
           )
@@ -73,7 +73,7 @@ export function BadgeSection() {
               <span
                 role="img"
                 aria-label={copy.placeholder}
-                className={`${STAMP_BASE} text-ink-faint border-dashed border-line bg-ink/5`}
+                className={`${STAMP_BASE} border-dashed border-line bg-ink/5 text-ink-faint`}
               >
                 {copy.placeholderMark}
               </span>
