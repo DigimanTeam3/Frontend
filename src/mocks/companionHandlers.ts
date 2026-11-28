@@ -115,7 +115,8 @@ export const companionHandlers = [
     posts.push(post)
     return HttpResponse.json(toDetail(post, meId), { status: 201 })
   }),
-  http.get('/api/companions/:postId', ({ request, params }) => {
+  http.get('/api/companions/:postId', async ({ request, params }) => {
+    await mockDelay()
     const meId = currentUserId(request)
     if (meId === null) return unauthorizedResponse()
     const post = findPost(params.postId)
@@ -124,7 +125,8 @@ export const companionHandlers = [
     return HttpResponse.json(toDetail(post, meId))
   }),
 
-  http.post('/api/companions/:postId/requests', ({ request, params }) => {
+  http.post('/api/companions/:postId/requests', async ({ request, params }) => {
+    await mockDelay()
     const meId = currentUserId(request)
     if (meId === null) return unauthorizedResponse()
     const post = findPost(params.postId)
@@ -147,7 +149,8 @@ export const companionHandlers = [
     return HttpResponse.json(toDetail(post, meId), { status: 201 })
   }),
 
-  http.delete('/api/companions/:postId/requests/me', ({ request, params }) => {
+  http.delete('/api/companions/:postId/requests/me', async ({ request, params }) => {
+    await mockDelay()
     const meId = currentUserId(request)
     if (meId === null) return unauthorizedResponse()
     const post = findPost(params.postId)
@@ -161,7 +164,8 @@ export const companionHandlers = [
     return HttpResponse.json(toDetail(post, meId))
   }),
 
-  http.post('/api/companions/:postId/requests/:requestId/:action', ({ request, params }) => {
+  http.post('/api/companions/:postId/requests/:requestId/:action', async ({ request, params }) => {
+    await mockDelay()
     const meId = currentUserId(request)
     if (meId === null) return unauthorizedResponse()
     const post = findPost(params.postId)
