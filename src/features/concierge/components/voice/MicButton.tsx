@@ -72,7 +72,6 @@ export function MicButton({
         onClick={listening ? onStop : onStart}
         disabled={state === 'busy'}
         aria-label={listening ? t.stop : t.start}
-        aria-pressed={listening}
         className={`relative flex ${size} items-center justify-center rounded-full transition-[transform,background-color] duration-150 ease-out active:scale-95 ${color}`}
       >
         {listening && small ? <StopIcon /> : <MicIcon />}

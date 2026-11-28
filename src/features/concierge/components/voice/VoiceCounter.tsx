@@ -138,7 +138,7 @@ function VoiceTopBar({
           aria-label={t.toChatLabel}
           className={`flex items-center gap-1 justify-self-end rounded-full bg-white px-3 py-2 text-xs leading-[1.5] font-bold transition-transform duration-150 ease-out active:scale-95 disabled:opacity-40 ${highlightChat ? 'ring-2 ring-[var(--digu-pink)]' : ''}`}
         >
-          <span>Aa</span>
+          <span aria-hidden="true">Aa</span>
           <span className="text-[var(--digu-ink-sub)]">{t.toChat}</span>
         </button>
       </div>
