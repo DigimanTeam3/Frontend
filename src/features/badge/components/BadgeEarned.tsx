@@ -66,7 +66,7 @@ export function BadgeEarned({ event, ticketNumber, earnedAt }: BadgeEarnedProps)
             </span>
           ))}
         </p>
-        <p className="text-ink-faint font-mono text-[11px] leading-[1.4] font-medium tracking-[0.08em] break-words whitespace-pre-wrap">
+        <p className="font-mono text-[11px] leading-[1.4] font-medium tracking-[0.08em] break-words whitespace-pre-wrap text-ink-faint">
           {copy.metaBeforeVenue(date, formatTime(earnedAt))}
           <span lang={event.venueNameJa === null ? 'ko' : undefined}>{venue}</span>
         </p>
