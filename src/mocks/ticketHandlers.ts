@@ -1,4 +1,3 @@
-// TODO(api): provisional — the backend spec (v2) names the paths (/saved-conditions) but the API is not built yet, so the fields are placeholders for the mock only.
 import { http, HttpResponse } from 'msw/http'
 import {
   DELETE_ERROR_TICKET_ID,

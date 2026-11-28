@@ -98,8 +98,9 @@ export const cardHandlers = [
     }
     const changes: ExperienceCardUpdate = {}
     if (body.memo === null) {
-      changes.memo = null
-    } else if (body.memo !== undefined) {
+      return errorResponse(400, 'VALIDATION_ERROR', 'memo: must not be null', { field: 'memo' })
+    }
+    if (body.memo !== undefined) {
       if (body.memo === FORCED_NETWORK_MEMO) return HttpResponse.error()
       if (body.memo === FORCED_SERVER_ERROR_MEMO) {
         return errorResponse(500, 'INTERNAL_ERROR', 'mock server error')
@@ -109,7 +110,7 @@ export const cardHandlers = [
         body.memo.length > MEMO_MAX_LENGTH ||
         body.memo === FORCED_VALIDATION_MEMO
       ) {
-        return errorResponse(422, 'VALIDATION_ERROR', 'memo must be 500 characters or less', {
+        return errorResponse(400, 'VALIDATION_ERROR', 'memo must be 500 characters or less', {
           field: 'memo',
         })
       }
@@ -117,7 +118,7 @@ export const cardHandlers = [
     }
     if (body.userImage !== undefined) {
       if (typeof body.userImage !== 'string' || body.userImage === '') {
-        return errorResponse(422, 'VALIDATION_ERROR', 'userImage must be an image URL', {
+        return errorResponse(400, 'VALIDATION_ERROR', 'userImage must be an image URL', {
           field: 'userImage',
         })
       }

@@ -1,4 +1,3 @@
-// TODO(api): provisional — the backend spec (v2) names the paths (/saved-conditions) but the API is not built yet, so the fields are placeholders for the mock only.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
 import { retryUnlessClientError } from '@/shared/api/journey'
@@ -29,7 +28,6 @@ export function useDeleteTicketMutation() {
 
   return useMutation<void, Error, number, DeleteContext>({
     mutationKey: DELETE_TICKET_MUTATION_KEY,
-    // TODO(api): must answer 204 (a 200 with an empty body would be read as a failure)
     mutationFn: (ticketId) =>
       apiClient<void>(`/saved-conditions/${ticketId}`, { method: 'DELETE' }),
     onMutate: async (ticketId) => {

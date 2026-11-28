@@ -21,7 +21,7 @@ export const uploadHandlers = [
 
     const file = (await request.formData()).get('file')
     if (!(file instanceof File) || file.size === 0) {
-      return errorResponse(400, 'EMPTY_FILE', 'file is empty')
+      return errorResponse(400, 'VALIDATION_ERROR', 'file is empty', { field: 'file' })
     }
     if (!ALLOWED_TYPES.includes(file.type)) {
       return errorResponse(400, 'UNSUPPORTED_IMAGE_TYPE', `${file.type} is not supported`)

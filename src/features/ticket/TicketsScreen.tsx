@@ -1,4 +1,3 @@
-// TODO(api): provisional — the backend spec (v2) names the paths (/saved-conditions) but the API is not built yet, so the fields are placeholders for the mock only.
 import { useState } from 'react'
 import { useDeleteTicketMutation, useTicketsQuery } from '@/features/ticket/api'
 import { TicketCard } from '@/features/ticket/components/TicketCard'

@@ -1,4 +1,4 @@
-// TODO(api): provisional — the backend spec (v2) names the paths (/saved-conditions) but the API is not built yet, so the fields are placeholders for the mock only.
+// Saved conditions (予約券): GET /saved-conditions answers `{ items }`, DELETE /saved-conditions/{id} answers 204.
 
 /** A search condition the user saved from the AI concierge (S16), shown as a 予約券 (S17). */
 export interface Ticket {

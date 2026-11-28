@@ -14,12 +14,7 @@ export function withVerification(
   participation: Participation,
   result: VerifyResult,
 ): Participation {
-  return {
-    ...participation,
-    status: result.status,
-    verificationMethod: 'gps',
-    verifiedAt: result.verifiedAt,
-  }
+  return { ...participation, status: result.status, verifiedAt: result.verifiedAt }
 }
 
 /** Sends my position; the server decides whether it is inside the venue radius. */

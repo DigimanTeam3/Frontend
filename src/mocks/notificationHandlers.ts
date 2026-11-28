@@ -1,4 +1,3 @@
-// TODO(api): provisional — no backend API for notifications yet (LINE alert for saved conditions). Path and fields are placeholders for the mock only.
 import { http, HttpResponse } from 'msw/http'
 import { findJourneyEvent, toEventBrief } from '@/mocks/data/journey'
 import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'

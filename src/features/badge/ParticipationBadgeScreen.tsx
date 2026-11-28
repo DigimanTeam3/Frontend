@@ -32,18 +32,16 @@ export function ParticipationBadgeScreen() {
   if (event && participation !== undefined) {
     // Checked before the error states: a failed background refetch must not close a badge
     // that is already on screen.
-    if (participation && verified) {
+    // The badge gives the exact time; the participation has the same moment.
+    const earnedAt = badge?.acquiredAt ?? participation?.verifiedAt
+    if (participation && verified && earnedAt) {
       content = badgesQuery.isLoading ? (
         <>
           {heading}
           <State kind="loading" />
         </>
       ) : (
-        <BadgeEarned
-          event={event}
-          ticketNumber={participation.id}
-          earnedAt={badge?.acquiredAt ?? participation.verifiedAt ?? participation.createdAt}
-        />
+        <BadgeEarned event={event} ticketNumber={participation.id} earnedAt={earnedAt} />
       )
     } else {
       const { notVerified } = ja.participationBadge

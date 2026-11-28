@@ -30,12 +30,7 @@ export const mypageHandlers = [
       id: userId,
       provider: 'line',
       nickname: mypageLongName() ? LONG_NICKNAME : 'ゆい',
-      email: null,
-      language: 'ja',
       profileImage: null,
-      bio: null,
-      isAdmin: false,
-      createdAt: '2026-11-01T10:00:00+09:00',
     }
     return HttpResponse.json(user)
   }),

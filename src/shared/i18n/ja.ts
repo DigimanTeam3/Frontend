@@ -63,7 +63,8 @@ export const ja = {
     errors: {
       UNSUPPORTED_IMAGE_TYPE: 'この形式の写真は使えません。別の写真を選んでください。',
       FILE_TOO_LARGE: '写真のサイズが大きすぎます。別の写真を選んでください。',
-      EMPTY_FILE: '写真を読み込めませんでした。もう一度選んでください。',
+      // An empty file.
+      VALIDATION_ERROR: '写真を読み込めませんでした。もう一度選んでください。',
       NETWORK: '通信できませんでした。電波の良い場所でもう一度お試しください。',
       UNKNOWN: '写真を送れませんでした。もう一度お試しください。',
     },
@@ -373,6 +374,11 @@ export const ja = {
       name: {
         participation: (eventTitle: string) => `${eventTitle} の参加バッジ`,
         complete: (eventTitle: string) => `${eventTitle} の完走バッジ`,
+      },
+      // The same without an event (it no longer exists).
+      nameOnly: {
+        participation: '参加バッジ',
+        complete: '完走バッジ',
       },
       // The glyph text on the stamps (Figma: Shippori Mincho).
       label: {

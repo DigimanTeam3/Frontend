@@ -7,8 +7,8 @@ import {
   INDOOR_DEMO_EVENT_ID,
   joinEvent,
   LOW_ACCURACY_EVENT_ID,
-  NO_LOCATION_EVENT_ID,
   nowIso,
+  toParticipation,
   VERIFY_ERROR_EVENT_ID,
   verifyParticipation,
 } from '@/mocks/data/journey'
@@ -27,7 +27,7 @@ import type { VerifyRequest, VerifyResult } from '@/shared/types/participation'
 //   9003  the event loads, but verify always answers 400 LOW_ACCURACY
 //   9004  the event loads, but verify always answers 500 INTERNAL_ERROR
 //   9005  the event is over: joining answers 400 EVENT_ENDED
-//   9006  the event loads, but verify always answers 400 EVENT_LOCATION_UNAVAILABLE
+//   9006  the event has no venue position: verify answers 400 EVENT_LOCATION_UNAVAILABLE
 //   any other unknown id → 404 EVENT_NOT_FOUND
 // The other failures come from the data: event 1 is far away unless you stand at the venue
 // (OUT_OF_RANGE), event 3 has not started (EVENT_NOT_STARTED), and checking in twice answers
@@ -92,7 +92,7 @@ export const checkinHandlers = [
     }
 
     const { participation, created } = joinEvent(eventId, userId)
-    return HttpResponse.json(participation, { status: created ? 201 : 200 })
+    return HttpResponse.json(toParticipation(participation), { status: created ? 201 : 200 })
   }),
 
   http.get('/api/events/:eventId/participation', async ({ params, request }) => {
@@ -105,7 +105,7 @@ export const checkinHandlers = [
 
     const participation = findParticipation(eventId, userId)
     return participation
-      ? HttpResponse.json(participation)
+      ? HttpResponse.json(toParticipation(participation))
       : errorResponse(404, 'PARTICIPATION_NOT_FOUND', 'no participation for this event')
   }),
 
@@ -143,9 +143,6 @@ export const checkinHandlers = [
       })
     }
     if (event.id === VERIFY_ERROR_EVENT_ID) return serverError()
-    if (event.id === NO_LOCATION_EVENT_ID) {
-      return errorResponse(400, 'EVENT_LOCATION_UNAVAILABLE', 'the event has no venue position')
-    }
 
     if (isCheckedIn(participation.status)) {
       return errorResponse(409, 'ALREADY_VERIFIED', 'already verified')
@@ -166,7 +163,13 @@ export const checkinHandlers = [
         detail: { accuracy, maxAccuracy: MAX_ACCURACY_M },
       })
     }
-    const distance = distanceMeters({ lat: latitude, lng: longitude }, event)
+    if (event.lat === null || event.lng === null) {
+      return errorResponse(400, 'EVENT_LOCATION_UNAVAILABLE', 'the event has no venue position')
+    }
+    const distance = distanceMeters(
+      { lat: latitude, lng: longitude },
+      { lat: event.lat, lng: event.lng },
+    )
     const radius = event.verificationRadius ?? DEFAULT_RADIUS_M
     if (!isDemo && distance > radius) {
       return errorResponse(400, 'OUT_OF_RANGE', 'outside the venue radius', {

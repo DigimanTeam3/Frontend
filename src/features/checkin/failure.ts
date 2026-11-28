@@ -56,11 +56,10 @@ export function failureFromApiError(error: unknown): CheckInFailure {
   const code = info?.code
   switch (code) {
     case 'OUT_OF_RANGE': {
-      // TODO(api): the spec (v2) does not name the fields of `detail`. The distance is read under
-      // the name the verify answer uses; the radius falls back to the event's own.
+      // detail: { distanceMeters, radiusMeters }
       const detail = (info?.detail ?? {}) as Record<string, unknown>
-      const distanceM = detail.distanceMeters ?? detail.distanceM
-      const radiusM = detail.radiusMeters ?? detail.radiusM ?? detail.verificationRadius
+      const distanceM = detail.distanceMeters
+      const radiusM = detail.radiusMeters
       return {
         reason: 'OUT_OF_RANGE',
         distanceM: typeof distanceM === 'number' ? distanceM : undefined,

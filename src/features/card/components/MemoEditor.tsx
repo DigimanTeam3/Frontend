@@ -25,7 +25,7 @@ export function MemoEditor({ card, onSaved, onCancel }: MemoEditorProps) {
   const counterId = useId()
   const field = useRef<HTMLTextAreaElement>(null)
   const update = useUpdateCardMutation(card.id)
-  const [text, setText] = useState(card.memo ?? '')
+  const [text, setText] = useState(card.memo)
 
   const saving = update.isPending
   const errorKey: ErrorKey | null = !update.isError
@@ -45,9 +45,8 @@ export function MemoEditor({ card, onSaved, onCancel }: MemoEditorProps) {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     if (saving) return
-    const memo = text.trim()
-    // An emptied memo is removed.
-    update.mutate({ memo: memo === '' ? null : memo }, { onSuccess: onSaved })
+    // An emptied memo is removed: the server takes an empty text for that (and refuses null).
+    update.mutate({ memo: text.trim() }, { onSuccess: onSaved })
   }
 
   return (

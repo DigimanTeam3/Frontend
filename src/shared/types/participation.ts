@@ -10,11 +10,8 @@ export type ParticipationStatus = 'joined' | 'verified' | 'completed'
 export interface Participation {
   id: number
   eventId: number
-  userId: number
   status: ParticipationStatus
-  verificationMethod: 'gps' | null
   verifiedAt: string | null
-  createdAt: string
 }
 
 /** Body of POST /participations/{participationId}/verify. The server does not store the position. */

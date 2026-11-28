@@ -98,7 +98,7 @@ export const missionHandlers = [
     if (!isCheckedIn(findParticipation(mission.eventId, userId)?.status)) {
       return submitError('NOT_VERIFIED')
     }
-    if (findSubmission(mission.id, userId)) return submitError('ALREADY_SUBMITTED')
+    if (findSubmission(mission.id)) return submitError('ALREADY_SUBMITTED')
 
     if (body.submissionType !== mission.verificationMethod) {
       return submitError('VALIDATION_ERROR', 'submissionType')

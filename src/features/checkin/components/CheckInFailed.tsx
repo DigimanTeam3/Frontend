@@ -105,14 +105,16 @@ function FailureActions({ event, failure, busy, onRetry }: CheckInFailedProps) {
     case 'OUT_OF_RANGE':
       return (
         <>
-          <a
-            href={directionsUrl(event.lat, event.lng)}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonClassName({ variant: 'outline' })}
-          >
-            {actions.venueMap}
-          </a>
+          {event.lat !== null && event.lng !== null && (
+            <a
+              href={directionsUrl(event.lat, event.lng)}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonClassName({ variant: 'outline' })}
+            >
+              {actions.venueMap}
+            </a>
+          )}
           {retry(actions.retryCheck)}
         </>
       )

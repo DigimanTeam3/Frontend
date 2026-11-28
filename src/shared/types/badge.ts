@@ -7,8 +7,9 @@ export interface Badge {
   id: number
   eventId: number
   badgeType: BadgeType
-  /** Image URL of the badge. */
-  badgeImage: string
+  /** Image URL of the badge (the screens draw the badge themselves). */
+  badgeImage: string | null
   acquiredAt: string
-  event: EventBrief
+  /** The event the badge belongs to; null when the event no longer exists. */
+  event: EventBrief | null
 }

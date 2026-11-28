@@ -8,10 +8,9 @@ export type MissionVerificationMethod = 'photo' | 'text'
 export interface Submission {
   id: number
   missionId: number
-  userId: number
   submissionType: MissionVerificationMethod
   text: string | null
-  // TODO(api): the spec (v2) names the request field `imageUrl` but does not show the answer.
+  /** URL of the submitted photo (the answer carries it as `image` and as `imageUrl`). */
   image: string | null
   verificationStatus: 'pending' | 'approved' | 'rejected'
   submittedAt: string
@@ -35,7 +34,22 @@ export interface Mission {
   mySubmission: Submission | null
 }
 
-/** GET /events/{eventId}/missions, as the screens read it (see toMissionList in shared/api/missions). */
+/** Progress in the required missions as GET /events/{eventId}/missions carries it. */
+export interface MissionListProgress {
+  completedRequired: number
+  totalRequired: number
+}
+
+/** GET /events/{eventId}/missions as the server answers. */
+export interface MissionListAnswer {
+  eventId: number
+  /** My check-in of this event has passed, so I may submit. False without a login. */
+  canSubmit: boolean
+  progress: MissionListProgress
+  items: Mission[]
+}
+
+/** The mission list as the screens read it (see toMissionList in shared/api/missions). */
 export interface MissionListResponse {
   items: Mission[]
   requiredCount: number

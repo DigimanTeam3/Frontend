@@ -27,7 +27,7 @@ function multipartImage(file: File) {
 /**
  * Shrinks a photo (longest edge 1600px, JPEG) and uploads it: POST /api/uploads/images,
  * multipart field `file`. Login needed.
- * Errors: 400 UNSUPPORTED_IMAGE_TYPE, 400 EMPTY_FILE, 413 FILE_TOO_LARGE.
+ * Errors: 400 UNSUPPORTED_IMAGE_TYPE, 400 VALIDATION_ERROR (empty file), 413 FILE_TOO_LARGE.
  */
 export async function uploadImage(file: File) {
   const { body, contentType } = multipartImage(await resizeImage(file))

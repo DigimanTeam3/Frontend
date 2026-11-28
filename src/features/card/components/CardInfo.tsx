@@ -17,7 +17,7 @@ const LABEL = 'text-gate text-[13px] leading-normal'
 export function CardInfo({ card, editing, onMemoSaved, onEditCancel }: CardInfoProps) {
   const { cardDetail: copy } = ja
   // Nice to have: the row is left out while the missions load, and when they cannot be read.
-  const missions = useMissionsQuery(card.event.id).data
+  const missions = useMissionsQuery(card.eventId).data
 
   return (
     <div className="rounded-[20px] bg-surface px-4 py-1">
