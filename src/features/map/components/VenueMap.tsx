@@ -17,7 +17,7 @@ export interface VenueMapProps {
  * One venue in 3D (S05 detail, S09 check-in). Loads MapLibre, so import it through
  * LazyVenueMap to keep the map code out of the screen's first load.
  */
-export default function VenueMap({ event, className = '', interactive = false }: VenueMapProps) {
+export function VenueMap({ event, className = '', interactive = false }: VenueMapProps) {
   if (!hasValidCoords(event)) return null
 
   return (
