@@ -436,8 +436,8 @@ export const ja = {
   state: {
     loading: '読み込み中…',
     errorTitle: '読み込めませんでした',
-    errorBody: '通信状態を確認して、もう一度お試しください',
-    retry: '再読み込み',
+    errorBody: '通信状態を確認して、もう一度お試しください。',
+    retry: 'もう一度試す',
   },
   // Photo picker with preview and upload (C8: src/shared/ui/ImageUploader.tsx).
   imageUploader: {
@@ -475,7 +475,7 @@ export const ja = {
   // Error block of the journey screens (S09–S13) when the event id in the URL does not exist.
   eventNotFound: {
     title: 'イベントが見つかりません',
-    body: 'URLが正しいか、もう一度ご確認ください',
+    body: 'URLが正しいか、もう一度ご確認ください。',
     home: 'ホームへ',
   },
   // Location check-in (S09: src/features/checkin).
@@ -491,7 +491,7 @@ export const ja = {
       stepRadius: (radiusM: number) => `会場から ${radiusM}m 以内で確認`,
       stepTear: '切符を切り取って参加バッジ獲得',
       start: '位置情報を許可して確認',
-      httpsNote: 'HTTPSで接続しているときだけ使えます',
+      httpsNote: 'HTTPSで接続しているときだけ使えます。',
     },
     checking: '確認中…',
     ready: {
@@ -515,13 +515,13 @@ export const ja = {
       NETWORK: '通信できませんでした',
     },
     failureBody: {
-      PERMISSION_DENIED: '設定で位置情報を許可してください',
-      POSITION_UNAVAILABLE: '屋外に出て、もう一度お試しください',
-      LOW_ACCURACY: 'Wi-Fiをオンにすると精度が上がります',
-      ALREADY_VERIFIED: '参加バッジはマイページで見られます',
-      EVENT_LOCATION_UNAVAILABLE: 'このイベントは会場の位置がまだ登録されていません',
-      NETWORK: '電波の良い場所でお試しください',
-      outOfRange: (radiusM: number) => `会場の ${radiusM}m 以内で確認してください`,
+      PERMISSION_DENIED: '設定で位置情報を許可してください。',
+      POSITION_UNAVAILABLE: '屋外に出て、もう一度お試しください。',
+      LOW_ACCURACY: 'Wi-Fiをオンにすると精度が上がります。',
+      ALREADY_VERIFIED: '参加バッジはマイページで見られます。',
+      EVENT_LOCATION_UNAVAILABLE: 'このイベントは会場の位置がまだ登録されていません。',
+      NETWORK: '電波の良い場所でお試しください。',
+      outOfRange: (radiusM: number) => `会場の ${radiusM}m 以内で確認してください。`,
       // Two paragraphs, used when the server tells the distance and the radius.
       outOfRangeDistance: (distance: string) => `いまの場所は会場から ${distance} 離れています。`,
       // The venue name goes between the two parts as its own element, because it needs
@@ -533,7 +533,7 @@ export const ja = {
       period: (start: string, end: string) => `開催期間：${start} – ${end}`,
     },
     actions: {
-      retry: 'もう一度',
+      retry: 'もう一度試す',
       retryCheck: 'もう一度確認',
       later: 'あとで',
       venueMap: '地図で会場',
@@ -548,7 +548,7 @@ export const ja = {
     // (`missionCount` of the event detail).
     body: (missionCount: number | undefined) => [
       '参加バッジを手に入れました。',
-      missionCount ? `ミッションが開きました（${missionCount}つ）` : 'ミッションが開きました',
+      missionCount ? `ミッションが開きました（${missionCount}つ）。` : 'ミッションが開きました。',
     ],
     // Date, time and the venue name (a separate element, so a Korean original can be marked
     // lang="ko"). The double spaces around the dot are part of the design.
@@ -558,7 +558,7 @@ export const ja = {
     stampTitle: '参加',
     notVerified: {
       title: 'まだ到着チェックが済んでいません',
-      body: '会場で到着チェックをすると、参加バッジがもらえます',
+      body: '会場で到着チェックをすると、参加バッジがもらえます。',
       action: '到着チェックへ',
     },
     actions: {
@@ -571,8 +571,8 @@ export const ja = {
     title: 'ミッション',
     required: '必須',
     verifiedTag: '認証済み',
-    hint: '必須ミッションをすべて終えると、完走バッジと思い出カードができます',
-    hintDone: '必須ミッションをすべて終えました。完走バッジと思い出カードができました',
+    hint: '必須ミッションをすべて終えると、完走バッジと思い出カードができます。',
+    hintDone: '必須ミッションをすべて終えました。完走バッジと思い出カードができました。',
     count: (done: number, total: number) => `${done}/${total}`,
     progressLabel: (done: number, total: number) => `必須ミッション ${total}件中 ${done}件完了`,
     status: {
@@ -583,16 +583,16 @@ export const ja = {
       doneOptional: '完了 · 任意',
     },
     notVerified: {
-      body: '到着チェックを済ませると、ミッションに挑戦できます',
+      body: '到着チェックを済ませると、ミッションに挑戦できます。',
       action: '到着チェックへ',
     },
     empty: {
       title: 'ミッションはまだありません',
-      body: 'このイベントにはミッションがありません',
+      body: 'このイベントにはミッションがありません。',
       action: 'イベントの詳細へ',
     },
     viewCard: '思い出カードを見る',
-    submittedToast: 'ミッションを提出しました',
+    submittedToast: 'ミッションを提出しました。',
   },
   // Mission submission (S12: src/features/mission/MissionSubmitScreen.tsx).
   missionSubmit: {
@@ -600,7 +600,7 @@ export const ja = {
     // Place of the mission in the list, two digits: "MISSION 03".
     number: (position: number) => `MISSION ${String(position).padStart(2, '0')}`,
     photoLabel: '写真',
-    photoHelp: '1枚 · 自動で小さくして送ります',
+    photoHelp: '1枚 · 自動で小さくして送ります。',
     textLabel: 'ひとこと',
     counter: (length: number, max: number) => `${length} / ${max}`,
     submit: '提出する',
@@ -608,28 +608,28 @@ export const ja = {
     // Keys are API error codes of POST /missions/{missionId}/submissions, plus UNKNOWN
     // (network, server and every other error).
     errors: {
-      NOT_VERIFIED: '到着チェックが必要です',
-      ALREADY_SUBMITTED: 'このミッションは提出済みです',
-      IMAGE_REQUIRED: '写真を追加してください',
+      NOT_VERIFIED: '到着チェックが必要です。',
+      ALREADY_SUBMITTED: 'このミッションは提出済みです。',
+      IMAGE_REQUIRED: '写真を追加してください。',
       // A text that is empty or longer than 200 characters.
-      VALIDATION_ERROR: 'ひとことは1〜200文字で入力してください',
+      VALIDATION_ERROR: 'ひとことは1〜200文字で入力してください。',
       UNKNOWN: '通信できませんでした。電波の良い場所でもう一度お試しください。',
     },
     toCheckIn: '到着チェックへ',
     notVerified: {
       title: 'まだ到着チェックが済んでいません',
-      body: '会場で到着チェックを済ませると、ミッションを提出できます',
+      body: '会場で到着チェックを済ませると、ミッションを提出できます。',
       action: '到着チェックへ',
     },
     notFound: {
       title: 'ミッションが見つかりません',
-      body: 'ミッション一覧から選び直してください',
+      body: 'ミッション一覧から選び直してください。',
       action: 'ミッション一覧へ',
     },
     // Read-only view of a mission I already submitted.
     submitted: {
       done: '完了',
-      date: (date: string) => `${date} に提出`,
+      date: (date: string) => `${date}に提出`,
       photoAlt: '提出した写真',
       backToList: 'ミッション一覧へ',
     },
@@ -681,7 +681,7 @@ export const ja = {
       'EnterキーかSpaceキーで選び、矢印キーで動かします。Deleteキーではがし、Escキーで選択をやめます。',
     noCard: {
       title: 'まだカードはありません',
-      body: '必須ミッションをすべて終えると、完走バッジと思い出カードができます',
+      body: '必須ミッションをすべて終えると、完走バッジと思い出カードができます。',
       action: 'ミッションへ',
     },
   },
@@ -691,34 +691,34 @@ export const ja = {
     missionLabel: 'ミッション',
     missionValue: (done: number, total: number) => `${done} / ${total} 完了`,
     memoLabel: 'メモ',
-    memoEmpty: 'メモはまだありません',
+    memoEmpty: 'メモはまだありません。',
     editMemo: 'メモを編集',
     memoCounter: (length: number, max: number) => `${length} / ${max}`,
     saveMemo: '保存する',
     savingMemo: '保存中…',
     cancelMemo: 'キャンセル',
-    memoSaved: 'メモを保存しました',
+    memoSaved: 'メモを保存しました。',
     // Keys are API error codes of PATCH /experience-cards/{cardId}, plus UNKNOWN (network,
     // server and every other error).
     memoErrors: {
-      VALIDATION_ERROR: 'メモは500文字以内で入力してください',
+      VALIDATION_ERROR: 'メモは500文字以内で入力してください。',
       UNKNOWN: '保存できませんでした。もう一度お試しください。',
     },
     notFound: {
       title: 'カードが見つかりません',
-      body: 'URLが正しいか、もう一度ご確認ください',
+      body: 'URLが正しいか、もう一度ご確認ください。',
       action: 'マイページへ',
     },
     share: '共有する',
     sharePreparing: '準備中…',
     shareFailed: '共有できませんでした。もう一度お試しください。',
     // The browser refused the share sheet because the image was not ready at the tap. It is now.
-    shareTapAgain: '画像の準備ができました。もう一度タップしてください',
+    shareTapAgain: '画像の準備ができました。もう一度タップしてください。',
     // Overlay with the image where the share sheet cannot take a file (S14, in-app browsers).
     sharePreview: {
       title: '共有用の画像',
       imageAlt: '思い出カードの画像',
-      hint: '自動で保存されないときは、画像を長押しして保存してください',
+      hint: '自動で保存されないときは、画像を長押しして保存してください。',
       close: '閉じる',
     },
     // A title or venue that is too long for its line in the share image.
@@ -742,21 +742,21 @@ export const ja = {
     errors: {
       UNAUTHORIZED: {
         title: 'ログインが必要です',
-        body: 'ログインし直してから、もう一度お試しください',
+        body: 'ログインし直してから、もう一度お試しください。',
       },
       UNKNOWN: {
         title: '読み込めませんでした',
-        body: '通信状態を確認して、もう一度お試しください',
+        body: '通信状態を確認して、もう一度お試しください。',
       },
     },
     // One line under the heading of a section that could not load (the retry button is the
     // shared state.retry).
-    sectionError: 'うまく読み込めませんでした',
+    sectionError: 'うまく読み込めませんでした。',
     badges: {
       title: 'バッジ',
       count: (count: number) => `${count}`,
       listLabel: '手に入れたバッジ',
-      empty: 'まだバッジはありません',
+      empty: 'まだバッジはありません。',
       // The dashed "?" at the end of the row.
       placeholder: 'まだ手に入れていないバッジ',
       // Accessible name of a badge: the event it was earned at.
@@ -784,7 +784,7 @@ export const ja = {
       cardName: (eventTitle: string) => `${eventTitle} の思い出カード`,
       empty: {
         title: 'カードはまだありません',
-        body: 'ミッションを終えると、ここに思い出カードが並びます',
+        body: 'ミッションを終えると、ここに思い出カードが並びます。',
       },
     },
     menu: {
@@ -796,7 +796,7 @@ export const ja = {
     },
     // My companion record under "書いた募集文": posts I wrote and posts I joined.
     companions: {
-      empty: '同行の記録はまだありません',
+      empty: '同行の記録はまだありません。',
       // Meeting day and people: "11/28(土) ・ 2/3人".
       meta: (date: string, memberCount: number, capacity: number) =>
         `${date} ・ ${memberCount}/${capacity}人`,
@@ -808,38 +808,38 @@ export const ja = {
     participations: {
       verified: '認証済み',
       unverified: '未認証',
-      empty: '参加したイベントはまだありません',
+      empty: '参加したイベントはまだありません。',
     },
   },
   // Saved conditions, reservation tickets (S17: src/features/ticket).
   reservationTicket: {
     title: '予約券',
-    description: '条件を予約しておくと、合うイベントが出たときにLINEでお知らせします',
+    description: '条件を予約しておくと、合うイベントが出たときにLINEでお知らせします。',
     listLabel: '予約券の一覧',
     // Small heading on each card.
     cardLabel: '予約券',
     // Pill on a ticket whose condition has matched a new event.
     arrived: '届きました',
-    savedOn: (date: string) => `${date} に保存`,
+    savedOn: (date: string) => `${date}に保存`,
     delete: '削除',
     // Accessible name of the delete button: says which ticket it removes.
     deleteLabel: (condition: string) => `${condition} の予約券を削除`,
-    deleted: '予約券を削除しました',
-    deleteError: '削除できませんでした。もう一度お試しください',
+    deleted: '予約券を削除しました。',
+    deleteError: '削除できませんでした。もう一度お試しください。',
     empty: {
       title: '予約券はまだありません',
-      body: 'AI窓口で条件を保存すると、ここに並びます',
+      body: 'AI窓口で条件を保存すると、ここに並びます。',
     },
     // Keys are API error codes of GET /saved-conditions, plus UNKNOWN (network, server and every other
     // error).
     errors: {
       UNAUTHORIZED: {
         title: 'ログインが必要です',
-        body: 'ログインし直してから、もう一度お試しください',
+        body: 'ログインし直してから、もう一度お試しください。',
       },
       UNKNOWN: {
         title: '読み込めませんでした',
-        body: '通信状態を確認して、もう一度お試しください',
+        body: '通信状態を確認して、もう一度お試しください。',
       },
     },
   },
@@ -857,7 +857,7 @@ export const ja = {
     viewTickets: '予約券を見る',
     notFound: {
       title: 'お知らせが見つかりません',
-      body: 'リンクが正しいか、もう一度ご確認ください',
+      body: 'リンクが正しいか、もう一度ご確認ください。',
       home: 'ホームへ',
     },
     // Keys are API error codes of GET /notifications/{id}, plus UNKNOWN (network, server and
@@ -865,11 +865,11 @@ export const ja = {
     errors: {
       UNAUTHORIZED: {
         title: 'ログインが必要です',
-        body: 'ログインし直してから、もう一度お試しください',
+        body: 'ログインし直してから、もう一度お試しください。',
       },
       UNKNOWN: {
         title: '読み込めませんでした',
-        body: '通信状態を確認して、もう一度お試しください',
+        body: '通信状態を確認して、もう一度お試しください。',
       },
     },
   },
