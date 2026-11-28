@@ -41,3 +41,21 @@ export function seoulMonthDay(date: Date, withYear = false) {
 export function seoulYear(date: Date) {
   return seoulParts(date).year
 }
+
+/** Day of the week of a Seoul date, 0 = Sunday … 6 = Saturday. */
+export function seoulWeekday(date = new Date()) {
+  const [year, month, day] = seoulDateString(date).split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay()
+}
+
+/** 「2026-11-27」 + 2 days → 「2026-11-29」 (calendar arithmetic, no time zone involved). */
+export function addDays(ymd: string, days: number) {
+  const [year, month, day] = ymd.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10)
+}
+
+/** Last day of the month of a YYYY-MM-DD date. */
+export function endOfMonth(ymd: string) {
+  const [year, month] = ymd.split('-').map(Number)
+  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10)
+}

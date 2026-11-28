@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useEventPagesQuery } from '@/features/events/api'
 import searchIcon from '@/features/events/assets/search.svg'
 import { EventTicket, EventTicketSkeleton } from '@/features/events/components/ticket/EventTicket'
 import { categoryLabel } from '@/features/events/lib/eventText'
 import { seoulDateString, seoulHeaderDate } from '@/features/events/lib/seoulDate'
+import { useNextPageTrigger } from '@/features/events/lib/useNextPageTrigger'
 import { ja } from '@/shared/i18n/ja'
 import type { EventCategory, EventSummary } from '@/shared/types/event'
 
@@ -175,28 +176,4 @@ function HomeList({ query, events, category, onShowAll }: HomeListProps) {
       </div>
     </>
   )
-}
-
-// Loads the next page when the end of the list comes near the screen.
-function useNextPageTrigger(load: () => void, enabled: boolean) {
-  const ref = useRef<HTMLDivElement>(null)
-  const loadRef = useRef(load)
-  useEffect(() => {
-    loadRef.current = load
-  })
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element || !enabled || typeof IntersectionObserver === 'undefined') return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) loadRef.current()
-      },
-      { rootMargin: '200px' },
-    )
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [enabled])
-
-  return ref
 }
