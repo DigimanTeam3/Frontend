@@ -1,5 +1,6 @@
 import { useParams } from 'react-router'
 import { useCompanionActionMutation, useCompanionQuery } from '@/features/companion/api'
+import { CommentSection } from '@/features/companion/components/CommentSection'
 import { EventStrip } from '@/features/companion/components/EventStrip'
 import { InitialAvatar } from '@/features/companion/components/InitialAvatar'
 import { JoinPanel } from '@/features/companion/components/JoinPanel'
@@ -96,6 +97,8 @@ export function CompanionDetailPage() {
           )}
 
           <EventStrip event={post.event} label={text.eventLabel} />
+
+          <CommentSection postId={post.id} />
         </div>
       )}
     </section>
