@@ -10,6 +10,8 @@ export const queryKeys = {
     // Result count only (S03 filter sheet).
     count: (params: object) => [...queryKeys.events.all, 'count', params] as const,
     detail: (eventId: number) => [...queryKeys.events.all, 'detail', eventId] as const,
+    // S04: every event at once for the map
+    map: () => [...queryKeys.events.all, 'map'] as const,
   },
   companions: {
     all: ['companions'] as const,
