@@ -15,13 +15,13 @@ export function TicketCard({ ticket, onDelete }: TicketCardProps) {
   return (
     <li
       className={`flex flex-col gap-2.5 rounded-[14px] bg-surface px-4 py-3.5 ${
-        ticket.matched ? 'border-gate border-2' : 'border-[1.5px] border-dashed border-ink-faint'
+        ticket.matched ? 'border-2 border-gate' : 'border-[1.5px] border-dashed border-ink-faint'
       }`}
     >
       <div className="flex items-center gap-1.5">
         <p className="text-[15px] leading-[1.65] font-bold text-ink">{copy.cardLabel}</p>
         {ticket.matched && (
-          <span className="bg-gate ml-auto shrink-0 rounded-full px-2 py-0.5 text-xs leading-normal font-bold text-white">
+          <span className="ml-auto shrink-0 rounded-full bg-gate px-2 py-0.5 text-xs leading-normal font-bold text-white">
             {copy.arrived}
           </span>
         )}
@@ -37,7 +37,7 @@ export function TicketCard({ ticket, onDelete }: TicketCardProps) {
             <li
               // With the index: two labels may have the same text.
               key={`${index}-${label}`}
-              className="text-festival border-festival rounded-md border-[1.5px] px-2.5 py-1 text-[13px] leading-normal font-bold break-words"
+              className="rounded-md border-[1.5px] border-festival px-2.5 py-1 text-[13px] leading-normal font-bold break-words text-festival"
             >
               {label}
             </li>

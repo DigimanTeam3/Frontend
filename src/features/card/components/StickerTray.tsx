@@ -23,7 +23,7 @@ export function StickerTray({ board }: StickerTrayProps) {
     <div className="flex items-center gap-2 rounded-[20px] bg-surface px-4 py-2.5">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="text-[13px] leading-normal font-bold text-ink">{copy.trayTitle}</p>
-        <p className="text-gate text-[11px] leading-normal">{copy.trayHint}</p>
+        <p className="text-[11px] leading-normal text-gate">{copy.trayHint}</p>
       </div>
       {STICKER_TYPES.map((type) => (
         <TrayBadge key={type} type={type} board={board} />
@@ -113,7 +113,7 @@ function TrayBadge({ type, board }: { type: BadgeType; board: StickerBoard }) {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
-      className={`${TRAY_BADGE} outline-gate cursor-grab touch-none rounded-full outline-offset-2 transition-opacity select-none focus-visible:outline-2 disabled:cursor-default ${
+      className={`${TRAY_BADGE} cursor-grab touch-none rounded-full outline-offset-2 outline-gate transition-opacity select-none focus-visible:outline-2 disabled:cursor-default ${
         used || carried ? 'opacity-35' : ''
       }`}
     >

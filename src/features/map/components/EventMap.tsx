@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useEventsQuery } from '@/features/events/api'
 import { ja } from '@/shared/i18n/ja'
 import { directionsUrl } from '@/shared/lib/directionsUrl'
-import type { Event } from '@/shared/types/event'
+import type { EventSummary } from '@/shared/types/event'
 
 // maplibre-gl 6 finds its worker next to its own file, which Vite moves.
 // Point it at the worker file Vite emits instead.
@@ -26,7 +26,7 @@ function hasWebGL() {
 
 export function EventMap() {
   const { data: events = [] } = useEventsQuery()
-  const [selected, setSelected] = useState<Event | null>(null)
+  const [selected, setSelected] = useState<EventSummary | null>(null)
   const [webglOk] = useState(hasWebGL)
 
   if (!webglOk) return <p className="text-ink-muted">{ja.map.unsupported}</p>
@@ -43,8 +43,8 @@ export function EventMap() {
         {events.map((event) => (
           <Marker
             key={event.id}
-            latitude={event.latitude}
-            longitude={event.longitude}
+            latitude={event.lat}
+            longitude={event.lng}
             anchor="bottom"
             color="#e4572e"
             onClick={(e) => {
@@ -55,18 +55,18 @@ export function EventMap() {
         ))}
         {selected && (
           <Popup
-            latitude={selected.latitude}
-            longitude={selected.longitude}
+            latitude={selected.lat}
+            longitude={selected.lng}
             anchor="top"
             onClose={() => setSelected(null)}
           >
-            <p className="font-bold">{selected.title}</p>
-            <p className="text-ink-muted">{selected.venue_name}</p>
+            <p className="font-bold">{selected.titleJa ?? selected.title}</p>
+            <p className="text-ink-muted">{selected.venueNameJa ?? selected.venueName}</p>
             <a
               className="mt-1 inline-block text-primary underline"
-              href={directionsUrl(selected.latitude, selected.longitude)}
+              href={directionsUrl(selected.lat, selected.lng)}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               {ja.map.directions}
             </a>
