@@ -80,7 +80,11 @@ export interface MissionProgress {
 export interface SubmissionResult {
   submission: Submission
   progress: MissionProgress
-  /** Both are set only when this submission finished the last required mission of the event. */
+  /**
+   * Both are set once the required missions of the event are done: for the submission that
+   * finished them and again for every later one (an optional mission). Use `progress` and the
+   * mission's `required` to tell the finishing submission.
+   */
   completeBadge: Badge | null
   experienceCard: ExperienceCard | null
 }

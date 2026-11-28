@@ -86,7 +86,9 @@ export function MissionSubmitForm({
     if (!body || uploading || submitting) return
     try {
       const result = await submit.mutateAsync({ missionId: mission.id, body })
-      if (result.experienceCard) {
+      // The server sends the card again with every submission once the required missions are
+      // done, so the card alone does not say that this one finished them.
+      if (mission.required && result.progress.isAllCompleted) {
         // That was the last required mission: on to the completion screen.
         void navigate(paths.complete(mission.eventId), { replace: true })
       } else {
