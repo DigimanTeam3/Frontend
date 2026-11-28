@@ -75,9 +75,9 @@ export const ja = {
   // Bottom tab bar. `code` is the small printed label above the name (decoration, like on a ticket).
   nav: {
     label: 'メインメニュー',
-    home: { code: 'HOME', name: 'ホーム' },
-    map: { code: 'MAP', name: 'マップ' },
-    wallet: { code: 'WALLET', name: '切符入れ' },
+    home: { name: 'ホーム' },
+    map: { name: 'マップ' },
+    wallet: { name: '切符入れ' },
   },
   topBar: {
     back: '戻る',
