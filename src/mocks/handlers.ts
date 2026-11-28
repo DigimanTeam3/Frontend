@@ -4,11 +4,12 @@ import {
   MOCK_ACCESS_TOKEN,
   MOCK_AUTH_CODE,
   MOCK_EXPIRED_TOKEN,
+  MOCK_GUEST_NAME,
   MOCK_TOKEN_LIFETIME_MS,
   mockUser,
 } from '@/mocks/data/auth'
 import { events } from '@/mocks/data/events'
-import type { LineLoginRequest, LoginResponse } from '@/shared/types/auth'
+import type { DemoLoginRequest, LineLoginRequest, LoginResponse } from '@/shared/types/auth'
 
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000
 
@@ -49,6 +50,17 @@ export const handlers = [
       user: mockUser,
     }
     return HttpResponse.json(response)
+  }),
+  // S01: guest (demo) login. The body is optional.
+  http.post('/api/auth/demo-login', async ({ request }) => {
+    await delay(600)
+    const body = (await request.json().catch(() => null)) as DemoLoginRequest | null
+    const response: LoginResponse = {
+      accessToken: MOCK_ACCESS_TOKEN,
+      expiresAt: toJstIso(new Date(Date.now() + MOCK_TOKEN_LIFETIME_MS)),
+      user: { id: 2, displayName: body?.displayName || MOCK_GUEST_NAME, pictureUrl: null },
+    }
+    return HttpResponse.json(response, { status: 201 })
   }),
 
   http.get('/api/events', () => HttpResponse.json(events)),

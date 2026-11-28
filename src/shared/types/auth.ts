@@ -1,4 +1,4 @@
-// S01 login. Shapes follow the API spec proposal for POST /api/auth/line.
+// S01 login. Shapes follow POST /api/auth/line and POST /api/auth/demo-login (both return LoginResponse).
 export interface AuthUser {
   id: number
   displayName: string
@@ -10,6 +10,12 @@ export interface LineLoginRequest {
   redirectUri: string
   codeVerifier: string
   nonce: string
+}
+
+/** Guest login. The whole body is optional. */
+export interface DemoLoginRequest {
+  displayName?: string
+  language?: 'ja' | 'ko'
 }
 
 export interface LoginResponse {
