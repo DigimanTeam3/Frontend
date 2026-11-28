@@ -33,8 +33,11 @@ const fieldBox =
 export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
   const navigate = useNavigate()
   const mutation = useCreateCompanionMutation(event.id)
-  const range = selectableDayRange(event)
-  const eventEnded = range.min > range.max
+  // One clock read when the form opens, so the day range and the ended check agree.
+  const [openedAt] = useState(() => new Date())
+  const range = selectableDayRange(event, openedAt)
+  // Ended by the actual end time, not only the day (it may end earlier today).
+  const eventEnded = new Date(event.endDate) <= openedAt
 
   const [values, setValues] = useState<CompanionFormValues>({
     day: eventEnded ? '' : range.min,
