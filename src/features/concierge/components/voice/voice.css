@@ -1,0 +1,183 @@
+/* S16 voice counter (Figma 「S16 音声窓口 2案-B · 백구」, pink 2案). The pink stays inside this
+   screen; the app's gate color is not changed. Every animation stops for prefers-reduced-motion. */
+
+.digu-screen {
+  --digu-bg: #f5f3ef;
+  --digu-pink: #ec8faa;
+  --digu-pink-soft: #fce4ec;
+  --digu-glow: #f6efe0;
+  --digu-ink: #1a1d26;
+  --digu-ink-sub: #5e6370;
+  --digu-ink-mute: #9a9da5;
+  --digu-line: #e4e0d8;
+  --digu-paper: #f6f0e4;
+  --digu-stamp: #c4532f;
+  background-color: var(--digu-bg);
+}
+
+/* Bubble tails (a rotated square under or beside the bubble). */
+.digu-tail-down::after,
+.digu-tail-left::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+.digu-tail-down::after {
+  bottom: -6px;
+  left: calc(50% - 7px);
+}
+.digu-tail-down.digu-tail-end::after {
+  left: auto;
+  right: 32px;
+}
+.digu-tail-left::after {
+  left: -6px;
+  top: 30px;
+}
+
+/* ディグ breathes while waiting. */
+@keyframes digu-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.025);
+  }
+}
+.digu-breathe {
+  transform-origin: 50% 100%;
+  animation: digu-breathe 3.2s ease-in-out infinite;
+}
+
+/* Listening: leans in a little. */
+@keyframes digu-lean {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-3deg);
+  }
+}
+.digu-lean {
+  transform-origin: 50% 100%;
+  animation: digu-lean 2.4s ease-in-out infinite;
+}
+
+/* Thinking: sniffs side to side. */
+@keyframes digu-sniff {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  25% {
+    transform: translateX(-3px) rotate(-2deg);
+  }
+  75% {
+    transform: translateX(3px) rotate(2deg);
+  }
+}
+.digu-sniff {
+  transform-origin: 50% 100%;
+  animation: digu-sniff 1.6s ease-in-out infinite;
+}
+
+/* Found: hops with the ticket in its mouth. */
+@keyframes digu-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-8px);
+  }
+  55% {
+    transform: translateY(0);
+  }
+}
+.digu-hop {
+  animation: digu-hop 0.9s cubic-bezier(0.3, 0, 0.3, 1) 2;
+}
+
+/* Glow behind ディグ: pulses while listening. */
+@keyframes digu-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.75;
+  }
+}
+.digu-glow-pulse {
+  animation: digu-glow 1.6s ease-in-out infinite;
+}
+
+/* Mic rings while recording. */
+@keyframes digu-ring {
+  from {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+.digu-ring {
+  animation: digu-ring 1.8s ease-out infinite;
+}
+
+/* Sound bars beside the mic. */
+@keyframes digu-bar {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+.digu-bar {
+  transform-origin: center;
+  animation: digu-bar 0.9s ease-in-out infinite;
+}
+
+/* Bubbles and cards come up. */
+@keyframes digu-pop {
+  from {
+    transform: translateY(6px) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.digu-pop {
+  transform-origin: 50% 100%;
+  animation: digu-pop 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .digu-breathe,
+  .digu-lean,
+  .digu-sniff,
+  .digu-hop,
+  .digu-glow-pulse,
+  .digu-ring,
+  .digu-bar,
+  .digu-pop {
+    animation: none;
+  }
+  .digu-ring {
+    opacity: 0;
+  }
+}
