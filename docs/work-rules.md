@@ -129,7 +129,7 @@ src/
 | 문구 키       | `화면.항목`                         | `ja.eventList.title`             |
 
 - 스타일은 Tailwind 클래스로 씁니다. 색·글꼴은 `@theme` 토큰 이름을 씁니다 (`bg-primary`). 임의의 hex 값을 클래스에 직접 쓰지 않습니다.
-- 화면 문구는 `shared/i18n/ja.ts`에 둡니다.
+- 화면 문구는 `shared/i18n/ja.ts`에 둡니다. 말투·표기·체크리스트: [copy.md](copy.md)
 
 ### 모바일 웹 규칙
 

@@ -1,9 +1,31 @@
-// All UI text (Japanese). Keys are grouped by screen.
+// All UI text (Japanese). Rules and checklist: docs/copy.md.
+// - One section per screen or feature (camelCase, e.g. eventDetail). Do not edit other screens' sections.
+// - `common`: words two or more screens use. `format`: pieces for src/shared/i18n/format.ts.
+// - Text with numbers or names is a function, e.g. `loggedInAs: (name: string) => ...`.
+//   Do not join pieces of copy in components.
 export const ja = {
   common: {
     loading: '読み込み中…',
     error: 'エラーが発生しました。もう一度お試しください。',
     comingSoon: '準備中です。',
+    // Network failure (no answer from the server).
+    offline: '通信できませんでした。接続を確認して、もう一度お試しください。',
+    retry: 'もう一度試す',
+    free: '無料',
+    // Original (Korean) text shown as is, with lang="ko".
+    noTranslation: '日本語訳なし',
+    autoTranslated: '自動翻訳',
+    showOriginal: '原文を見る',
+    showJapanese: '日本語で見る',
+  },
+  // Date, time and count pieces. Use the helpers in src/shared/i18n/format.ts, not these directly.
+  format: {
+    monthDay: (month: number, day: number) => `${month}月${day}日`,
+    yearMonthDay: (year: number, month: number, day: number) => `${year}年${month}月${day}日`,
+    weekday: (weekday: string) => `（${weekday}）`,
+    rangeSeparator: '〜',
+    count: (count: string) => `${count}件`,
+    people: (count: string) => `${count}人`,
   },
   // Screen names by screen ID (S01–S18).
   screens: {
