@@ -51,7 +51,7 @@ export function JoinPanel({ post, busy, onRequest, onCancel }: JoinPanelProps) {
       type="button"
       disabled={busy}
       onClick={onRequest}
-      className="w-full rounded-2xl bg-primary py-4 font-bold text-surface disabled:opacity-60"
+      className="h-[52px] w-full rounded-[14px] bg-primary text-[15px] font-bold text-white disabled:opacity-40"
     >
       {busy ? text.joining : text.join}
     </button>
@@ -62,7 +62,7 @@ function Note({ children, tone }: { children: string; tone?: 'primary' }) {
   return (
     <p
       role="status"
-      className={`rounded-xl p-4 text-sm ${tone === 'primary' ? 'bg-primary/10 font-bold text-primary' : 'bg-ink/5'}`}
+      className={`rounded-xl p-4 text-sm ${tone === 'primary' ? 'bg-gate-soft font-bold text-ink' : 'bg-ink/5'}`}
     >
       {children}
     </p>

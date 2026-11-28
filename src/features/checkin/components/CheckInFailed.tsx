@@ -47,7 +47,7 @@ export function CheckInFailed(props: CheckInFailedProps) {
       >
         <div className="flex items-center gap-2">
           {done ? (
-            <CheckIcon className="size-[22px] shrink-0 text-gate" />
+            <CheckIcon className="size-[22px] shrink-0 text-gate-ink" />
           ) : (
             <AlertIcon className="shrink-0 text-danger" />
           )}

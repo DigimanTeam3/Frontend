@@ -229,7 +229,7 @@ export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
           </p>
         </Field>
 
-        <aside className="rounded-xl bg-primary/5 p-4">
+        <aside className="rounded-[14px] bg-surface-2 p-4">
           <p className="font-bold">{text.safetyTitle}</p>
           <p className="mt-1 text-sm text-ink-muted">{text.safetyBody}</p>
         </aside>
@@ -244,7 +244,7 @@ export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="rounded-2xl bg-primary py-4 font-bold text-surface disabled:opacity-60"
+          className="h-[52px] rounded-[14px] bg-primary text-[15px] font-bold text-white disabled:opacity-40"
         >
           {mutation.isPending ? text.submitting : text.submit}
         </button>

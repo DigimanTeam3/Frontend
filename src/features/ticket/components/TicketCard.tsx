@@ -24,7 +24,7 @@ export function TicketCard({ ticket, arrivedTo, onDelete }: TicketCardProps) {
       <div className="flex items-center gap-1.5">
         <p className="text-[15px] leading-[1.65] font-bold text-ink">{copy.cardLabel}</p>
         {ticket.matched && (
-          <span className="ml-auto shrink-0 rounded-full bg-gate px-2 py-0.5 text-xs leading-normal font-bold text-white">
+          <span className="ml-auto shrink-0 rounded-full bg-gate px-2 py-0.5 text-xs leading-normal font-bold text-ink">
             {copy.arrived}
           </span>
         )}

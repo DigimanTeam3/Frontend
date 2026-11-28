@@ -1,7 +1,7 @@
 // Shared map settings (C6). Every map screen (S04 map, S05 detail, S09 check-in) uses these.
 
 // OpenFreeMap "liberty": free, no API key, no usage limit. It includes a 3D building layer
-// (fill-extrusion, zoom 14+). Its attribution is required and stays visible (see MapCanvas).
+// (fill-extrusion, zoom 14+). Its attribution is required (see MapCanvas).
 export const MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
 
 /** Central Seoul (City Hall). Used when there is nothing to fit the view to. */

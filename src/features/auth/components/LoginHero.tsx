@@ -53,7 +53,7 @@ export function LoginHero() {
       >
         <p className="font-bold text-ink">{ja.login.sampleTitle}</p>
         <p className="mt-0.5 text-xs text-ink-muted">{ja.login.sampleOriginal}</p>
-        <p className="mt-2 font-mono text-xs tracking-widest text-emerald-600">
+        <p className="mt-2 font-mono text-xs tracking-widest text-gate-ink">
           {ja.login.samplePrice}　{ja.login.sampleFree}
         </p>
       </TicketCard>

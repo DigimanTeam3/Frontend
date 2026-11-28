@@ -32,7 +32,7 @@ export function ProfileBlock({ user }: ProfileBlockProps) {
           {user.nickname}
         </h1>
         <p className="flex items-center gap-1 text-xs leading-normal text-ink-muted">
-          <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-gate" />
+          <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-line-brand" />
           {ja.myPage.loginStatus[user.provider]}
         </p>
       </div>
