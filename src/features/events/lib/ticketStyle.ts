@@ -1,9 +1,9 @@
-import type { EventCategory } from '@/shared/types/event'
+import type { HomeCategory } from '@/features/events/lib/popup'
 
 // Ticket paper and print colors per category (Figma: Concept 切符 / kippu category colors).
 // Full class names so Tailwind can find them.
 export const TICKET_COLORS: Record<
-  EventCategory,
+  HomeCategory,
   { paper: string; text: string; border: string; bar: string }
 > = {
   festival: {
@@ -23,5 +23,12 @@ export const TICKET_COLORS: Record<
     text: 'text-kippu-stage',
     border: 'border-kippu-stage',
     bar: 'bg-kippu-stage',
+  },
+  // Pop-up stores: the gate pink (filled pink for decoration, the darker ink for text).
+  popup: {
+    paper: 'bg-gate-soft',
+    text: 'text-gate-ink',
+    border: 'border-gate-ink',
+    bar: 'bg-gate',
   },
 }

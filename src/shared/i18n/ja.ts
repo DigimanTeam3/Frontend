@@ -103,7 +103,12 @@ export const ja = {
   },
   // Event ticket card (S02 home). English codes are printed decoration, hidden from screen readers.
   ticket: {
-    categoryCode: { festival: 'FESTIVAL', exhibition: 'EXHIBIT', performance: 'STAGE' },
+    categoryCode: {
+      festival: 'FESTIVAL',
+      exhibition: 'EXHIBIT',
+      performance: 'STAGE',
+      popup: 'POPUP',
+    },
     date: 'DATE',
     venue: 'VENUE',
     fare: 'FARE',
