@@ -4,6 +4,8 @@
 export interface CardImageStyle {
   ink: string
   gate: string
+  /** Pink for text and icons on light ground. */
+  gateInk: string
   /** Card paper (surface). */
   paper: string
   /** Page background: the margin around the card and the face of the complete badge. */
@@ -30,6 +32,7 @@ export function readCardImageStyle(): CardImageStyle {
     // A token that is not in the theme (yet) falls back like its Tailwind class does on screen:
     // the point colour to the text colour, the backgrounds to plain white.
     gate: themeColor('--color-gate', ink),
+    gateInk: themeColor('--color-gate-ink', ink),
     paper: themeColor('--color-surface', 'white'),
     page: themeColor('--color-app', 'white'),
     fontFamily: getComputedStyle(document.body).fontFamily || 'sans-serif',

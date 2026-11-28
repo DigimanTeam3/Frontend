@@ -30,7 +30,7 @@ export function PunchHole() {
   return (
     <span aria-hidden="true" className="flex flex-col items-center gap-1">
       <span className="size-8 rounded-full border-[1.2px] border-dashed border-gate" />
-      <span className="font-mono text-[8px]/[1.4] tracking-[0.12em] text-gate">
+      <span className="font-mono text-[8px]/[1.4] tracking-[0.12em] text-gate-ink">
         {ja.ticket.gate}
       </span>
     </span>

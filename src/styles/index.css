@@ -28,7 +28,8 @@
 
 /* Event category and state colors from the Figma ui variables. Gate is the pink point color. */
 @theme {
-  --color-gate: #ec8faa;
+  --color-gate: #ec8faa; /* fills, borders and decoration; too light for text on white */
+  --color-gate-ink: #b8375f; /* pink for text and icons, readable on white, paper and gate-soft */
   --color-gate-soft: #fce4ec;
   --color-festival: #d0532e;
   --color-festival-soft: #fbe2d8;

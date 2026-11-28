@@ -2,7 +2,7 @@ import { ja } from '@/shared/i18n/ja'
 import type { CompanionStatus } from '@/shared/types/companion'
 
 const STATUS_CLASS: Record<CompanionStatus, string> = {
-  OPEN: 'bg-gate-soft text-gate',
+  OPEN: 'bg-gate-soft text-gate-ink',
   FULL: 'bg-ink/10 text-ink',
   CLOSED: 'bg-surface-2 text-ink-faint',
 }

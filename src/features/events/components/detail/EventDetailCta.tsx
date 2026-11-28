@@ -21,7 +21,7 @@ export function EventDetailCta({ eventId }: { eventId: number }) {
         </Link>
         <Link
           to={`/events/${eventId}/check-in`}
-          className="flex h-[52px] flex-1 items-center justify-center rounded-[14px] bg-gate px-5 text-[15px] font-bold text-surface"
+          className="flex h-[52px] flex-1 items-center justify-center rounded-[14px] bg-gate px-5 text-[15px] font-bold text-ink"
         >
           {t.checkIn}
         </Link>

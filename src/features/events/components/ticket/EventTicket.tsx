@@ -133,7 +133,7 @@ export function EventTicket({ event }: EventTicketProps) {
         {event.companionCount > 0 && (
           <span
             className={
-              'mt-1 rounded-full bg-gate-soft px-1.5 text-[10px]/[1.6] font-bold text-gate'
+              'mt-1 rounded-full bg-gate-soft px-1.5 text-[10px]/[1.6] font-bold text-gate-ink'
             }
           >
             <span aria-hidden="true">{t.companions(event.companionCount)}</span>

@@ -22,7 +22,7 @@ export function CheckInIntro({ radiusM, busy, onStart }: CheckInIntroProps) {
         {/* Shrinks on short screens so the button stays in view. */}
         <div
           aria-hidden="true"
-          className="flex size-[min(220px,30dvh)] shrink-0 items-center justify-center rounded-full bg-gate text-white"
+          className="flex size-[min(220px,30dvh)] shrink-0 items-center justify-center rounded-full bg-gate text-ink"
         >
           <PinIcon />
         </div>
@@ -47,7 +47,7 @@ export function CheckInIntro({ radiusM, busy, onStart }: CheckInIntroProps) {
             <li key={step} className="flex items-center gap-2.5">
               <span
                 aria-hidden="true"
-                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gate-soft text-xs leading-normal font-bold text-gate"
+                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gate-soft text-xs leading-normal font-bold text-gate-ink"
               >
                 {index + 1}
               </span>

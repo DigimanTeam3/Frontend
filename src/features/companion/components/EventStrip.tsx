@@ -21,7 +21,7 @@ export function EventStrip({ event, label }: EventStripProps) {
         <span aria-hidden className="size-12 shrink-0 rounded-[10px] bg-surface-2" />
       )}
       <span className="min-w-0 flex-1">
-        {label && <span className="block text-xs font-bold text-gate">{label}</span>}
+        {label && <span className="block text-xs font-bold text-gate-ink">{label}</span>}
         <span className="block truncate text-[15px]/[1.65] font-bold">
           {event.titleJa ?? event.title}
         </span>

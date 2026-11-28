@@ -52,7 +52,7 @@ export function SeatCell({ seat, name, isMe = false }: SeatCellProps) {
     >
       <span className="font-mono text-[11px] text-ink-muted">
         {seat}
-        {isMe && <span className="ml-1 text-gate">{ja.companionDetail.you}</span>}
+        {isMe && <span className="ml-1 text-gate-ink">{ja.companionDetail.you}</span>}
       </span>
       <span className="truncate font-bold" aria-label={name}>
         {letters.slice(0, printed).join('')}

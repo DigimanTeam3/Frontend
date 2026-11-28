@@ -34,7 +34,7 @@ export function CompanionCard({ post }: CompanionCardProps) {
           {ja.companion.members(post.memberCount, post.capacity)}
         </span>
         {post.isMine && (
-          <span className="rounded-md border border-gate px-2 py-0.5 text-xs text-gate">
+          <span className="rounded-md border border-gate px-2 py-0.5 text-xs text-gate-ink">
             {ja.companion.mine}
           </span>
         )}

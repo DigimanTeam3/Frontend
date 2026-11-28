@@ -219,7 +219,7 @@ export function SearchPage() {
             {filterCount > 0 && (
               <span
                 aria-hidden="true"
-                className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full border-2 border-surface bg-gate text-[10px] font-bold text-white"
+                className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full border-2 border-surface bg-gate text-[10px] font-bold text-ink"
               >
                 {filterCount}
               </span>

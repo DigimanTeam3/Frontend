@@ -33,7 +33,7 @@ export function MissionItem({ mission, locked }: MissionItemProps) {
     <>
       <span
         className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
-          locked ? 'text-ink-faint' : done ? 'bg-gate-soft text-gate' : 'bg-surface-2 text-ink'
+          locked ? 'text-ink-faint' : done ? 'bg-gate-soft text-gate-ink' : 'bg-surface-2 text-ink'
         }`}
       >
         {locked ? <LockIcon /> : done ? <CheckIcon /> : <FlagIcon />}
@@ -52,7 +52,7 @@ export function MissionItem({ mission, locked }: MissionItemProps) {
         </span>
         <span
           className={`text-xs leading-normal ${
-            locked ? 'text-ink-faint' : done ? 'text-gate' : 'text-ink-muted'
+            locked ? 'text-ink-faint' : done ? 'text-gate-ink' : 'text-ink-muted'
           }`}
         >
           {statusText}

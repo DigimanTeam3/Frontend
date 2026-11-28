@@ -43,7 +43,7 @@ export function CardCreator({ card }: CardCreatorProps) {
     <div className="flex flex-1 flex-col" onPointerDown={handlePointerDown}>
       <div className="mt-4 flex flex-col items-center gap-0.5 text-center">
         <h1 className="text-[26px] leading-[1.4] font-bold text-ink">{copy.title}</h1>
-        <p className="text-[13px] leading-normal font-medium text-gate">{copy.subtitle}</p>
+        <p className="text-[13px] leading-normal font-medium text-gate-ink">{copy.subtitle}</p>
       </div>
 
       {/* Figma stage: the card is 283.5px of the 342px content width. The margin beside it is

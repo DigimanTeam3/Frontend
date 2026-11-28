@@ -11,7 +11,7 @@ export interface CardInfoProps {
   onEditCancel: () => void
 }
 
-const LABEL = 'text-gate text-[13px] leading-normal'
+const LABEL = 'text-gate-ink text-[13px] leading-normal'
 
 // The white list under the card (Figma: S14 info list): my mission progress and the memo.
 export function CardInfo({ card, editing, onMemoSaved, onEditCancel }: CardInfoProps) {
