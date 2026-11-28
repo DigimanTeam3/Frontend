@@ -36,6 +36,7 @@ const BACK_PARENTS: [pattern: string, parent: string][] = [
   ['/events/:eventId/missions/:missionId', '/events/:eventId/missions'],
   ['/events/:eventId/companions/new', '/events/:eventId/companions'],
   ['/events/:eventId/*', '/events/:eventId'],
+  ['/companions/:postId/chat', '/companions/:postId'],
   ['/me/*', '/me'],
   ['/cards/:cardId', '/me'],
 ]

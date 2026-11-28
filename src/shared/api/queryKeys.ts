@@ -20,6 +20,8 @@ export const queryKeys = {
     list: (eventId: number, filter: string, signedIn: boolean) =>
       [...queryKeys.companions.lists(), eventId, filter, signedIn] as const,
     detail: (postId: number) => [...queryKeys.companions.all, 'detail', postId] as const,
+    // Comments under a post (S08), paged.
+    comments: (postId: number) => [...queryKeys.companions.all, 'comments', postId] as const,
   },
   // The event as the journey screens read it (S09–S13): only a few fields of the event detail,
   // so it must not share the cache entry of `events.detail`, which holds the full shape.

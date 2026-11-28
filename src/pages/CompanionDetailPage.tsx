@@ -1,5 +1,7 @@
 import { useParams } from 'react-router'
 import { useCompanionActionMutation, useCompanionQuery } from '@/features/companion/api'
+import { ChatEntry } from '@/features/companion/components/ChatEntry'
+import { CommentSection } from '@/features/companion/components/CommentSection'
 import { EventStrip } from '@/features/companion/components/EventStrip'
 import { InitialAvatar } from '@/features/companion/components/InitialAvatar'
 import { JoinPanel } from '@/features/companion/components/JoinPanel'
@@ -73,6 +75,8 @@ export function CompanionDetailPage() {
 
           <KippuTicket post={post} />
 
+          {post.isMine && <ChatEntry post={post} />}
+
           {post.isMine ? (
             <RequestList
               post={post}
@@ -89,6 +93,8 @@ export function CompanionDetailPage() {
             />
           )}
 
+          {!post.isMine && <ChatEntry post={post} />}
+
           {actionError && (
             <p role="alert" className="text-center text-sm text-danger">
               {actionError}
@@ -96,6 +102,8 @@ export function CompanionDetailPage() {
           )}
 
           <EventStrip event={post.event} label={text.eventLabel} />
+
+          <CommentSection postId={post.id} />
         </div>
       )}
     </section>
