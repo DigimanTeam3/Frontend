@@ -1,23 +1,10 @@
 import { useAuthStore } from '@/shared/stores/authStore'
+import { ApiError, parseRetryAfter } from '@/shared/api/errors'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
-export class ApiError extends Error {
-  readonly status: number
-  /** Seconds from the Retry-After header (e.g. 429), or null. */
-  readonly retryAfter: number | null
-
-  constructor(status: number, message: string, retryAfter: number | null = null) {
-    super(message)
-    this.status = status
-    this.retryAfter = retryAfter
-  }
-}
-
-function parseRetryAfter(value: string | null) {
-  const seconds = Number(value)
-  return value && Number.isFinite(seconds) && seconds >= 0 ? seconds : null
-}
+// ApiError lives in errors.ts with its helpers. Re-exported so `from '@/shared/api/client'` keeps working.
+export { ApiError }
 
 /** Single place for API calls: base URL, JWT header, JSON parsing, errors. */
 export async function apiClient<T>(path: string, init: RequestInit = {}): Promise<T> {
