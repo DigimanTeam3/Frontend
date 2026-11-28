@@ -47,13 +47,13 @@ function submissionBody(
   if (mission.verificationMethod === 'text') {
     return trimmed === '' ? null : { submissionType: 'text', text: trimmed }
   }
-  if (!image) return null
-  const photo: SubmissionRequest = { submissionType: 'photo', imageUrl: image.url }
-  return trimmed === '' ? photo : { ...photo, text: trimmed }
+  // A photo mission is the photo alone: the server does not keep a comment with it.
+  return image ? { submissionType: 'photo', imageUrl: image.url } : null
 }
 
 // The form of a mission that is still open (Figma: S12 ミッション提出): one photo for a photo
-// mission, the comment (required for a text mission), and the submit button.
+// mission, the text for a text mission, and the submit button. The Figma form has a comment field
+// under the photo too; it is left out because the server keeps no text with a photo.
 export function MissionSubmitForm({
   mission,
   position,
@@ -130,28 +130,30 @@ export function MissionSubmitForm({
         </div>
       )}
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={textId} className={LABEL}>
-          {copy.textLabel}
-        </label>
-        {/* 16px text (Figma: 15px): iOS Safari zooms the page when a focused field is smaller. */}
-        <textarea
-          id={textId}
-          value={text}
-          onChange={(event) => {
-            setText(event.target.value)
-            clearError()
-          }}
-          maxLength={TEXT_MAX_LENGTH}
-          aria-required={!isPhoto}
-          aria-describedby={counterId}
-          readOnly={submitting}
-          className="h-[120px] w-full resize-none rounded-[10px] border-[1.5px] border-line bg-surface px-3.5 py-3 text-base leading-[1.65] text-ink outline-none focus:border-ink"
-        />
-        <p id={counterId} className="text-ink-faint text-xs leading-normal">
-          {copy.counter(text.length, TEXT_MAX_LENGTH)}
-        </p>
-      </div>
+      {!isPhoto && (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={textId} className={LABEL}>
+            {copy.textLabel}
+          </label>
+          {/* 16px text (Figma: 15px): iOS Safari zooms the page when a focused field is smaller. */}
+          <textarea
+            id={textId}
+            value={text}
+            onChange={(event) => {
+              setText(event.target.value)
+              clearError()
+            }}
+            maxLength={TEXT_MAX_LENGTH}
+            aria-required="true"
+            aria-describedby={counterId}
+            readOnly={submitting}
+            className="h-[120px] w-full resize-none rounded-[10px] border-[1.5px] border-line bg-surface px-3.5 py-3 text-base leading-[1.65] text-ink outline-none focus:border-ink"
+          />
+          <p id={counterId} className="text-ink-faint text-xs leading-normal">
+            {copy.counter(text.length, TEXT_MAX_LENGTH)}
+          </p>
+        </div>
+      )}
 
       <div className="mt-auto flex flex-col gap-3 pt-1">
         {errorKey && (

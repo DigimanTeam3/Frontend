@@ -112,10 +112,8 @@ export const missionHandlers = [
     if (typeof imageUrl !== 'string' || !/^(blob:|http)/.test(imageUrl)) {
       return submitError('IMAGE_REQUIRED')
     }
-    const result = submitMission(mission, userId, {
-      imageUrl,
-      text: text === '' ? undefined : text,
-    })
+    // Like the server, a photo submission keeps no text.
+    const result = submitMission(mission, userId, { imageUrl })
     return HttpResponse.json(result, { status: 201 })
   }),
 ]
