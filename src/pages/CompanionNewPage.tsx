@@ -1,7 +1,7 @@
 import { useParams } from 'react-router'
 import { useCompanionsQuery } from '@/features/companion/api'
 import { CompanionForm } from '@/features/companion/components/CompanionForm'
-import { apiErrorCode } from '@/features/companion/errors'
+import { apiErrorCode } from '@/shared/api/errors'
 import { ja } from '@/shared/i18n/ja'
 
 // S07. Post a companion search for one event (login required; the route is guarded).

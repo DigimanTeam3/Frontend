@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { apiErrorCode } from '@/features/companion/errors'
 import { apiClient } from '@/shared/api/client'
+import { apiErrorCode } from '@/shared/api/errors'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useAuthStore } from '@/shared/stores/authStore'
 import type {

@@ -2,7 +2,6 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { useCreateCompanionMutation } from '@/features/companion/api'
 import { EventStrip } from '@/features/companion/components/EventStrip'
-import { apiErrorBody } from '@/features/companion/errors'
 import { meetingTimeOptions, toSeoulIso } from '@/features/companion/seoulDate'
 import {
   INTRO_MAX_LENGTH,
@@ -14,7 +13,7 @@ import {
   type CompanionFormErrors,
   type CompanionFormValues,
 } from '@/features/companion/validation'
-import { ApiError } from '@/shared/api/client'
+import { apiErrorCode, apiErrorField, isApiError } from '@/shared/api/errors'
 import { ja } from '@/shared/i18n/ja'
 import type { EventSummary } from '@/shared/types/companion'
 
@@ -62,24 +61,25 @@ export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
   }
 
   const showServerError = (error: unknown) => {
-    if (error instanceof ApiError && error.status === 401) {
+    if (isApiError(error, 401)) {
       navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`, {
         replace: true,
       })
       return
     }
-    const body = apiErrorBody(error)
-    switch (body?.code) {
+    switch (apiErrorCode(error)) {
       case 'CONTACT_INFO_NOT_ALLOWED':
         setServerErrors({ intro: text.errors.contactInfo })
         return
-      case 'VALIDATION_ERROR':
-        if (body.field === 'meetAt') setServerErrors({ day: text.errors.dateOutOfRange })
-        else if (body.field === 'capacity') setServerErrors({ capacity: text.errors.capacity })
-        else if (body.field === 'intro')
+      case 'VALIDATION_ERROR': {
+        const field = apiErrorField(error)
+        if (field === 'meetAt') setServerErrors({ day: text.errors.dateOutOfRange })
+        else if (field === 'capacity') setServerErrors({ capacity: text.errors.capacity })
+        else if (field === 'intro')
           setServerErrors({ intro: text.errors.introTooLong(INTRO_MAX_LENGTH) })
         else setFormError(ja.common.error)
         return
+      }
       case 'ALREADY_POSTED':
         setFormError(text.alreadyPosted)
         return
