@@ -588,4 +588,36 @@ export const ja = {
       empty: '参加したイベントはまだありません',
     },
   },
+  // Saved conditions, reservation tickets (S17: src/features/ticket).
+  reservationTicket: {
+    title: '予約券',
+    description: '条件を予約しておくと、合うイベントが出たときにLINEでお知らせします',
+    listLabel: '予約券の一覧',
+    // Small heading on each card.
+    cardLabel: '予約券',
+    // Pill on a ticket whose condition has matched a new event.
+    arrived: '届きました',
+    savedOn: (date: string) => `${date} に保存`,
+    delete: '削除',
+    // Accessible name of the delete button: says which ticket it removes.
+    deleteLabel: (condition: string) => `${condition} の予約券を削除`,
+    deleted: '予約券を削除しました',
+    deleteError: '削除できませんでした。もう一度お試しください',
+    empty: {
+      title: '予約券はまだありません',
+      body: 'AI窓口で条件を保存すると、ここに並びます',
+    },
+    // Keys are API error codes of GET /me/tickets, plus UNKNOWN (network, server and every other
+    // error).
+    errors: {
+      UNAUTHORIZED: {
+        title: 'ログインが必要です',
+        body: 'ログインし直してから、もう一度お試しください',
+      },
+      UNKNOWN: {
+        title: '読み込めませんでした',
+        body: '通信状態を確認して、もう一度お試しください',
+      },
+    },
+  },
 } as const
