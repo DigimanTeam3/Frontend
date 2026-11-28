@@ -9,8 +9,9 @@ import {
   readLineCallback,
   startLineLogin,
 } from '@/features/auth/lineLogin'
-import { ApiError } from '@/shared/api/client'
+import { isApiError } from '@/shared/api/errors'
 import { ja } from '@/shared/i18n/ja'
+import { isNetworkError } from '@/shared/lib/apiError'
 import { safeRedirect } from '@/shared/lib/safeRedirect'
 import { useAuthStore } from '@/shared/stores/authStore'
 
@@ -34,15 +35,10 @@ const errorNotices: ReadonlySet<Notice | 'expired'> = new Set([
   'expired',
 ])
 
-/** A fetch that never got an HTTP answer (offline, DNS, CORS) is not an ApiError. */
-function isNetworkError(error: unknown) {
-  return !(error instanceof ApiError)
-}
-
 function lineErrorNotice(error: unknown): Notice {
   if (isNetworkError(error)) return 'network'
   // 503: LINE login is not set up on the server yet.
-  return error instanceof ApiError && error.status === 503 ? 'lineUnavailable' : 'failed'
+  return isApiError(error, 503) ? 'lineUnavailable' : 'failed'
 }
 
 // S01. /login?redirect=<path> starts LINE login; LINE comes back to /login?code=…&state=….

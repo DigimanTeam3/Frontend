@@ -4,7 +4,7 @@ import calendarIcon from '@/features/events/assets/calendar.svg'
 import peopleIcon from '@/features/events/assets/people.svg'
 import pinIcon from '@/features/events/assets/pin.svg'
 import yenIcon from '@/features/events/assets/yen.svg'
-import { formatEventPeriod } from '@/features/events/lib/eventText'
+import { formatDayRange } from '@/shared/i18n/format'
 import { ja } from '@/shared/i18n/ja'
 import { directionsUrl } from '@/shared/lib/directionsUrl'
 import type { EventDetail } from '@/shared/types/event'
@@ -29,6 +29,23 @@ function InfoRow({ icon, label, main, sub }: InfoRowProps) {
   )
 }
 
+/** Keeps each date whole, so a long range wraps only after 〜. */
+function Period({ start, end }: { start: string; end: string }) {
+  const separator = ja.format.rangeSeparator
+  const [from, to] = formatDayRange(start, end).split(separator)
+  if (to === undefined) return from
+  return (
+    <>
+      <span className="whitespace-nowrap">
+        {from}
+        {separator}
+      </span>
+      <wbr />
+      <span className="whitespace-nowrap">{to}</span>
+    </>
+  )
+}
+
 export interface EventInfoTicketProps {
   event: EventDetail
   /** Picks the text to show: Japanese, or the original when the user asked for it. */
@@ -45,7 +62,7 @@ export function EventInfoTicket({ event, pick }: EventInfoTicketProps) {
       <InfoRow
         icon={calendarIcon}
         label={t.dateTime}
-        main={formatEventPeriod(event.startDate, event.endDate)}
+        main={<Period start={event.startDate} end={event.endDate} />}
         sub={hours}
       />
       <InfoRow
