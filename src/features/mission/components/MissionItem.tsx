@@ -33,7 +33,7 @@ export function MissionItem({ mission, locked }: MissionItemProps) {
     <>
       <span
         className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
-          locked ? 'text-ink-faint' : done ? 'bg-gate/15 text-gate' : 'bg-ink/5 text-ink'
+          locked ? 'text-ink-faint' : done ? 'bg-gate-soft text-gate' : 'bg-surface-2 text-ink'
         }`}
       >
         {locked ? <LockIcon /> : done ? <CheckIcon /> : <FlagIcon />}

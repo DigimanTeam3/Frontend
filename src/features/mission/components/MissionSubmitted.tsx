@@ -29,7 +29,7 @@ export function MissionSubmitted({ mission, position, submission }: MissionSubmi
         <MissionHeader mission={mission} position={position} />
 
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gate/15 text-gate">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gate-soft text-gate">
             <CheckIcon className="size-4" />
           </span>
           <span className="text-base leading-normal font-bold text-gate">

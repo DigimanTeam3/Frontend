@@ -26,7 +26,7 @@ export function MissionProgressCard({
   const allDone = requiredCount > 0 && completedCount >= requiredCount
 
   return (
-    <div className="flex flex-col gap-3 rounded-[14px] bg-surface p-[18px]">
+    <div className="flex flex-col gap-3 rounded-[14px] bg-paper p-[18px]">
       <div className="flex items-center gap-2">
         <p
           lang={event.titleJa === null ? 'ko' : undefined}
@@ -60,7 +60,7 @@ export function MissionProgressCard({
               ) : (
                 <span
                   key={mission.id}
-                  className="flex aspect-square w-11 min-w-0 shrink items-center justify-center rounded-full border border-dashed border-ink-faint bg-surface font-mono text-[11px] font-medium tracking-[0.08em] text-ink-faint"
+                  className="flex aspect-square w-11 min-w-0 shrink items-center justify-center rounded-full border border-dashed border-ink-faint bg-paper font-mono text-[11px] font-medium tracking-[0.08em] text-ink-faint"
                 >
                   {String(index + 1).padStart(2, '0')}
                 </span>
