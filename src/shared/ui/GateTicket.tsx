@@ -130,7 +130,7 @@ export function GateTicket({
         {punched && stub === 'none' && (
           <span
             aria-hidden="true"
-            className="border-ink-faint absolute right-3.5 bottom-[57px] size-[30px] rounded-full border border-dashed bg-ink shadow-[inset_0_2px_3px] shadow-black/35"
+            className="absolute right-3.5 bottom-[57px] size-[30px] rounded-full border border-dashed border-ink-faint bg-ink shadow-[inset_0_2px_3px] shadow-black/35"
           />
         )}
       </div>
