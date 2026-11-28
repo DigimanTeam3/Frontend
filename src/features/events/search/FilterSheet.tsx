@@ -31,10 +31,10 @@ function Chip({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`flex min-h-10 items-center gap-1 rounded-full border px-3.5 text-[13px] font-bold transition-colors duration-150 ease-out ${
+      className={`flex min-h-9 items-center gap-1 rounded-full border px-3.5 text-[13px] transition-colors duration-150 ease-out ${
         selected
-          ? 'border-ink bg-ink text-surface'
-          : 'border-line bg-app text-ink-muted active:bg-line/40'
+          ? 'border-ink bg-ink font-bold text-white'
+          : 'border-line bg-surface text-ink active:bg-surface-2'
       }`}
     >
       {selected && (
@@ -122,7 +122,7 @@ export function FilterSheet({ initial, keyword, now, onApply, onClose }: FilterS
         // be there: a drag that starts inside the sheet and ends outside does not close it.
         if (event.target === event.currentTarget && pressedOutside.current) onClose()
       }}
-      className="mx-auto mt-auto mb-0 max-h-[85dvh] w-full max-w-app overflow-y-auto rounded-t-3xl bg-surface p-0 text-ink shadow-[0_-4px_16px_rgba(30,34,48,0.12)] backdrop:bg-ink/45"
+      className="mx-auto mt-auto mb-0 max-h-[85dvh] w-full max-w-app overflow-y-auto rounded-t-3xl bg-surface p-0 text-ink shadow-[0_-4px_16px_rgba(26,29,38,0.12)] backdrop:bg-ink/45"
     >
       <div className="flex flex-col gap-5 px-6 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+16px)]">
         <div aria-hidden="true" className="mx-auto h-1 w-10 rounded-sm bg-line" />
@@ -194,7 +194,7 @@ export function FilterSheet({ initial, keyword, now, onApply, onClose }: FilterS
                   if (day && day < today) return
                   setDraft({ ...draft, date: (day || undefined) as DateChoice | undefined })
                 }}
-                className="h-11 flex-1 rounded-[10px] border border-line bg-app px-3 text-ink"
+                className="h-11 flex-1 rounded-[10px] border border-line bg-surface-2 px-3 text-ink"
               />
             </label>
           )}
@@ -222,7 +222,7 @@ export function FilterSheet({ initial, keyword, now, onApply, onClose }: FilterS
           <button
             type="button"
             onClick={() => onApply(draft)}
-            className="h-[54px] flex-1 rounded-[14px] bg-ink px-5 text-base font-bold text-surface active:opacity-85"
+            className="h-[54px] flex-1 rounded-[14px] bg-ink px-5 text-base font-bold text-white active:opacity-85"
           >
             {t.showResults(count.isSuccess && !count.isPlaceholderData ? count.data : null)}
           </button>

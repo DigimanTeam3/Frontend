@@ -218,7 +218,7 @@ export function SearchPage() {
             {filterCount > 0 && (
               <span
                 aria-hidden="true"
-                className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full border-2 border-surface bg-kippu-festival text-[10px] font-bold text-surface"
+                className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full border-2 border-surface bg-gate text-[10px] font-bold text-white"
               >
                 {filterCount}
               </span>
@@ -239,7 +239,7 @@ export function SearchPage() {
                   filterButtonRef.current?.focus()
                 }}
                 aria-label={t.removeCondition(item.label)}
-                className="flex min-h-9 items-center gap-1.5 rounded-full bg-ink py-1 pr-2.5 pl-3.5 text-[13px] font-bold text-surface active:opacity-85"
+                className="flex min-h-9 items-center gap-1.5 rounded-full bg-ink py-1 pr-2.5 pl-3.5 text-[13px] font-bold text-white active:opacity-85"
               >
                 {item.label}
                 <img src={xSmallIcon} alt="" width={10} height={10} />
@@ -251,7 +251,7 @@ export function SearchPage() {
 
       <div className="flex items-end gap-3 pb-3">
         <div className="flex min-w-0 flex-1 flex-col">
-          <h1 className="truncate font-mincho text-xl/[1.4] font-extrabold">
+          <h1 className="truncate text-base/[1.5] font-bold">
             {t.resultTitle(conditions.keyword)}
           </h1>
           <p aria-live="polite" className="font-mono text-xs/[1.5] text-ink-muted">
@@ -335,7 +335,7 @@ function ResultList({ query, events, onReset }: ResultListProps) {
         <button
           type="button"
           onClick={() => void query.refetch()}
-          className="rounded-[14px] bg-ink px-5 py-3 text-[15px] font-bold text-surface"
+          className="rounded-[14px] bg-ink px-5 py-3 text-[15px] font-bold text-white"
         >
           {t.retry}
         </button>
