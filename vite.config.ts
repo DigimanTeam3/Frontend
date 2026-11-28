@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       // Pre-bundle these together so the app and the React wrapper share one maplibre-gl instance
-      // (setWorkerUrl in EventMap must reach the instance that creates the map).
+      // (setWorkerUrl in src/features/map/lib/maplibre.ts must reach the instance that creates the map).
       include: ['maplibre-gl', '@vis.gl/react-maplibre'],
     },
     build: {

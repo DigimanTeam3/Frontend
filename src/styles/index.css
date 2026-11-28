@@ -42,6 +42,13 @@
   --color-kippu-stage-paper: #dfe9cf;
 }
 
+/* 公演 (performance) print color from Figma kippu/stage and the map paper. Added for C6 maps. */
+@theme {
+  --color-stage: #5a7a36;
+  --color-stage-soft: #dfe9cf;
+  --color-map-paper: #efe8da; /* map land; also MAP_PAPER in src/features/map/config.ts */
+}
+
 @layer base {
   html,
   body {
