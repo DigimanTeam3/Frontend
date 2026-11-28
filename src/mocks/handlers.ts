@@ -6,6 +6,7 @@ import { badgeHandlers } from '@/mocks/badgeHandlers'
 import { cardHandlers } from '@/mocks/cardHandlers'
 import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { missionHandlers } from '@/mocks/missionHandlers'
+import { mypageHandlers } from '@/mocks/mypageHandlers'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
 import {
   MOCK_ACCESS_TOKEN,
@@ -116,5 +117,6 @@ export const handlers = [
   ...badgeHandlers,
   ...cardHandlers,
   ...missionHandlers,
+  ...mypageHandlers,
   ...uploadHandlers,
 ]

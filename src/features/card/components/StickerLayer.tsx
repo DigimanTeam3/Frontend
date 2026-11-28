@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import { PlacedSticker } from '@/features/card/components/PlacedSticker'
-import { StickerFace } from '@/features/card/components/StickerFace'
-import { STICKER_LOOK, STICKER_TYPES, stickerBoxStyle } from '@/features/card/stickers'
+import { StickerFace } from '@/shared/ui/StickerFace'
+import { STICKER_LOOK, STICKER_TYPES, stickerBoxStyle } from '@/shared/lib/stickers'
 import type { StickerBoard } from '@/features/card/useStickerBoard'
 import { ja } from '@/shared/i18n/ja'
 

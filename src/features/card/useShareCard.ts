@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { renderCardImage, type CardImageInput } from '@/features/card/lib/renderCardImage'
-import type { DrawnSticker } from '@/features/card/stickers'
+import type { DrawnSticker } from '@/shared/lib/stickers'
 import { ja } from '@/shared/i18n/ja'
 import { polaroidCardText } from '@/shared/lib/polaroidCardText'
 import type { ExperienceCard } from '@/shared/types/card'

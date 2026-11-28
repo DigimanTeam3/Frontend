@@ -1,6 +1,6 @@
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
-import { StickerFace } from '@/features/card/components/StickerFace'
-import { STICKER_LOOK, stickerBoxStyle, type StickerPlacement } from '@/features/card/stickers'
+import { StickerFace } from '@/shared/ui/StickerFace'
+import { STICKER_LOOK, stickerBoxStyle, type StickerPlacement } from '@/shared/lib/stickers'
 import { DRAG_THRESHOLD_PX, type StickerBoard } from '@/features/card/useStickerBoard'
 import { ja } from '@/shared/i18n/ja'
 import { CloseIcon } from '@/shared/ui/icons/CloseIcon'

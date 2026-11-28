@@ -41,4 +41,14 @@ export const queryKeys = {
     mine: () => [...queryKeys.cards.all, 'mine'] as const,
     detail: (cardId: number) => [...queryKeys.cards.all, 'detail', cardId] as const,
   },
+  // My Page (S15). My cards use the `cards` group above.
+  me: {
+    all: ['me'] as const,
+    profile: () => [...queryKeys.me.all, 'profile'] as const,
+    summary: () => [...queryKeys.me.all, 'summary'] as const,
+    // All my badges, whatever the type.
+    badges: () => [...queryKeys.me.all, 'badges'] as const,
+    companions: () => [...queryKeys.me.all, 'companions'] as const,
+    participations: () => [...queryKeys.me.all, 'participations'] as const,
+  },
 }

@@ -22,6 +22,7 @@ export function useCreateParticipationMutation(eventId: number) {
     mutationFn: () => createParticipation(eventId),
     onSuccess: (participation) => {
       queryClient.setQueryData(queryKeys.participations.byEvent(eventId), participation)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.me.all })
     },
   })
 }
@@ -36,6 +37,8 @@ export function useVerifyParticipationMutation(eventId: number) {
       queryClient.setQueryData(queryKeys.participations.byEvent(eventId), result.participation)
       // The mission list (isVerified, unlocked rows) depends on the check-in; do not serve a stale one.
       void queryClient.invalidateQueries({ queryKey: queryKeys.missions.byEvent(eventId) })
+      // My Page: the verified count, the participation badge and the participation list.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.me.all })
     },
   })
 }

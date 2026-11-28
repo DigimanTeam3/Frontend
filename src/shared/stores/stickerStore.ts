@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { StickerPlacement } from '@/features/card/stickers'
+import type { StickerPlacement } from '@/shared/lib/stickers'
 
 interface StickerState {
   /** The stickers of each card (by card id) as arranged on the completion screen (S13). */

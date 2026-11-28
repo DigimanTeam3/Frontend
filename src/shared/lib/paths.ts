@@ -11,6 +11,7 @@ export const paths = {
   missionSubmit: (eventId: number, missionId: number) => `/events/${eventId}/missions/${missionId}`,
   complete: (eventId: number) => `/events/${eventId}/complete`,
   cardDetail: (cardId: number) => `/cards/${cardId}`,
+  companionPost: (postId: number) => `/companions/${postId}`,
   me: () => '/me',
   tickets: () => '/me/tickets',
   notification: (notificationId: number) => `/notifications/${notificationId}`,

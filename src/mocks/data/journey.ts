@@ -1,3 +1,4 @@
+import { MOCK_USER_ID } from '@/mocks/mockHelpers'
 import type { Badge, BadgeType } from '@/shared/types/badge'
 import type { ExperienceCard, ExperienceCardUpdate } from '@/shared/types/card'
 import type { EventBrief, JourneyEvent } from '@/shared/types/eventBrief'
@@ -7,7 +8,8 @@ import type {
   Submission,
   SubmissionResult,
 } from '@/shared/types/mission'
-import type { Participation } from '@/shared/types/participation'
+import type { MyCompanion, MyParticipation, MySummary } from '@/shared/types/me'
+import type { Participation, ParticipationStatus } from '@/shared/types/participation'
 
 // Mock data and state of the journey screens (check-in, badge, missions, card, my page) in one
 // module, because their answers depend on each other. The state is kept in sessionStorage so a
@@ -284,7 +286,7 @@ interface JourneyState {
 
 const STORAGE_KEY = 'digiman.mock.journey'
 
-function initialState(): JourneyState {
+function emptyState(): JourneyState {
   return {
     nextParticipationId: FIRST_PARTICIPATION_ID,
     nextBadgeId: 1,
@@ -295,6 +297,63 @@ function initialState(): JourneyState {
     nextCardId: FIRST_CARD_ID,
     cards: [],
   }
+}
+
+// The user starts with one finished past event, so My Page and the card screens have something to
+// show before a check-in is done in the session: event 5 (ended), verified on 2026-11-15, both
+// badges and card 1 (no own photo, a memo).
+const SEED_EVENT_ID = 5
+const SEED_PARTICIPATION_ID = 41
+const SEED_CARD_ID = 1
+const SEED_VERIFIED_AT = '2026-11-15T19:30:00+09:00'
+const SEED_MEMO = '夜の宮殿、とてもきれいでした。'
+
+function initialState(): JourneyState {
+  const state = emptyState()
+  const event = findJourneyEvent(SEED_EVENT_ID)
+  if (!event) return state
+
+  const brief = toEventBrief(event)
+  const participationBadge: Badge = {
+    id: state.nextBadgeId++,
+    eventId: event.id,
+    badgeType: 'participation',
+    badgeImage: MOCK_BADGE_IMAGE,
+    acquiredAt: SEED_VERIFIED_AT,
+    event: brief,
+  }
+  const completeBadge: Badge = {
+    id: state.nextBadgeId++,
+    eventId: event.id,
+    badgeType: 'complete',
+    badgeImage: MOCK_BADGE_IMAGE,
+    acquiredAt: '2026-11-15T20:10:00+09:00',
+    event: brief,
+  }
+  state.participations.push({
+    id: SEED_PARTICIPATION_ID,
+    eventId: event.id,
+    userId: MOCK_USER_ID,
+    status: 'verified',
+    verificationMethod: 'gps',
+    verifiedAt: SEED_VERIFIED_AT,
+    createdAt: '2026-11-14T12:00:00+09:00',
+  })
+  state.badges.push(participationBadge, completeBadge)
+  state.cards.push({
+    id: SEED_CARD_ID,
+    event: brief,
+    eventDate: SEED_VERIFIED_AT.slice(0, 10),
+    venue: event.venueName,
+    venueJa: event.venueNameJa,
+    eventImage: event.imageUrl,
+    userImage: null,
+    memo: SEED_MEMO,
+    participationBadge,
+    completeBadge,
+    createdAt: completeBadge.acquiredAt,
+  })
+  return state
 }
 
 function loadState(): JourneyState {
@@ -318,7 +377,7 @@ function saveState() {
   }
 }
 
-/** Forgets every participation, badge, submission and card of the mock. */
+/** Back to the start: the seeded finished event only (see initialState). */
 export function resetJourneyMock() {
   state = initialState()
   try {
@@ -326,6 +385,12 @@ export function resetJourneyMock() {
   } catch {
     // Nothing was stored.
   }
+}
+
+/** Forgets everything, the seeded event too: a user who has done nothing yet (local preview). */
+export function clearJourneyMock() {
+  state = emptyState()
+  saveState()
 }
 
 export function findParticipation(eventId: number, userId: number) {
@@ -341,6 +406,72 @@ export function listBadges(badgeType?: BadgeType) {
   return state.badges
     .filter((badge) => badgeType === undefined || badge.badgeType === badgeType)
     .toReversed()
+}
+
+/** My participations with their events, newest first, like GET /me/participations. */
+export function listParticipations(
+  userId: number,
+  status?: ParticipationStatus,
+): MyParticipation[] {
+  return state.participations
+    .filter((p) => p.userId === userId && (status === undefined || p.status === status))
+    .toReversed()
+    .flatMap((participation) => {
+      const event = findJourneyEvent(participation.eventId)
+      return event ? [{ participation, event: toEventBrief(event) }] : []
+    })
+}
+
+/** The counts of GET /me/summary, computed from the state. */
+export function summarize(userId: number): MySummary {
+  const mine = state.participations.filter((p) => p.userId === userId)
+  return {
+    participatedEventCount: mine.length,
+    verifiedEventCount: mine.filter((p) => p.status === 'verified').length,
+    participationBadgeCount: state.badges.filter((b) => b.badgeType === 'participation').length,
+    completeBadgeCount: state.badges.filter((b) => b.badgeType === 'complete').length,
+    experienceCardCount: state.cards.length,
+    recruitmentCount: listMyCompanions().filter((post) => post.isMine).length,
+  }
+}
+
+// TODO(api): GET /me/companions is not spelled out in the spec (v2). Fixed sample posts: two I
+// wrote and one I joined. The posts themselves belong to the companion mock (S06–S08), which
+// does not know these ids.
+const myCompanionSeeds: Omit<MyCompanion, 'event'>[] = [
+  {
+    id: 301,
+    meetAt: '2026-11-28T18:00:00+09:00',
+    capacity: 3,
+    memberCount: 2,
+    status: 'OPEN',
+    isMine: true,
+  },
+  {
+    id: 302,
+    meetAt: '2026-11-29T14:00:00+09:00',
+    capacity: 2,
+    memberCount: 2,
+    status: 'FULL',
+    isMine: true,
+  },
+  {
+    id: 303,
+    meetAt: '2026-11-15T19:00:00+09:00',
+    capacity: 4,
+    memberCount: 3,
+    status: 'CLOSED',
+    isMine: false,
+  },
+]
+const MY_COMPANION_EVENT_IDS = [1, INDOOR_DEMO_EVENT_ID, 5]
+
+/** My companion posts with their events, like GET /me/companions. */
+export function listMyCompanions(): MyCompanion[] {
+  return myCompanionSeeds.flatMap((post, index) => {
+    const event = findJourneyEvent(MY_COMPANION_EVENT_IDS[index] ?? 0)
+    return event ? [{ ...post, event: toEventBrief(event) }] : []
+  })
 }
 
 /** Create-or-get, like POST /events/{eventId}/participation. */
@@ -509,4 +640,42 @@ export function updateCard(card: ExperienceCard, changes: ExperienceCardUpdate) 
   if (changes.userImage !== undefined) card.userImage = changes.userImage
   saveState()
   return card
+}
+
+/**
+ * Local preview helper: adds finished cards (with both badges) for the journey events 1–4 in turn,
+ * to show My Page with more cards than it lists at first. They have no participation.
+ */
+export function addDemoCards(count: number) {
+  for (let i = 0; i < count; i++) {
+    const event = journeyEvents[i % 4]
+    if (!event) continue
+    const brief = toEventBrief(event)
+    const now = nowIso()
+    const make = (badgeType: BadgeType): Badge => ({
+      id: state.nextBadgeId++,
+      eventId: event.id,
+      badgeType,
+      badgeImage: MOCK_BADGE_IMAGE,
+      acquiredAt: now,
+      event: brief,
+    })
+    const participationBadge = make('participation')
+    const completeBadge = make('complete')
+    state.badges.push(participationBadge, completeBadge)
+    state.cards.push({
+      id: state.nextCardId++,
+      event: brief,
+      eventDate: now.slice(0, 10),
+      venue: event.venueName,
+      venueJa: event.venueNameJa,
+      eventImage: event.imageUrl,
+      userImage: null,
+      memo: null,
+      participationBadge,
+      completeBadge,
+      createdAt: now,
+    })
+  }
+  saveState()
 }

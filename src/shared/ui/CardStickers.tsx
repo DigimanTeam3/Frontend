@@ -1,5 +1,5 @@
-import { StickerFace } from '@/features/card/components/StickerFace'
-import { stickerBoxStyle, type DrawnSticker } from '@/features/card/stickers'
+import { StickerFace } from '@/shared/ui/StickerFace'
+import { stickerBoxStyle, type DrawnSticker } from '@/shared/lib/stickers'
 import { ja } from '@/shared/i18n/ja'
 
 export interface CardStickersProps {
