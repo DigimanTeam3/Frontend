@@ -16,6 +16,8 @@ const TAP_SLOP_PX = 6
 /** Let go while flicking down this fast (px/ms) with this much torn: the stub comes off anyway. */
 const FLICK_SPEED = 0.9
 const FLICK_MIN_TORN = 0.35
+/** Release speed is measured over the pointer's moves in this last stretch of time. */
+const VELOCITY_WINDOW_MS = 90
 /** Fall after the stub comes off; onTorn runs at its end. */
 const FLY_MS = 860
 const GRAVITY = 0.0032
@@ -68,6 +70,9 @@ interface Sim {
   pointerId: number | null
   x0: number
   y0: number
+  /** Where the press started, for telling a tap from a drag. */
+  downX: number
+  downY: number
   /** Latest pointer position, applied on the next frame. */
   px: number
   py: number
@@ -125,6 +130,8 @@ export function useStubTear(onTorn: () => void) {
     pointerId: null,
     x0: 0,
     y0: 0,
+    downX: 0,
+    downY: 0,
     px: 0,
     py: 0,
     samples: [],
@@ -151,6 +158,7 @@ export function useStubTear(onTorn: () => void) {
   useEffect(
     () => () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
+      frameRef.current = null
     },
     [],
   )
@@ -237,8 +245,10 @@ export function useStubTear(onTorn: () => void) {
     )
   }
 
+  /** Speed of the pointer over its last moves; 0 when it has been still (no recent moves). */
   const velocity = () => {
-    const samples = sim.current.samples
+    const now = performance.now()
+    const samples = sim.current.samples.filter((sample) => now - sample.t <= VELOCITY_WINDOW_MS)
     if (samples.length < 2) return { x: 0, y: 0 }
     const first = samples[0]
     const last = samples[samples.length - 1]
@@ -434,6 +444,7 @@ export function useStubTear(onTorn: () => void) {
     if (letGo) {
       s.px = event.clientX
       s.py = event.clientY
+      record(event.clientX, event.clientY)
       applyPull(Math.max(0, s.py - s.y0), s.px - s.x0, now, 0)
     }
     const v = velocity()
@@ -458,7 +469,7 @@ export function useStubTear(onTorn: () => void) {
     const samples = sim.current.samples
     const t = performance.now()
     samples.push({ t, x, y })
-    while (samples.length > 2 && t - samples[0].t > 90) samples.shift()
+    while (samples.length > 2 && t - samples[0].t > VELOCITY_WINDOW_MS) samples.shift()
   }
 
   const stubHandlers = {
@@ -473,8 +484,8 @@ export function useStubTear(onTorn: () => void) {
       s.pointerId = event.pointerId
       s.x0 = event.clientX - s.tx / STRETCH
       s.y0 = event.clientY - pull
-      s.px = event.clientX
-      s.py = event.clientY
+      s.px = s.downX = event.clientX
+      s.py = s.downY = event.clientY
       s.samples = []
       record(event.clientX, event.clientY)
       s.dragged = false
@@ -487,7 +498,7 @@ export function useStubTear(onTorn: () => void) {
       s.px = event.clientX
       s.py = event.clientY
       record(event.clientX, event.clientY)
-      if (Math.hypot(s.px - s.x0, s.py - s.y0) > TAP_SLOP_PX && !s.dragged) {
+      if (Math.hypot(s.px - s.downX, s.py - s.downY) > TAP_SLOP_PX && !s.dragged) {
         s.dragged = true
         setAway(true)
       }

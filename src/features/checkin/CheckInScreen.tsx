@@ -67,7 +67,9 @@ export function CheckInScreen() {
     )
   }
 
-  return <section className="flex flex-1 flex-col">{content}</section>
+  // overflow-y-clip: the torn stub falls past the bottom of the screen; it must not make the page
+  // taller (a scrollbar would flash and shift the layout).
+  return <section className="flex flex-1 flex-col overflow-y-clip">{content}</section>
 }
 
 interface CheckInFlowProps {
