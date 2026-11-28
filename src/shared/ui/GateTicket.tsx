@@ -135,7 +135,7 @@ export function GateTicket({
         {punched && stub === 'none' && (
           <span
             aria-hidden="true"
-            className="border-ink-faint absolute right-3.5 bottom-[57px] size-[30px] rounded-full border border-dashed bg-ink shadow-[inset_0_2px_3px] shadow-black/35"
+            className="absolute right-3.5 bottom-[57px] size-[30px] rounded-full border border-dashed border-ink-faint bg-ink shadow-[inset_0_2px_3px] shadow-black/35"
           />
         )}
       </div>
@@ -147,7 +147,7 @@ export function GateTicket({
           <div aria-hidden="true" className="relative z-10">
             <svg
               className={`absolute bottom-0 left-3 w-[calc(100%-24px)] ${
-                dimmed ? 'text-ink-faint h-[1.5px]' : 'text-gate h-0.5'
+                dimmed ? 'h-[1.5px] text-ink-faint' : 'text-gate h-0.5'
               }`}
             >
               <line
@@ -161,8 +161,8 @@ export function GateTicket({
               />
             </svg>
             {/* Painted with the page background to look like bites out of the paper. */}
-            <span className="bg-app absolute -top-[9px] -left-[9px] size-[18px] rounded-full" />
-            <span className="bg-app absolute -top-[9px] -right-[9px] size-[18px] rounded-full" />
+            <span className="absolute -top-[9px] -left-[9px] size-[18px] rounded-full bg-app" />
+            <span className="absolute -top-[9px] -right-[9px] size-[18px] rounded-full bg-app" />
           </div>
           {renderStub ? renderStub(stubPaper) : stubPaper}
         </>

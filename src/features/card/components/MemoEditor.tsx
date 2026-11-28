@@ -69,7 +69,7 @@ export function MemoEditor({ card, onSaved, onCancel }: MemoEditorProps) {
         readOnly={saving}
         className="h-[120px] w-full resize-none rounded-[10px] border-[1.5px] border-line bg-surface px-3.5 py-3 text-base leading-[1.65] text-ink outline-none focus:border-ink"
       />
-      <p id={counterId} className="text-ink-faint text-xs leading-normal">
+      <p id={counterId} className="text-xs leading-normal text-ink-faint">
         {copy.memoCounter(text.length, MEMO_MAX_LENGTH)}
       </p>
       {errorKey && (
