@@ -5,13 +5,14 @@ export interface StatsCardProps {
   summary: MySummary
 }
 
-// Three counts in equal columns (Figma: S15 stats): verified events, finished events, posts.
+// Three counts in equal columns (Figma: S15 stats): verified events, finished events and
+// companion groups (posts I wrote and posts I joined, the same number as the menu row).
 export function StatsCard({ summary }: StatsCardProps) {
   const { stats: copy } = ja.myPage
   const items = [
     { label: copy.verified, count: summary.verifiedEventCount },
     { label: copy.complete, count: summary.completeBadgeCount },
-    { label: copy.recruitment, count: summary.recruitmentCount },
+    { label: copy.companion, count: summary.companionCount },
   ]
 
   return (

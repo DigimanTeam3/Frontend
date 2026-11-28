@@ -733,7 +733,7 @@ export const ja = {
     stats: {
       verified: '参加',
       complete: '完走',
-      recruitment: '募集',
+      companion: '同行',
     },
     // Keys are API error codes of GET /me and GET /me/summary, plus UNKNOWN (network, server and
     // every other error).
@@ -787,12 +787,12 @@ export const ja = {
     },
     menu: {
       participations: '参加したイベント',
-      recruitments: '書いた募集文',
+      companions: '同行の記録',
       tickets: '予約券',
       language: '言語 · 日本語',
       logout: 'ログアウト',
     },
-    // My companion record under "書いた募集文": posts I wrote and posts I joined.
+    // My companion record under "同行の記録": posts I wrote and posts I joined.
     companions: {
       empty: '同行の記録はまだありません。',
       // Meeting day and people: "11/28(土) ・ 2/3人".

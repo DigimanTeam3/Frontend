@@ -476,6 +476,7 @@ export function summarize(userId: number): MySummary {
     completeBadgeCount: state.badges.filter((b) => b.badgeType === 'complete').length,
     experienceCardCount: state.cards.length,
     recruitmentCount: listMyCompanions().filter((post) => post.isMine).length,
+    companionCount: listMyCompanions().length,
   }
 }
 
