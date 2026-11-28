@@ -7,7 +7,7 @@ import { ja } from '@/shared/i18n/ja'
 import type { EventListItem } from '@/shared/types/event'
 
 // Search result as a small ticket (S03). Same paper colors as the home ticket, no title animation.
-export function SearchResultCard({ event }: { event: EventListItem }) {
+export function SearchResultCard({ event, to }: { event: EventListItem; to: string }) {
   const color = TICKET_COLORS[event.category]
   const hasJa = event.titleJa !== null
   const meta = [
@@ -18,7 +18,7 @@ export function SearchResultCard({ event }: { event: EventListItem }) {
 
   return (
     <Link
-      to={`/events/${event.id}`}
+      to={to}
       className={`relative flex min-h-[112px] overflow-hidden rounded-[10px] shadow-[0_2px_10px_rgba(30,34,48,0.08)] transition-transform duration-150 ease-out active:scale-[0.99] ${color.paper}`}
     >
       <PaperGrain />

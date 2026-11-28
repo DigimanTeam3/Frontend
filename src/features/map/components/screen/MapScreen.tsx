@@ -229,7 +229,7 @@ export function MapScreen() {
         {/* Top: search entry and category chips, over a paper fade so they read on any map. */}
         <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-app/90 via-app/50 to-transparent px-4 pt-[calc(env(safe-area-inset-top)+12px)] pb-6">
           <Link
-            to="/search"
+            to="/search?from=map"
             className="pointer-events-auto flex min-h-12 items-center gap-2.5 rounded-full bg-surface px-4 text-sm text-ink-muted shadow-[0_2px_10px_rgb(30_34_48/0.14)]"
           >
             <img src={searchIcon} alt="" width={20} height={20} />

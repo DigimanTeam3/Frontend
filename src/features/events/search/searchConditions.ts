@@ -63,8 +63,14 @@ export function readConditions(params: URLSearchParams, today: string): SearchCo
   }
 }
 
-export function writeConditions(conditions: SearchConditions) {
+/** `?from=map`: the search was opened from the map (S04), so a result goes back to the map. */
+export function isFromMap(params: URLSearchParams) {
+  return params.get('from') === 'map'
+}
+
+export function writeConditions(conditions: SearchConditions, fromMap = false) {
   const params = new URLSearchParams()
+  if (fromMap) params.set('from', 'map')
   if (conditions.keyword) params.set('q', conditions.keyword)
   if (conditions.category) params.set('category', conditions.category)
   if (conditions.date) params.set('date', conditions.date)
