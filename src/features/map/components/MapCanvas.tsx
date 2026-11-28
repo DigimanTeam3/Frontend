@@ -10,6 +10,25 @@ import { ja } from '@/shared/i18n/ja'
 // A slow network can stall the style or first tiles; after this the user gets a retry button.
 const LOAD_TIMEOUT_MS = 20_000
 
+// Japanese text for MapLibre's own controls, aria labels and gesture hints (keys from its default_locale).
+const c = ja.map.controls
+const MAP_LOCALE: Record<string, string> = {
+  'Map.Title': c.mapTitle,
+  'Marker.Title': c.markerTitle,
+  'Popup.Close': c.popupClose,
+  'NavigationControl.ZoomIn': c.zoomIn,
+  'NavigationControl.ZoomOut': c.zoomOut,
+  'NavigationControl.ResetBearing': c.resetBearing,
+  'AttributionControl.ToggleAttribution': c.toggleAttribution,
+  'AttributionControl.MapFeedback': c.mapFeedback,
+  'LogoControl.Title': c.logoTitle,
+  'GeolocateControl.FindMyLocation': c.findMyLocation,
+  'GeolocateControl.LocationNotAvailable': c.locationNotAvailable,
+  'CooperativeGesturesHandler.WindowsHelpText': c.ctrlScrollHelp,
+  'CooperativeGesturesHandler.MacHelpText': c.cmdScrollHelp,
+  'CooperativeGesturesHandler.MobileHelpText': c.twoFingerHelp,
+}
+
 type LoadStatus = 'loading' | 'ready' | 'error'
 
 export interface MapCanvasProps extends Omit<MapProps, 'mapStyle' | 'style' | 'id'> {
@@ -77,6 +96,7 @@ export function MapCanvas({
         maxBounds={SEOUL_MAX_BOUNDS}
         pixelRatio={mapPixelRatio()}
         attributionControl={{ compact: false }}
+        locale={MAP_LOCALE}
         // Japanese and Korean glyphs come from the phone's own fonts (no big font downloads).
         localIdeographFontFamily="'Hiragino Sans', 'IBM Plex Sans JP', 'Noto Sans JP', sans-serif"
         dragRotate
