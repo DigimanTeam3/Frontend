@@ -9,7 +9,7 @@ export function LazyVenueMap(props: VenueMapProps) {
   return (
     <Suspense
       fallback={
-        <div className={`flex items-center justify-center bg-[#efe8da] ${props.className ?? ''}`}>
+        <div className={`flex items-center justify-center bg-map-paper ${props.className ?? ''}`}>
           <p role="status" className="font-mono text-xs tracking-[0.14em] text-ink-muted">
             {ja.map.loading}
           </p>

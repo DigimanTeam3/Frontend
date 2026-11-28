@@ -1,4 +1,5 @@
 import type { ExpressionSpecification, Map as MapLibreMap } from 'maplibre-gl'
+import { MAP_PAPER } from '@/features/map/config'
 
 // Repaints the OpenFreeMap "liberty" style in the Concept 切符 palette (ticket paper and print ink)
 // and switches labels to Japanese. Runs once after the style loads; only paint/layout values change,
@@ -9,7 +10,7 @@ type PaintName = Parameters<MapLibreMap['setPaintProperty']>[1]
 type PaintValue = Parameters<MapLibreMap['setPaintProperty']>[2]
 
 const PAPER = {
-  land: '#efe8da',
+  land: MAP_PAPER,
   landuse: '#ebe3d4',
   park: '#dfe9cf', // kippu/stage-paper
   water: '#cddfeb', // a little deeper than kippu/exhibit-paper so rivers read

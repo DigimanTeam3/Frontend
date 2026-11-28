@@ -66,7 +66,7 @@ export function MapCanvas({
   return (
     // `isolate` keeps markers, controls and the overlays below inside the map box, so screens can
     // put their own UI on top of the map without z-index fights.
-    <div className={`kippu-map relative isolate overflow-hidden bg-[#efe8da] ${className}`}>
+    <div className={`kippu-map relative isolate overflow-hidden bg-map-paper ${className}`}>
       <Map
         key={attempt}
         mapStyle={MAP_STYLE_URL}
@@ -104,7 +104,7 @@ export function MapCanvas({
       {/* Covers the default style until the 切符 colors are applied, so there is no color flash. */}
       <div
         aria-hidden={status !== 'loading'}
-        className={`pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[#efe8da] transition-opacity duration-300 ease-out ${
+        className={`pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-map-paper transition-opacity duration-300 ease-out ${
           status === 'loading' ? 'opacity-100' : 'opacity-0'
         }`}
       >

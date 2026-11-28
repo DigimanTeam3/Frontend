@@ -17,6 +17,9 @@ export const MAP_LIMITS = {
   maxPitch: 60,
 } as const
 
+/** Map land color, for MapLibre paint values. Same value as the --color-map-paper token. */
+export const MAP_PAPER = '#efe8da'
+
 /** 3D view used when opening a map on one place. */
 export const VENUE_VIEW = { zoom: 15.5, pitch: 50, bearing: -20 } as const
 
