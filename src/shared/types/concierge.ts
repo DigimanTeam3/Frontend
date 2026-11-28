@@ -59,6 +59,8 @@ export interface ConciergeReply {
   recommendations: ConciergeRecommendation[]
   suggestions: string[]
   conditions: ConciergeConditions
+  /** True when the conditions are worth keeping as a 予約券 (sent by the server with every reply). */
+  suggestTicket?: boolean
 }
 
 /** POST /api/concierge/transcribe response */

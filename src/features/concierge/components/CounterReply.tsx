@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { EventTicket } from '@/features/concierge/components/EventTicket'
 import { SpeakerIcon } from '@/features/concierge/components/icons'
 import { conditionLabels } from '@/features/concierge/lib/format'
+import { offersReservation, validRecommendations } from '@/features/concierge/lib/reply'
 import { saveReservationConditions } from '@/features/concierge/lib/reservationDraft'
 import { ja } from '@/shared/i18n/ja'
 import type { ConciergeConditions, ConciergeReply } from '@/shared/types/concierge'
@@ -11,10 +12,6 @@ const t = ja.concierge
 // Time between tickets coming out of the slot, and how long one takes to print.
 const PRINT_STAGGER_MS = 380
 const PRINT_MS = 640
-const MAX_TICKETS = 3
-
-/** Ids go into in-app paths, so only positive integers are accepted. */
-const isValidId = (id: unknown): id is number => Number.isInteger(id) && (id as number) > 0
 
 /** Reply text as plain React text: one block per line, no HTML or markdown. */
 function ReplyText({ text }: { text: string }) {
@@ -88,9 +85,7 @@ export function CounterReply({
   speaking,
   onToggleSpeech,
 }: CounterReplyProps) {
-  const recommendations = reply.recommendations
-    .filter((item) => isValidId(item.event?.id))
-    .slice(0, MAX_TICKETS)
+  const recommendations = validRecommendations(reply)
   const suggestions = reply.suggestions.filter((s) => s.trim()).slice(0, 4)
 
   return (
@@ -144,7 +139,7 @@ export function CounterReply({
         </section>
       )}
 
-      {reply.kind === 'notFound' && <ReservationOffer conditions={reply.conditions} />}
+      {offersReservation(reply) && <ReservationOffer conditions={reply.conditions} />}
 
       {showSuggestions && suggestions.length > 0 && (
         <div>
