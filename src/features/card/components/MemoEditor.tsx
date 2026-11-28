@@ -52,7 +52,7 @@ export function MemoEditor({ card, onSaved, onCancel }: MemoEditorProps) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-1.5 py-3">
-      <label htmlFor={textId} className="text-gate text-[13px] leading-normal">
+      <label htmlFor={textId} className="text-[13px] leading-normal text-gate">
         {copy.memoLabel}
       </label>
       {/* 16px text: iOS Safari zooms the page when a focused field is smaller. */}
