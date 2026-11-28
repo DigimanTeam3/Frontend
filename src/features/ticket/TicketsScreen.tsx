@@ -10,7 +10,7 @@ import { Toast } from '@/shared/ui/Toast'
 // the search conditions saved from the AI concierge, with delete. The swipe gesture of the design
 // is a plain button for now.
 export function TicketsScreen() {
-  const { ticket: copy } = ja
+  const { reservationTicket: copy } = ja
   const ticketsQuery = useTicketsQuery()
   const deleteMutation = useDeleteTicketMutation()
   const [toast, setToast] = useState<string | null>(null)

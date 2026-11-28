@@ -66,7 +66,10 @@ export function MenuList({ summary }: MenuListProps) {
   useEffect(
     () => () => {
       if (!loggingOut.current) return
-      useAuthStore.getState().setAccessToken(null)
+      // Written to the store directly: the login work (S01) replaces setAccessToken with
+      // logout(), and this line has to build before and after it lands.
+      // TODO: call logout() once S01 is on main, so the saved profile is dropped too.
+      useAuthStore.setState({ accessToken: null })
       // Nothing of this user may stay in the cache for the next login.
       queryClient.clear()
     },
