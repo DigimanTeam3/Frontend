@@ -26,8 +26,12 @@ export function EventStrip({ event, label }: EventStripProps) {
       <span className="min-w-0 flex-1">
         {label && <span className="block text-xs font-bold text-primary">{label}</span>}
         <span className="block truncate font-bold">{event.titleJa ?? event.title}</span>
+        {/* Date and venue on their own lines: a long date range would hide the venue on 390px. */}
         <span className="block truncate text-xs text-ink-muted">
-          {formatDateRange(event.startDate, event.endDate)} · {event.venueNameJa ?? event.venueName}
+          {formatDateRange(event.startDate, event.endDate)}
+        </span>
+        <span className="block truncate text-xs text-ink-muted">
+          {event.venueNameJa ?? event.venueName}
         </span>
       </span>
       <span aria-hidden className="text-ink-muted">
