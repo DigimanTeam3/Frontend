@@ -1,6 +1,6 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { CompleteScreen } from '@/features/card/CompleteScreen'
 
-// S13. Replace the placeholder with the real screen.
+// S13. The screen lives in its feature folder.
 export function CompletePage() {
-  return <ScreenPlaceholder screenId="S13" />
+  return <CompleteScreen />
 }

@@ -3,6 +3,7 @@ import { http, HttpResponse } from 'msw/http'
 import { companionHandlers } from '@/mocks/companionHandlers'
 import { conciergeHandlers } from '@/mocks/conciergeHandlers'
 import { badgeHandlers } from '@/mocks/badgeHandlers'
+import { cardHandlers } from '@/mocks/cardHandlers'
 import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { missionHandlers } from '@/mocks/missionHandlers'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
@@ -113,6 +114,7 @@ export const handlers = [
   ...companionHandlers,
   ...conciergeHandlers,
   ...badgeHandlers,
+  ...cardHandlers,
   ...missionHandlers,
   ...uploadHandlers,
 ]
