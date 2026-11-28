@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router'
-import { useLineLoginMutation } from '@/features/auth/api'
+import { useGuestLoginMutation, useLineLoginMutation } from '@/features/auth/api'
 import { LoginHero } from '@/features/auth/components/LoginHero'
 import { LogoutButton } from '@/features/auth/components/LogoutButton'
 import {
@@ -9,17 +9,40 @@ import {
   readLineCallback,
   startLineLogin,
 } from '@/features/auth/lineLogin'
+import { ApiError } from '@/shared/api/client'
 import { ja } from '@/shared/i18n/ja'
 import { safeRedirect } from '@/shared/lib/safeRedirect'
 import { useAuthStore } from '@/shared/stores/authStore'
 
-type Notice = 'cancelled' | 'failed' | 'loggedOut'
+type Notice = 'cancelled' | 'failed' | 'lineUnavailable' | 'guestFailed' | 'network' | 'loggedOut'
 
 const noticeText: Record<Notice | 'expired', string> = {
   cancelled: ja.login.cancelled,
   failed: ja.login.failed,
+  lineUnavailable: ja.login.lineUnavailable,
+  guestFailed: ja.login.guestFailed,
+  network: ja.login.network,
   loggedOut: ja.login.loggedOut,
   expired: ja.login.expired,
+}
+
+const errorNotices: ReadonlySet<Notice | 'expired'> = new Set([
+  'failed',
+  'lineUnavailable',
+  'guestFailed',
+  'network',
+  'expired',
+])
+
+/** A fetch that never got an HTTP answer (offline, DNS, CORS) is not an ApiError. */
+function isNetworkError(error: unknown) {
+  return !(error instanceof ApiError)
+}
+
+function lineErrorNotice(error: unknown): Notice {
+  if (isNetworkError(error)) return 'network'
+  // 503: LINE login is not set up on the server yet.
+  return error instanceof ApiError && error.status === 503 ? 'lineUnavailable' : 'failed'
 }
 
 // S01. /login?redirect=<path> starts LINE login; LINE comes back to /login?code=…&state=….
@@ -33,6 +56,7 @@ export function LoginPage() {
   // Keep the "login ran out" notice for this visit only; the store flag is reset below.
   const [expiredOnOpen] = useState(() => useAuthStore.getState().sessionExpired)
   const { mutateAsync: loginWithLine, isPending } = useLineLoginMutation()
+  const { mutateAsync: loginAsGuest, isPending: isGuestPending } = useGuestLoginMutation()
   const handledRef = useRef(false)
   // Read the LINE callback (if any) once, on the first render.
   const [callback] = useState(() => readLineCallback(searchParams))
@@ -63,20 +87,34 @@ export function LoginPage() {
       redirectUri: getRedirectUri(),
       codeVerifier: callback.codeVerifier,
       nonce: callback.nonce,
-    }).then(login, () => setNotice('failed'))
+    }).then(login, (error: unknown) => setNotice(lineErrorNotice(error)))
   }, [callback, setSearchParams, loginWithLine, login])
 
   const handleLineLogin = () => {
     setStarting(true)
     setNotice(null)
     clearSessionExpired()
+    // Fails only when LINE login cannot start here (no channel ID configured).
     startLineLogin(redirectTo).catch(() => {
       setStarting(false)
-      setNotice('failed')
+      setNotice('lineUnavailable')
     })
   }
 
-  if (hasCallback || isPending) {
+  const handleGuestLogin = () => {
+    setNotice(null)
+    clearSessionExpired()
+    loginAsGuest().then(
+      (session) => {
+        // Keep the destination in the URL so the logged-in render below navigates there.
+        setSearchParams({ redirect: redirectTo }, { replace: true })
+        login(session)
+      },
+      (error: unknown) => setNotice(isNetworkError(error) ? 'network' : 'guestFailed'),
+    )
+  }
+
+  if (hasCallback || isPending || isGuestPending) {
     return (
       <section role="status" className="flex flex-col items-center gap-4 py-24">
         <span className="size-8 animate-spin rounded-full border-4 border-line border-t-line-brand" />
@@ -108,7 +146,7 @@ export function LoginPage() {
   }
 
   const message = notice ?? (sessionExpired || (expiredOnOpen && !starting) ? 'expired' : null)
-  const isError = message === 'failed' || message === 'expired'
+  const isError = message !== null && errorNotices.has(message)
 
   return (
     <section className="flex flex-col">
@@ -141,6 +179,14 @@ export function LoginPage() {
             />
           </svg>
           {ja.login.lineButton}
+        </button>
+        <button
+          type="button"
+          onClick={handleGuestLogin}
+          disabled={starting}
+          className="w-full rounded-xl border border-line bg-surface py-4 font-bold text-ink disabled:opacity-60"
+        >
+          {ja.login.guestButton}
         </button>
         <Link to="/" className="text-sm font-bold text-ink-muted">
           {ja.login.browse}
