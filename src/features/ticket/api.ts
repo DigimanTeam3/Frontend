@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
-import { retryUnlessClientError } from '@/shared/api/journey'
 import { queryKeys } from '@/shared/api/queryKeys'
 import type { Ticket, TicketListResponse } from '@/shared/types/ticket'
 
@@ -8,7 +7,6 @@ export function useTicketsQuery() {
   return useQuery({
     queryKey: queryKeys.tickets.list(),
     queryFn: () => apiClient<TicketListResponse>('/saved-conditions'),
-    retry: retryUnlessClientError,
   })
 }
 

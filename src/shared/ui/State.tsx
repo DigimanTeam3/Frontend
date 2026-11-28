@@ -45,7 +45,7 @@ export function State(props: StateProps) {
   const body = isError ? (props.body ?? ja.state.errorBody) : props.body
   const action =
     props.action ??
-    (isError && props.onRetry ? { label: ja.state.retry, onClick: props.onRetry } : undefined)
+    (isError && props.onRetry ? { label: ja.common.retry, onClick: props.onRetry } : undefined)
 
   return (
     <div
@@ -77,7 +77,7 @@ function LoadingState({ className }: { className?: string }) {
       role="status"
       className={`flex w-full flex-col gap-3 motion-safe:animate-pulse ${className ?? ''}`}
     >
-      <span className="sr-only">{ja.state.loading}</span>
+      <span className="sr-only">{ja.common.loading}</span>
       {[0, 1].map((card) => (
         <div key={card} aria-hidden="true" className="flex flex-col gap-2.5">
           <div className="h-[150px] w-full rounded-[14px] bg-ink/5" />
