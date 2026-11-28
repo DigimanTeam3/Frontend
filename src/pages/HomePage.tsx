@@ -85,7 +85,7 @@ export function HomePage() {
                   type="button"
                   aria-pressed={active}
                   onClick={() => selectCategory(value)}
-                  className={`flex h-9 items-center rounded-full border px-3.5 text-[13px]/[1.6] transition-colors duration-150 ease-out ${
+                  className={`relative flex h-9 items-center rounded-full border px-3.5 text-[13px]/[1.6] transition-colors duration-150 ease-out before:absolute before:-inset-1 before:content-[''] ${
                     active
                       ? 'border-ink bg-ink font-bold text-white'
                       : 'border-line bg-surface text-ink active:bg-surface-2'

@@ -34,6 +34,16 @@
   opacity: 0.6;
 }
 
+/* The button stays 18px but takes taps in a 40px square. The map clips at its right and bottom
+   edges, so the area grows up and to the left. Only while folded: open, it would cover the text. */
+.kippu-map
+  .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)
+  .maplibregl-ctrl-attrib-button::after {
+  content: '';
+  position: absolute;
+  inset: -20px -6px -2px -16px;
+}
+
 .kippu-map .maplibregl-ctrl-attrib a {
   color: inherit;
 }

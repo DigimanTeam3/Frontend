@@ -31,7 +31,7 @@ function Chip({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`flex min-h-9 items-center gap-1 rounded-full border px-3.5 text-[13px] transition-colors duration-150 ease-out ${
+      className={`relative flex min-h-9 items-center gap-1 rounded-full border px-3.5 text-[13px] transition-colors duration-150 ease-out before:absolute before:-inset-1 before:content-[''] ${
         selected
           ? 'border-ink bg-ink font-bold text-white'
           : 'border-line bg-surface text-ink active:bg-surface-2'
