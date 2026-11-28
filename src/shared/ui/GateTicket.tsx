@@ -61,7 +61,7 @@ export function GateTicket({
       <p className={`${LABEL} text-center whitespace-pre-wrap`}>{ja.gateTicket.stubCaption}</p>
       {serial && (
         // The negative margin takes back the spacing after the last digit, so the number is centered.
-        <p className="text-festival mr-[-0.2em] font-mono text-[28px] leading-[1.2] font-semibold tracking-[0.2em]">
+        <p className="mr-[-0.2em] font-mono text-[28px] leading-[1.2] font-semibold tracking-[0.2em] text-festival">
           {serial}
         </p>
       )}
@@ -75,7 +75,7 @@ export function GateTicket({
       {look === 'glowing' && (
         <div
           aria-hidden="true"
-          className="border-gate shadow-gate/50 pointer-events-none absolute -inset-[3px] rounded-[18px] border-[3px] shadow-[0_0_28px_2px]"
+          className="pointer-events-none absolute -inset-[3px] rounded-[18px] border-[3px] border-gate shadow-[0_0_28px_2px] shadow-gate/50"
         />
       )}
 
@@ -133,7 +133,7 @@ export function GateTicket({
           <div aria-hidden="true" className="relative z-10">
             <svg
               className={`absolute bottom-0 left-3 w-[calc(100%-24px)] ${
-                dimmed ? 'h-[1.5px] text-ink-faint' : 'text-gate h-0.5'
+                dimmed ? 'h-[1.5px] text-ink-faint' : 'h-0.5 text-gate'
               }`}
             >
               <line
