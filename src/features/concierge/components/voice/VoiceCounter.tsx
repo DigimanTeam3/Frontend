@@ -539,7 +539,10 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
             <Chips items={suggestions} disabled={busy} onPick={onPick} />
           </>
         )
-        if (phase.entry.reply.kind === 'clarify') hintLine = t.hint.clarify
+        // 「えらんでも」 only when there is something to pick.
+        if (phase.entry.reply.kind === 'clarify') {
+          hintLine = suggestions.length > 0 ? t.hint.clarify : t.hint.clarifySpeak
+        }
         break
       }
       case 'error':

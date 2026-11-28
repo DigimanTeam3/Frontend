@@ -364,6 +364,7 @@ export const ja = {
         listening: '聞いてるよ… 話し終わったら、もう一度押してね',
         thinking: 'ディグがくんくん探しています',
         clarify: '話しても、えらんでもOK',
+        clarifySpeak: '話して答えてね',
       },
       mic: {
         start: '話しかける',
