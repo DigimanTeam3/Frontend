@@ -1,8 +1,9 @@
-import type { PointerEvent } from 'react'
+import { useState, type PointerEvent } from 'react'
 import { useNavigate } from 'react-router'
+import { useUpdateCardMutation } from '@/features/card/api'
 import { StickerLayer } from '@/features/card/components/StickerLayer'
 import { StickerTray } from '@/features/card/components/StickerTray'
-import { defaultPlacements } from '@/shared/lib/stickers'
+import { defaultPlacements, fromSavedPlacements, toSavedPlacements } from '@/shared/lib/stickers'
 import { useStickerStore } from '@/shared/stores/stickerStore'
 import { useStickerBoard } from '@/features/card/useStickerBoard'
 import { ja } from '@/shared/i18n/ja'
@@ -17,14 +18,21 @@ export interface CardCreatorProps {
 }
 
 // The loaded screen (Figma: S13 カード生成): heading, the new card with its badge stickers, the
-// sticker tray and the save button.
+// sticker tray and the save button. Saving keeps the arrangement on the card, so the card detail
+// (S14) and My Page show it on any device.
 export function CardCreator({ card }: CardCreatorProps) {
   const navigate = useNavigate()
   const { complete: copy } = ja
   const savePlacements = useStickerStore((state) => state.savePlacements)
-  // What was arranged earlier in this session, else both badges at their Figma places.
+  const { mutateAsync: updateCard, isPending: saving } = useUpdateCardMutation(card.id)
+  const [saveFailed, setSaveFailed] = useState(false)
+  // What was arranged earlier in this session, else what the card keeps, else both badges at
+  // their Figma places.
   const board = useStickerBoard(
-    () => useStickerStore.getState().placementsByCard[card.id] ?? defaultPlacements(),
+    () =>
+      useStickerStore.getState().placementsByCard[card.id] ??
+      fromSavedPlacements(card.stickerPlacements) ??
+      defaultPlacements(),
   )
 
   // A tap anywhere but on a sticker (or its remove button) ends the selection.
@@ -33,10 +41,15 @@ export function CardCreator({ card }: CardCreatorProps) {
     board.select(null)
   }
 
-  const handleSave = () => {
-    // TODO(api): save sticker placements ({ badgeType, x, y }[]) on the card — no server field yet
+  const handleSave = async () => {
     savePlacements(card.id, board.placements)
-    void navigate(paths.cardDetail(card.id), { replace: true })
+    setSaveFailed(false)
+    try {
+      await updateCard({ stickerPlacements: toSavedPlacements(board.placements) })
+      void navigate(paths.cardDetail(card.id), { replace: true })
+    } catch {
+      setSaveFailed(true)
+    }
   }
 
   return (
@@ -56,6 +69,14 @@ export function CardCreator({ card }: CardCreatorProps) {
 
       <div className="mt-auto flex flex-col gap-6 pt-6">
         <StickerTray board={board} />
+        {saveFailed && (
+          <p
+            role="alert"
+            className="rounded-[10px] bg-danger/10 px-3 py-2.5 text-[13px] leading-[1.6] text-danger"
+          >
+            {copy.saveError}
+          </p>
+        )}
         {/* Figma S13 draws this button 54px high with 16px text. The `!` makes these win over the
             shared 52px / 15px size classes whatever their order in the stylesheet. */}
         <Button
@@ -63,9 +84,11 @@ export function CardCreator({ card }: CardCreatorProps) {
           shape="pill"
           fullWidth
           className="h-[54px]! text-base!"
-          onClick={handleSave}
+          disabled={saving}
+          aria-busy={saving}
+          onClick={() => void handleSave()}
         >
-          {copy.save}
+          {saving ? copy.saving : copy.save}
         </Button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import type { Badge } from '@/shared/types/badge'
 import type { EventBrief } from '@/shared/types/eventBrief'
+import type { StickerPlacement } from '@/shared/lib/stickers'
 
 /** The polaroid card made when the last required mission of an event is submitted. */
 export interface ExperienceCard {
@@ -22,6 +23,11 @@ export interface ExperienceCard {
   memo: string
   participationBadge: Badge | null
   completeBadge: Badge | null
+  /**
+   * Where the badge stickers sit on the card, as saved on the completion screen (S13). Null when
+   * they were never saved; an empty list when every sticker was taken off.
+   */
+  stickerPlacements?: StickerPlacement[] | null
   createdAt: string
 }
 
@@ -30,4 +36,6 @@ export interface ExperienceCardUpdate {
   /** Up to 500 characters. An empty text removes the memo (the server refuses null). */
   memo?: string
   userImage?: string
+  /** One per badge, x and y from -0.5 to 1.5. Null removes the saved arrangement. */
+  stickerPlacements?: StickerPlacement[] | null
 }

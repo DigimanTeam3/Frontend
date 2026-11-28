@@ -705,6 +705,9 @@ export function findCard(cardId: number) {
 export function updateCard(card: ExperienceCard, changes: ExperienceCardUpdate) {
   if (changes.memo !== undefined) card.memo = changes.memo
   if (changes.userImage !== undefined) card.userImage = changes.userImage
+  if (changes.stickerPlacements !== undefined) {
+    card.stickerPlacements = changes.stickerPlacements
+  }
   saveState()
   return card
 }
