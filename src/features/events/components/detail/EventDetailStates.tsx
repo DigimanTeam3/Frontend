@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { ja } from '@/shared/i18n/ja'
 import { State } from '@/shared/ui/State'
 
@@ -21,14 +21,13 @@ export function EventDetailSkeleton() {
 }
 
 export function EventNotFound() {
-  const navigate = useNavigate()
   return (
     <div className="flex min-h-[60dvh] flex-col justify-center">
       <State
         kind="empty"
         title={ja.eventDetail.notFound}
         body={ja.eventDetail.notFoundHint}
-        action={{ label: ja.notFound.backHome, onClick: () => navigate('/') }}
+        action={{ label: ja.notFound.backHome, to: '/' }}
       />
     </div>
   )

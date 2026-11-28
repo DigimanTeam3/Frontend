@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router'
 import { ja } from '@/shared/i18n/ja'
 import { Button } from '@/shared/ui/Button'
+import { buttonClassName } from '@/shared/ui/buttonStyles'
 import { SearchIcon } from '@/shared/ui/icons/SearchIcon'
 import { WifiOffIcon } from '@/shared/ui/icons/WifiOffIcon'
 
-export interface StateAction {
-  label: string
-  onClick: () => void
-}
+/** A button (`onClick`), or a link to another screen (`to`) so it keeps a real address. */
+export type StateAction = { label: string; onClick: () => void } | { label: string; to: string }
 
 interface StateBaseProps {
   /** Extra classes on the outer box, e.g. "my-auto" to center it in a full-height screen. */
@@ -61,11 +61,16 @@ export function State(props: StateProps) {
       </div>
       <p className="text-base leading-normal font-bold text-ink">{title}</p>
       {body && <p className="text-[13px] leading-[1.6] text-ink-muted">{body}</p>}
-      {action && (
-        <Button variant="outline" size="sm" onClick={action.onClick}>
-          {action.label}
-        </Button>
-      )}
+      {action &&
+        ('to' in action ? (
+          <Link to={action.to} className={buttonClassName({ variant: 'outline', size: 'sm' })}>
+            {action.label}
+          </Link>
+        ) : (
+          <Button variant="outline" size="sm" onClick={action.onClick}>
+            {action.label}
+          </Button>
+        ))}
     </div>
   )
 }
