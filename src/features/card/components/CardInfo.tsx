@@ -23,7 +23,7 @@ export function CardInfo({ card, editing, onMemoSaved, onEditCancel }: CardInfoP
     <div className="rounded-[20px] bg-surface px-4 py-1">
       {/* TODO(api): companion name on the card — the Figma row "いっしょに行った人" needs it. */}
       {missions && (
-        <dl className="border-app flex items-center justify-between gap-3 border-b-[1.5px] py-3">
+        <dl className="flex items-center justify-between gap-3 border-b-[1.5px] border-app py-3">
           <dt className={LABEL}>{copy.missionLabel}</dt>
           <dd className="text-[13px] leading-normal font-medium text-ink">
             {copy.missionValue(missions.myCompletedRequiredCount, missions.requiredCount)}
@@ -40,7 +40,7 @@ export function CardInfo({ card, editing, onMemoSaved, onEditCancel }: CardInfoP
               {card.memo}
             </p>
           ) : (
-            <p className="text-ink-faint text-[13px] leading-[1.6]">{copy.memoEmpty}</p>
+            <p className="text-[13px] leading-[1.6] text-ink-faint">{copy.memoEmpty}</p>
           )}
         </div>
       )}

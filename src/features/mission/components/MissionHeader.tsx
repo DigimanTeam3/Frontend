@@ -23,7 +23,7 @@ export function MissionHeader({ mission, position }: MissionHeaderProps) {
       </h1>
       <p className="order-first flex items-center gap-1.5">
         {mission.required && <RequiredTag />}
-        <span className="text-ink-faint font-mono text-[11px] leading-[1.4] font-medium tracking-[0.08em]">
+        <span className="font-mono text-[11px] leading-[1.4] font-medium tracking-[0.08em] text-ink-faint">
           {ja.missionSubmit.number(position)}
         </span>
       </p>

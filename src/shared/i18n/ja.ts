@@ -29,9 +29,16 @@ export const ja = {
   login: {
     devLogin: '開発用ログイン',
   },
+  // Bottom tab bar. `code` is the small printed label above the name (decoration, like on a ticket).
   nav: {
-    events: 'イベント',
-    map: 'マップ',
+    label: 'メインメニュー',
+    home: { code: 'HOME', name: 'ホーム' },
+    map: { code: 'MAP', name: 'マップ' },
+    wallet: { code: 'WALLET', name: '切符入れ' },
+  },
+  topBar: {
+    back: '戻る',
+    close: '閉じる',
   },
   eventList: {
     title: 'ソウルの無料イベント',
