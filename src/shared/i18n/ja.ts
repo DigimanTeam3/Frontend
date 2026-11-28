@@ -18,13 +18,12 @@ export const ja = {
     showOriginal: '原文を見る',
     showJapanese: '日本語で見る',
   },
-  // Date, time, price and count pieces. Use the helpers in src/shared/i18n/format.ts, not these directly.
+  // Date, time and count pieces. Use the helpers in src/shared/i18n/format.ts, not these directly.
   format: {
     monthDay: (month: number, day: number) => `${month}月${day}日`,
     yearMonthDay: (year: number, month: number, day: number) => `${year}年${month}月${day}日`,
     weekday: (weekday: string) => `（${weekday}）`,
     rangeSeparator: '〜',
-    won: (amount: string) => `${amount}ウォン`,
     count: (count: string) => `${count}件`,
     people: (count: string) => `${count}人`,
   },

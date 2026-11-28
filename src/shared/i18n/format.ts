@@ -1,6 +1,6 @@
 import { ja } from '@/shared/i18n/ja'
 
-// Japanese display of dates, times, prices and counts. Rules: docs/copy.md ("표기").
+// Japanese display of dates, times and counts. Rules: docs/copy.md ("표기").
 // Events happen in Seoul, so dates and times are always shown in Seoul time (same offset as Japan).
 // Input is ISO 8601 with an offset ("2026-11-29T10:00:00+09:00") or a Date.
 // An invalid date gives '' instead of throwing, so one bad value does not break the screen.
@@ -81,11 +81,6 @@ export function formatTime(value: DateInput) {
 export function formatDateTime(value: DateInput) {
   const date = toDate(value)
   return date ? `${formatDay(date)}${formatTime(date)}` : ''
-}
-
-/** Price in won: 0 → 「無料」, 5000 → 「5,000ウォン」. */
-export function formatPrice(won: number) {
-  return won === 0 ? ja.common.free : ja.format.won(numberFormatter.format(won))
 }
 
 /** 「3件」 (posts, results). */
