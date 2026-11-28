@@ -4,7 +4,7 @@ import type { EventSummary } from '@/shared/types/companion'
 
 export interface EventStripProps {
   event: EventSummary
-  /** Small label above the title, e.g. 「この行事の募集」. */
+  /** Small label above the title, e.g. 「このイベントの募集」. */
   label?: string
 }
 

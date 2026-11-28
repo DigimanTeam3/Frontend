@@ -1,15 +1,21 @@
 import { generatePath, matchPath } from 'react-router'
 
 // Which bars RootLayout shows around each screen.
-// - tabs: bottom tab bar, no top bar (top-level screens draw their own big title)
+// - tabs: bottom tab bar, no top bar (top-level screens draw their own big title).
+//   fullBleed: no side or top padding (the page fills the space above the tab bar, e.g. the map)
 // - back: top bar with a back (or close) button, no tab bar (screens reached from a top-level screen)
 // - bare: nothing (full-screen scenes; the page draws its own TopBar, e.g. with a venue title)
 export type LayoutChrome =
-  | { kind: 'tabs' }
+  | { kind: 'tabs'; fullBleed: boolean }
   | { kind: 'bare' }
   | { kind: 'back'; leading: 'back' | 'close'; fallback: string }
 
 const TAB_PATHS = ['/', '/map', '/me']
+
+// Tab screens that lay themselves out edge to edge above the tab bar.
+const FULL_BLEED_TAB_PATHS = [
+  '/map', // S04: the map fills the screen
+]
 
 // Add a path here when its page lays itself out edge to edge and renders its own TopBar.
 const BARE_PATHS: string[] = [
@@ -39,7 +45,10 @@ const matchesAny = (paths: string[], pathname: string) =>
 
 export function getLayoutChrome(pathname: string, isNotFound: boolean): LayoutChrome {
   // The 404 screen keeps the tab bar so the user can always get back to a main screen.
-  if (isNotFound || matchesAny(TAB_PATHS, pathname)) return { kind: 'tabs' }
+  if (isNotFound) return { kind: 'tabs', fullBleed: false }
+  if (matchesAny(TAB_PATHS, pathname)) {
+    return { kind: 'tabs', fullBleed: matchesAny(FULL_BLEED_TAB_PATHS, pathname) }
+  }
   if (matchesAny(BARE_PATHS, pathname)) return { kind: 'bare' }
 
   const leading = matchesAny(CLOSE_PATHS, pathname) ? 'close' : 'back'

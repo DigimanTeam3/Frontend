@@ -7,7 +7,11 @@ export const queryKeys = {
     list: () => [...queryKeys.events.all, 'list'] as const,
     // Paged list with conditions (S02 home, S03 search). Kept apart from `list` (different data shape).
     pages: (params: object) => [...queryKeys.events.all, 'pages', params] as const,
+    // Result count only (S03 filter sheet).
+    count: (params: object) => [...queryKeys.events.all, 'count', params] as const,
     detail: (eventId: number) => [...queryKeys.events.all, 'detail', eventId] as const,
+    // S04: every event at once for the map
+    map: () => [...queryKeys.events.all, 'map'] as const,
   },
   companions: {
     all: ['companions'] as const,
@@ -15,6 +19,7 @@ export const queryKeys = {
     // signedIn is part of the key: the list says which posts are mine, so it differs after login.
     list: (eventId: number, filter: string, signedIn: boolean) =>
       [...queryKeys.companions.lists(), eventId, filter, signedIn] as const,
+    detail: (postId: number) => [...queryKeys.companions.all, 'detail', postId] as const,
   },
   // The event as the journey screens read it (S09–S13): only a few fields of the event detail,
   // so it must not share the cache entry of `events.detail`, which holds the full shape.
