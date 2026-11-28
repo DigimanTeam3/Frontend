@@ -292,7 +292,7 @@ export const ja = {
   },
   companionNew: {
     title: '同行を募集する',
-    eventLabel: 'この行事の募集',
+    eventLabel: 'このイベントの募集',
     date: '日付',
     time: '集合時間',
     timePlaceholder: '選択',
@@ -335,7 +335,7 @@ export const ja = {
     seatEmpty: '空席',
     you: 'あなた',
     members: (count: number, capacity: number) => `参加予定 ${count}/${capacity}人`,
-    eventLabel: 'この募集の行事',
+    eventLabel: 'この募集のイベント',
     join: '一緒に行く',
     joining: '申し込み中…',
     cancel: '申し込みを取り消す',
