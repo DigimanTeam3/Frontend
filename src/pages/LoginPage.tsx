@@ -56,6 +56,7 @@ export function LoginPage() {
   const handledRef = useRef(false)
   // Read the LINE callback (if any) once, on the first render.
   const [callback] = useState(() => readLineCallback(searchParams))
+  const [callbackState] = useState(() => searchParams.get('state'))
   const [notice, setNotice] = useState<Notice | null>(() =>
     callback.type === 'cancelled' || callback.type === 'failed' ? callback.type : null,
   )
@@ -74,7 +75,7 @@ export function LoginPage() {
   useEffect(() => {
     if (handledRef.current || callback.type === 'none') return
     handledRef.current = true
-    clearPendingLogin()
+    clearPendingLogin(callbackState)
     // Take code/state out of the address bar and keep where to go next.
     setSearchParams({ redirect: callback.redirect }, { replace: true })
     if (callback.type !== 'code') return
@@ -84,7 +85,7 @@ export function LoginPage() {
       codeVerifier: callback.codeVerifier,
       nonce: callback.nonce,
     }).then(login, (error: unknown) => setNotice(lineErrorNotice(error)))
-  }, [callback, setSearchParams, loginWithLine, login])
+  }, [callback, callbackState, setSearchParams, loginWithLine, login])
 
   const handleLineLogin = () => {
     setStarting(true)

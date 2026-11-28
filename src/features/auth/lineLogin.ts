@@ -3,7 +3,11 @@ import { safeRedirect } from '@/shared/lib/safeRedirect'
 // LINE Login v2.1 (authorization code + PKCE). The channel secret stays on the backend;
 // the browser only knows the public channel ID.
 const AUTHORIZE_URL = 'https://access.line.me/oauth2/v2.1/authorize'
+// Kept in localStorage, not sessionStorage: on a phone, LINE login through the LINE app comes back
+// in a new browser tab, which does not see the first tab's sessionStorage. Keyed by state so two
+// tabs logging in at once do not overwrite each other, and dropped after PENDING_TTL_MS.
 const PENDING_KEY = 'digiman.lineLogin'
+const PENDING_TTL_MS = 10 * 60 * 1000
 const isMock = import.meta.env.VITE_USE_MOCK === 'true'
 // Same value as MOCK_AUTH_CODE in src/mocks/data/auth.ts.
 const MOCK_AUTH_CODE = 'mock-auth-code'
@@ -14,6 +18,8 @@ interface PendingLogin {
   codeVerifier: string
   redirect: string
 }
+
+type StoredLogins = Record<string, PendingLogin & { createdAt: number }>
 
 export type LineCallbackResult =
   | { type: 'none' }
@@ -41,33 +47,58 @@ async function codeChallenge(codeVerifier: string) {
   return base64Url(new Uint8Array(digest))
 }
 
-function readPending(): PendingLogin | null {
+/** Saved login attempts that have not run out. Unreadable or broken storage counts as none. */
+function readStored(): StoredLogins {
   try {
-    const raw = sessionStorage.getItem(PENDING_KEY)
-    if (!raw) return null
-    const value = JSON.parse(raw) as Partial<PendingLogin>
-    if (
-      typeof value.state !== 'string' ||
-      typeof value.nonce !== 'string' ||
-      typeof value.codeVerifier !== 'string'
-    ) {
-      return null
+    const raw = localStorage.getItem(PENDING_KEY)
+    const value: unknown = raw ? JSON.parse(raw) : null
+    if (!value || typeof value !== 'object') return Object.create(null) as StoredLogins
+    const now = Date.now()
+    // No prototype: keys come from the URL's state (e.g. "__proto__" must stay a plain key).
+    const stored = Object.create(null) as StoredLogins
+    for (const [state, entry] of Object.entries(value as Record<string, unknown>)) {
+      if (!entry || typeof entry !== 'object') continue
+      const e = entry as Partial<PendingLogin & { createdAt: number }>
+      if (
+        typeof e.nonce !== 'string' ||
+        typeof e.codeVerifier !== 'string' ||
+        typeof e.createdAt !== 'number' ||
+        now - e.createdAt > PENDING_TTL_MS
+      ) {
+        continue
+      }
+      stored[state] = {
+        state,
+        nonce: e.nonce,
+        codeVerifier: e.codeVerifier,
+        redirect: safeRedirect(typeof e.redirect === 'string' ? e.redirect : null),
+        createdAt: e.createdAt,
+      }
     }
-    return {
-      state: value.state,
-      nonce: value.nonce,
-      codeVerifier: value.codeVerifier,
-      redirect: safeRedirect(typeof value.redirect === 'string' ? value.redirect : null),
-    }
+    return stored
   } catch {
-    return null
+    return Object.create(null) as StoredLogins
   }
 }
 
+function writeStored(stored: StoredLogins) {
+  if (Object.keys(stored).length === 0) localStorage.removeItem(PENDING_KEY)
+  else localStorage.setItem(PENDING_KEY, JSON.stringify(stored))
+}
+
+function savePending(pending: PendingLogin) {
+  const stored = readStored()
+  stored[pending.state] = { ...pending, createdAt: Date.now() }
+  writeStored(stored)
+}
+
 /** Call once the callback has been read, so the same attempt cannot be used twice. */
-export function clearPendingLogin() {
+export function clearPendingLogin(state: string | null) {
   try {
-    sessionStorage.removeItem(PENDING_KEY)
+    const stored = readStored()
+    if (state && Object.hasOwn(stored, state)) delete stored[state]
+    // Written back even when nothing matched, which also drops the attempts that ran out.
+    writeStored(stored)
   } catch {
     // Storage blocked: nothing to clear.
   }
@@ -86,7 +117,7 @@ export async function startLineLogin(redirect: string) {
   }
 
   if (isMock) {
-    sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending))
+    savePending(pending)
     const params = new URLSearchParams({ code: MOCK_AUTH_CODE, state: pending.state })
     window.location.replace(`/login?${params}`)
     return
@@ -107,24 +138,23 @@ export async function startLineLogin(redirect: string) {
     // Asks the user to add the official account as a friend (needed for LINE notifications, S18).
     bot_prompt: 'aggressive',
   })
-  sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending))
+  savePending(pending)
   window.location.replace(`${AUTHORIZE_URL}?${params}`)
 }
 
 /**
  * Reads the LINE callback on /login (?code=…&state=… or ?error=…&state=…).
- * The state must match the saved login attempt. Does not clear it (see clearPendingLogin).
+ * The state must match a saved login attempt. Does not clear it (see clearPendingLogin).
  */
 export function readLineCallback(searchParams: URLSearchParams): LineCallbackResult {
   const code = searchParams.get('code')
   const error = searchParams.get('error')
   if (!code && !error) return { type: 'none' }
 
-  const pending = readPending()
   const state = searchParams.get('state')
-  if (!pending || !state || state !== pending.state) {
-    return { type: 'failed', redirect: pending?.redirect ?? '/' }
-  }
+  const stored = readStored()
+  const pending = state && Object.hasOwn(stored, state) ? stored[state] : null
+  if (!pending) return { type: 'failed', redirect: '/' }
   if (error) {
     // access_denied: the user pressed cancel on the LINE screen.
     return { type: error === 'access_denied' ? 'cancelled' : 'failed', redirect: pending.redirect }
