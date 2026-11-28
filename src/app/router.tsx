@@ -61,6 +61,13 @@ export const router = createBrowserRouter([
               })),
           },
           {
+            path: 'companions/:postId/chat', // S08 chat after a match
+            lazy: () =>
+              import('@/pages/CompanionChatPage').then((m) => ({
+                Component: m.CompanionChatPage,
+              })),
+          },
+          {
             path: 'events/:eventId/check-in', // S09
             lazy: () => import('@/pages/CheckInPage').then((m) => ({ Component: m.CheckInPage })),
           },
