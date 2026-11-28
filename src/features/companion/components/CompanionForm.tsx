@@ -231,7 +231,8 @@ export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
           <p className="mt-1 text-sm text-ink-muted">{text.safetyBody}</p>
         </aside>
 
-        {formError && (
+        {/* The banner above already says why the form is blocked (e.g. after 409 ALREADY_POSTED). */}
+        {formError && !blocked && (
           <p role="alert" className="text-center text-sm text-danger">
             {formError}
           </p>
