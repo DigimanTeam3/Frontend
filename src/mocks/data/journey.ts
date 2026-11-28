@@ -1,6 +1,12 @@
 import type { Badge, BadgeType } from '@/shared/types/badge'
+import type { ExperienceCard } from '@/shared/types/card'
 import type { EventBrief, JourneyEvent } from '@/shared/types/eventBrief'
-import type { Mission, MissionListResponse, Submission } from '@/shared/types/mission'
+import type {
+  Mission,
+  MissionListResponse,
+  Submission,
+  SubmissionResult,
+} from '@/shared/types/mission'
 import type { Participation } from '@/shared/types/participation'
 
 // Mock data and state of the journey screens (check-in, badge, missions, card, my page) in one
@@ -249,6 +255,8 @@ export function nowIso() {
 const MOCK_BADGE_IMAGE = '/favicon.svg'
 // Like the Figma ticket "No.1129-0042".
 const FIRST_PARTICIPATION_ID = 42
+// Experience cards made by the mock start at this id.
+const FIRST_CARD_ID = 3
 
 interface JourneyState {
   nextParticipationId: number
@@ -257,6 +265,8 @@ interface JourneyState {
   badges: Badge[]
   nextSubmissionId: number
   submissions: Submission[]
+  nextCardId: number
+  cards: ExperienceCard[]
 }
 
 const STORAGE_KEY = 'digiman.mock.journey'
@@ -269,6 +279,8 @@ function initialState(): JourneyState {
     badges: [],
     nextSubmissionId: 1,
     submissions: [],
+    nextCardId: FIRST_CARD_ID,
+    cards: [],
   }
 }
 
@@ -293,7 +305,7 @@ function saveState() {
   }
 }
 
-/** Forgets every participation, badge and submission of the mock. */
+/** Forgets every participation, badge, submission and card of the mock. */
 export function resetJourneyMock() {
   state = initialState()
   try {
@@ -383,14 +395,74 @@ export function findMission(missionId: number) {
   return missionTemplates.find((mission) => mission.id === missionId)
 }
 
-/** Records an approved submission (a mission is approved at once). Returns the existing one when there is one. */
+export function findSubmission(missionId: number, userId: number) {
+  return state.submissions.find((s) => s.missionId === missionId && s.userId === userId)
+}
+
+const NOTHING_EARNED = { completeBadge: null, experienceCard: null }
+
+/**
+ * Hands out the complete badge and the experience card when every required mission of the
+ * event is done. Nothing while one is open, or when the card already exists.
+ */
+function completeEvent(
+  eventId: number,
+  userId: number,
+): Pick<SubmissionResult, 'completeBadge' | 'experienceCard'> {
+  const event = findJourneyEvent(eventId)
+  const verifiedAt = findParticipation(eventId, userId)?.verifiedAt
+  const participationBadge = state.badges.find(
+    (badge) => badge.eventId === eventId && badge.badgeType === 'participation',
+  )
+  if (!event || !verifiedAt || !participationBadge) return NOTHING_EARNED
+  if (state.cards.some((card) => card.event.id === eventId)) return NOTHING_EARNED
+
+  const required = missionTemplates.filter((m) => m.eventId === eventId && m.required)
+  const mine = state.submissions.filter(
+    (s) => s.userId === userId && findMission(s.missionId)?.eventId === eventId,
+  )
+  if (!required.every((m) => mine.some((s) => s.missionId === m.id))) return NOTHING_EARNED
+
+  const now = nowIso()
+  const completeBadge: Badge = {
+    id: state.nextBadgeId++,
+    eventId,
+    badgeType: 'complete',
+    badgeImage: MOCK_BADGE_IMAGE,
+    acquiredAt: now,
+    event: toEventBrief(event),
+  }
+  const experienceCard: ExperienceCard = {
+    id: state.nextCardId++,
+    event: toEventBrief(event),
+    // verifiedAt is written in Seoul time, so its first ten characters are the Seoul day.
+    eventDate: verifiedAt.slice(0, 10),
+    venue: event.venueName,
+    venueJa: event.venueNameJa,
+    eventImage: event.imageUrl,
+    // My first photo of this event.
+    userImage: mine.find((s) => s.image !== null)?.image ?? null,
+    memo: null,
+    participationBadge,
+    completeBadge,
+    createdAt: now,
+  }
+  state.badges.push(completeBadge)
+  state.cards.push(experienceCard)
+  return { completeBadge, experienceCard }
+}
+
+/**
+ * Records an approved submission (a mission is approved at once), in the shape of
+ * POST /missions/{missionId}/submissions. Returns the existing one when there is one.
+ */
 export function submitMission(
-  mission: Pick<Mission, 'id' | 'verificationMethod'>,
+  mission: Pick<Mission, 'id' | 'eventId' | 'required' | 'verificationMethod'>,
   userId: number,
   input: { image?: string; text?: string },
-) {
-  const existing = state.submissions.find((s) => s.missionId === mission.id && s.userId === userId)
-  if (existing) return { submission: existing, created: false }
+): SubmissionResult {
+  const existing = findSubmission(mission.id, userId)
+  if (existing) return { submission: existing, ...NOTHING_EARNED }
 
   const submission: Submission = {
     id: state.nextSubmissionId++,
@@ -403,6 +475,8 @@ export function submitMission(
     submittedAt: nowIso(),
   }
   state.submissions.push(submission)
+  // Optional missions never lead to the card.
+  const earned = mission.required ? completeEvent(mission.eventId, userId) : NOTHING_EARNED
   saveState()
-  return { submission, created: true }
+  return { submission, ...earned }
 }

@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { RequiredTag } from '@/features/mission/components/RequiredTag'
 import { ja } from '@/shared/i18n/ja'
 import { paths } from '@/shared/lib/paths'
 import type { Mission } from '@/shared/types/mission'
@@ -47,11 +48,7 @@ export function MissionItem({ mission, locked }: MissionItemProps) {
           >
             {title}
           </span>
-          {mission.required && (
-            <span className="shrink-0 rounded-md border border-festival px-[5px] py-px text-xs leading-normal font-bold text-festival">
-              {ja.mission.required}
-            </span>
-          )}
+          {mission.required && <RequiredTag />}
         </span>
         <span
           className={`text-xs leading-normal ${
