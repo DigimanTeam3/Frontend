@@ -1,18 +1,37 @@
 /* MapLibre control look in the Concept 切符 palette. Loaded with MapCanvas only. */
 
-/* Attribution is required by the tile terms, so it stays open (never collapsed to an "i" button). */
+/* Attribution is required by the tile terms. It opens on load and folds into a small 「ⓘ」 button
+   once the map is moved (MapLibre compact mode); tapping the button opens it again. */
 .kippu-map .maplibregl-ctrl-attrib {
-  /* One line, sized to the text, so no word is cut off on a 390px screen. */
-  width: max-content;
-  max-width: 100%;
-  border-radius: 6px 0 0 0;
   background-color: rgb(246 240 228 / 0.85);
-  padding: 1px 6px;
   font-family: var(--font-mono);
   font-size: 8px;
-  line-height: 1.6;
-  white-space: nowrap;
+  line-height: 18px;
   color: var(--color-ink-muted);
+}
+
+.kippu-map .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib.maplibregl-compact {
+  min-height: 18px;
+  margin: 0 6px 2px 0;
+  border-radius: 9px;
+  padding: 0 18px 0 0;
+}
+
+/* Open: one line, sized to the text, so no word is cut off on a 390px screen. */
+.kippu-map .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib.maplibregl-compact-show {
+  width: max-content;
+  max-width: calc(100% - 12px);
+  padding: 0 22px 0 8px;
+  white-space: nowrap;
+}
+
+.kippu-map .maplibregl-ctrl-attrib-button {
+  width: 18px;
+  height: 18px;
+  background-color: transparent;
+  background-position: center;
+  background-size: 16px;
+  opacity: 0.6;
 }
 
 .kippu-map .maplibregl-ctrl-attrib a {
