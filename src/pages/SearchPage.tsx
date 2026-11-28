@@ -22,7 +22,7 @@ import {
   type SearchFilters,
   type SortOrder,
 } from '@/features/events/search/searchConditions'
-import { useCurrentPosition } from '@/features/events/search/useCurrentPosition'
+import { useSearchPosition } from '@/features/events/search/useSearchPosition'
 import { ja } from '@/shared/i18n/ja'
 import type { EventListItem } from '@/shared/types/event'
 
@@ -81,7 +81,7 @@ export function SearchPage() {
 
   // 近い順 needs the current position. Without it the list goes back to date order.
   const [startedByDistance] = useState(conditions.sort === 'distance')
-  const location = useCurrentPosition(startedByDistance)
+  const myPosition = useSearchPosition()
   const [locationNotice, setLocationNotice] = useState(false)
   // Only the latest ask counts; an answer that comes after the user moved on is ignored.
   const lastAsk = useRef(0)
@@ -99,25 +99,27 @@ export function SearchPage() {
     [today, update],
   )
 
-  // Opened with ?sort=distance (back button, shared link): ask for the position once.
-  const { request } = location
-  const askedOnOpen = useRef(false)
+  // Opened with ?sort=distance (back button, shared link): ask for the position when the screen
+  // mounts. A remount asks again (an unmount cancels the ask), condition changes do not.
+  const askPositionRef = useRef(askPosition)
   useEffect(() => {
-    if (!startedByDistance || askedOnOpen.current) return
-    askedOnOpen.current = true
-    askPosition(request)
-  }, [startedByDistance, request, askPosition])
+    askPositionRef.current = askPosition
+  })
+  const { ask } = myPosition
+  useEffect(() => {
+    if (startedByDistance) askPositionRef.current(ask)
+  }, [startedByDistance, ask])
 
   const changeSort = (sort: SortOrder) => {
     update({ sort })
     setLocationNotice(false)
     if (sort === 'date') lastAsk.current += 1
-    else if (location.status !== 'ready') askPosition(location.locate)
+    else if (!myPosition.position) askPosition(myPosition.ask)
   }
 
-  const waitingForPosition = conditions.sort === 'distance' && location.status !== 'ready'
+  const waitingForPosition = conditions.sort === 'distance' && !myPosition.position
   const query = useEventPagesQuery(
-    toListParams(conditions, location.position, now),
+    toListParams(conditions, myPosition.position, now),
     PAGE_SIZE,
     !waitingForPosition,
   )
@@ -280,7 +282,7 @@ export function SearchPage() {
       >
         {locationNotice
           ? t.locationUnavailable
-          : waitingForPosition && location.status === 'locating'
+          : waitingForPosition && myPosition.locating
             ? t.locating
             : null}
       </p>
