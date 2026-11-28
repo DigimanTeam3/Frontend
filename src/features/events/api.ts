@@ -1,13 +1,21 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { ApiError, apiClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/queryKeys'
-import type { EventCategory, EventDetail, EventListResponse } from '@/shared/types/event'
+import type { EventArea, EventCategory, EventDetail, EventListResponse } from '@/shared/types/event'
 
-/** Query values of GET /api/events (issue #12). */
+/** Query values of GET /api/events (issues #12 and #13). */
 export interface EventListParams {
+  keyword?: string
   category?: EventCategory
   /** YYYY-MM-DD (Seoul). Only events still open on or after this day. */
   dateFrom?: string
+  /** YYYY-MM-DD (Seoul). Only events starting on or before this day. */
+  dateTo?: string
+  area?: EventArea
+  sort?: 'date' | 'distance'
+  /** Current position, needed for sort=distance. */
+  lat?: number
+  lng?: number
   page?: number
   size?: number
 }
@@ -38,13 +46,32 @@ export function useEventsQuery() {
   })
 }
 
-/** Event list loaded page by page (S02 home). */
-export function useEventPagesQuery(params: Omit<EventListParams, 'page' | 'size'>, size: number) {
+/** Event list loaded page by page (S02 home, S03 search). Pass enabled=false to wait. */
+export function useEventPagesQuery(
+  params: Omit<EventListParams, 'page' | 'size'>,
+  size: number,
+  enabled = true,
+) {
   return useInfiniteQuery({
     queryKey: queryKeys.events.pages({ ...params, size }),
     queryFn: ({ pageParam }) => getEvents({ ...params, page: pageParam, size }),
+    enabled,
     initialPageParam: 1,
     getNextPageParam: (last) => (last.page * last.size < last.total ? last.page + 1 : undefined),
+  })
+}
+
+/** Number of events for some conditions (S03 filter sheet button). Asks for one item only. */
+export function useEventCountQuery(
+  params: Omit<EventListParams, 'page' | 'size'>,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: queryKeys.events.count(params),
+    queryFn: () => getEvents({ ...params, page: 1, size: 1 }),
+    select: (data) => data.total,
+    enabled,
+    placeholderData: keepPreviousData,
   })
 }
 
