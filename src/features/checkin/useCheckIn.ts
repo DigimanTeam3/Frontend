@@ -9,6 +9,7 @@ import {
   failureFromGeolocation,
   type CheckInFailure,
 } from '@/features/checkin/failure'
+import { clearPendingTear, readPendingTear, savePendingTear } from '@/features/checkin/pendingTear'
 import { isCheckedIn } from '@/shared/lib/participationStatus'
 import { useCurrentPosition } from '@/shared/lib/useCurrentPosition'
 import type { Participation } from '@/shared/types/participation'
@@ -37,8 +38,19 @@ interface CheckInState {
  */
 export function useCheckIn(eventId: number, initialParticipation: Participation | null) {
   const [state, setState] = useState<CheckInState>(() => {
-    // Already checked in before this visit: there is nothing to verify again.
     const verified = isCheckedIn(initialParticipation?.status)
+    // Checked in on this device, but the visitor left before tearing the stub: back to the tear.
+    const pendingTear =
+      verified && initialParticipation ? readPendingTear(initialParticipation.id) : null
+    if (pendingTear) {
+      return {
+        stage: 'ready',
+        failure: null,
+        reading: pendingTear,
+        participation: initialParticipation,
+      }
+    }
+    // Already checked in before this visit: there is nothing to verify again.
     return {
       stage: verified ? 'failed' : 'intro',
       failure: verified ? { reason: 'ALREADY_VERIFIED' } : null,
@@ -99,11 +111,14 @@ export function useCheckIn(eventId: number, initialParticipation: Participation 
         participationId: participation.id,
         position: { latitude: lat, longitude: lng, accuracy },
       })
+      const reading = { distanceM: result.distanceMeters, accuracyM: Math.round(accuracy) }
+      // Kept even when the screen is already closed: the check-in itself has passed.
+      savePendingTear(participation.id, reading)
       if (!isCurrent()) return
       setState({
         stage: 'ready',
         failure: null,
-        reading: { distanceM: result.distanceMeters, accuracyM: Math.round(accuracy) },
+        reading,
         participation: withVerification(participation, result),
       })
       setBusy(false)
@@ -112,5 +127,11 @@ export function useCheckIn(eventId: number, initialParticipation: Participation 
     }
   }, [locate, stopLocating, createParticipation, verifyParticipation])
 
-  return { ...state, busy, start }
+  // The stub is torn: the ceremony is over, a later visit shows "already checked in".
+  const participationId = state.participation?.id
+  const finishTear = useCallback(() => {
+    if (participationId !== undefined) clearPendingTear(participationId)
+  }, [participationId])
+
+  return { ...state, busy, start, finishTear }
 }

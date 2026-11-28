@@ -78,7 +78,7 @@ interface CheckInFlowProps {
 
 function CheckInFlow({ event, initialParticipation }: CheckInFlowProps) {
   const navigate = useNavigate()
-  const { stage, failure, reading, participation, busy, start } = useCheckIn(
+  const { stage, failure, reading, participation, busy, start, finishTear } = useCheckIn(
     event.id,
     initialParticipation,
   )
@@ -90,9 +90,13 @@ function CheckInFlow({ event, initialParticipation }: CheckInFlowProps) {
       <CheckInReady
         event={event}
         ticketNumber={participation.id}
-        visitDate={visitDate}
+        // Coming back to tear the stub of an earlier check: the ticket keeps the day of that check.
+        visitDate={participation.verifiedAt ? new Date(participation.verifiedAt) : visitDate}
         reading={reading}
-        onTorn={() => navigate(paths.badge(event.id), { replace: true })}
+        onTorn={() => {
+          finishTear()
+          navigate(paths.badge(event.id), { replace: true })
+        }}
       />
     )
   }
