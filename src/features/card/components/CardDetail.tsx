@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
+import { Link } from 'react-router'
 import { CardInfo } from '@/features/card/components/CardInfo'
 import { ShareImagePreview } from '@/features/card/components/ShareImagePreview'
 import { CardStickers } from '@/shared/ui/CardStickers'
@@ -7,6 +8,7 @@ import { detailStickers, fromSavedPlacements } from '@/shared/lib/stickers'
 import { useStickerStore } from '@/shared/stores/stickerStore'
 import { useShareCard } from '@/features/card/useShareCard'
 import { ja } from '@/shared/i18n/ja'
+import { paths } from '@/shared/lib/paths'
 import { polaroidCardText } from '@/shared/lib/polaroidCardText'
 import type { ExperienceCard } from '@/shared/types/card'
 import { buttonClassName } from '@/shared/ui/buttonStyles'
@@ -22,7 +24,7 @@ export interface CardDetailProps {
 const ACTION_SIZE = 'h-[54px]! flex-1 text-base!'
 
 // The loaded screen (Figma: S14 カード詳細): the saved card with its badge stickers, the info
-// list with the memo, and the actions.
+// list with the memo (edited with the pencil in its row), and the actions: home and share.
 export function CardDetail({ card }: CardDetailProps) {
   const { cardDetail: copy } = ja
   // What was arranged on the completion screen in this session, else what the card keeps, else
@@ -66,6 +68,8 @@ export function CardDetail({ card }: CardDetailProps) {
         <CardInfo
           card={card}
           editing={editing}
+          onEdit={() => setEditing(true)}
+          editButtonRef={editButton}
           onMemoSaved={() => {
             closeEditor()
             setToast(copy.memoSaved)
@@ -77,15 +81,13 @@ export function CardDetail({ card }: CardDetailProps) {
       {/* The editor has its own buttons. */}
       {!editing && (
         <div className="mt-auto flex gap-2.5 pt-[26px]">
-          <button
-            type="button"
-            ref={editButton}
-            onClick={() => setEditing(true)}
+          <Link
+            to={paths.home()}
             className={`${buttonClassName({ variant: 'accentOutline', shape: 'pill' })} ${ACTION_SIZE}`}
           >
-            {copy.editMemo}
-          </button>
-          {/* A plain button with the shared look, like the edit button: it needs the ref. */}
+            {copy.toHome}
+          </Link>
+          {/* A plain button with the shared look: it needs the ref. */}
           <button
             type="button"
             ref={shareButton}

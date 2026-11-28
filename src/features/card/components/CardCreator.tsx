@@ -46,7 +46,8 @@ export function CardCreator({ card }: CardCreatorProps) {
     setSaveFailed(false)
     try {
       await updateCard({ stickerPlacements: toSavedPlacements(board.placements) })
-      void navigate(paths.cardDetail(card.id), { replace: true })
+      // justMade: on the card detail, going back then leads home (see CardDetailScreen).
+      void navigate(paths.cardDetail(card.id), { replace: true, state: { justMade: true } })
     } catch {
       setSaveFailed(true)
     }

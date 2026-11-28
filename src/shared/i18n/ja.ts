@@ -832,6 +832,8 @@ export const ja = {
     savingMemo: '保存中…',
     cancelMemo: 'キャンセル',
     memoSaved: 'メモを保存しました。',
+    // Button beside the share button: leaves the card for the home screen.
+    toHome: 'ホームへ',
     // Keys are API error codes of PATCH /experience-cards/{cardId}, plus UNKNOWN (network,
     // server and every other error).
     memoErrors: {
