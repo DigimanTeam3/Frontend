@@ -55,7 +55,10 @@ export interface CurrentPosition {
 export interface CurrentPositionOptions {
   /** Default 10s. Measuring never takes longer than this (the permission prompt is not counted). */
   timeoutMs?: number
-  /** Default 50m. Resolve as soon as a fix is at least this accurate. */
+  /**
+   * Default 50m. Resolve as soon as a fix is at least this accurate. With a smaller `maxAccuracyM`
+   * that one is waited for instead, so a fix between the two does not end the wait as LOW_ACCURACY.
+   */
   desiredAccuracyM?: number
   /** When set, a best fix worse than this rejects with LOW_ACCURACY instead of resolving. */
   maxAccuracyM?: number
@@ -117,6 +120,10 @@ export function getCurrentPosition(options: CurrentPositionOptions = {}): Promis
     signal,
   } = options
 
+  // The accuracy that ends the wait early: never rougher than what the caller accepts at all.
+  const settleAccuracyM =
+    maxAccuracyM === undefined ? desiredAccuracyM : Math.min(desiredAccuracyM, maxAccuracyM)
+
   if (!isGeolocationSupported()) return Promise.reject(new GeolocationError('UNSUPPORTED'))
   if (signal?.aborted) return Promise.reject(new GeolocationError('ABORTED'))
 
@@ -173,7 +180,7 @@ export function getCurrentPosition(options: CurrentPositionOptions = {}): Promis
         armTimer()
         const fix = toCurrentPosition(position)
         if (!best || fix.accuracy <= best.accuracy) best = fix
-        if (fix.accuracy <= desiredAccuracyM) settleWithBest()
+        if (fix.accuracy <= settleAccuracyM) settleWithBest()
       },
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {
