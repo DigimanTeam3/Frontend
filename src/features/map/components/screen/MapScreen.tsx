@@ -23,9 +23,9 @@ import {
 import { boundsOf, hasValidCoords } from '@/features/map/lib/coords'
 import { hasWebGL, prefersReducedMotion } from '@/features/map/lib/maplibre'
 import { sortForMap } from '@/features/map/lib/ticketText'
-import { useCurrentPosition } from '@/features/map/lib/useCurrentPosition'
 import { ja } from '@/shared/i18n/ja'
 import { preferJa } from '@/shared/lib/eventText'
+import { useCurrentPosition } from '@/shared/lib/useCurrentPosition'
 
 // Keeps the destination in the open part of the map, clear of the top bar and the tickets.
 const CAMERA_PADDING: PaddingOptions = { top: 140, bottom: 170, left: 32, right: 32 }
@@ -59,7 +59,7 @@ export function MapScreen() {
   const [flyingTo, setFlyingTo] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ text: string; key: number } | null>(null)
   const hasFlown = useRef(false)
-  const { state: position, locate } = useCurrentPosition()
+  const myPosition = useCurrentPosition({ maximumAgeMs: 30_000 })
   const [webglOk] = useState(hasWebGL)
 
   const mapped = useMemo(() => sortForMap((data ?? []).filter(hasValidCoords)), [data])
@@ -163,17 +163,22 @@ export function MapScreen() {
 
   // Fly to the user's position, or explain why not.
   const goToCurrentPosition = async () => {
-    const result = await locate()
+    const { position, error } = await myPosition.locate()
+    if (error) {
+      // A newer tap or leaving the screen cancelled this one: nothing to say.
+      if (error.code === 'ABORTED') return
+      showNotice(
+        error.code === 'PERMISSION_DENIED' ? ja.map.locationDenied : ja.map.locationUnavailable,
+      )
+      return
+    }
     const map = mapRef.current?.getMap()
-    if (result.status === 'denied') showNotice(ja.map.locationDenied)
-    if (result.status === 'unavailable') showNotice(ja.map.locationUnavailable)
-    if (result.status === 'located' && map) {
-      if (insideSeoul(result.lat, result.lng)) {
-        setNotice(null)
-        flyToUser(map, result.lat, result.lng, CAMERA_PADDING)
-      } else {
-        showNotice(ja.map.locationOutside)
-      }
+    if (!map) return
+    if (insideSeoul(position.lat, position.lng)) {
+      setNotice(null)
+      flyToUser(map, position.lat, position.lng, CAMERA_PADDING)
+    } else {
+      showNotice(ja.map.locationOutside)
     }
   }
 
@@ -215,8 +220,8 @@ export function MapScreen() {
                 onSelect={(e) => select(e.id)}
               />
             ))}
-            {position.status === 'located' && (
-              <UserLocationDot lat={position.lat} lng={position.lng} />
+            {myPosition.position && (
+              <UserLocationDot lat={myPosition.position.lat} lng={myPosition.position.lng} />
             )}
           </MapCanvas>
         </div>
@@ -271,7 +276,7 @@ export function MapScreen() {
             type="button"
             onClick={() => void goToCurrentPosition()}
             aria-label={ja.map.locate}
-            aria-busy={position.status === 'locating'}
+            aria-busy={myPosition.status === 'locating'}
             className="flex size-11 items-center justify-center rounded-full bg-surface shadow-[0_2px_10px_rgb(30_34_48/0.18)]"
           >
             <img
@@ -279,7 +284,7 @@ export function MapScreen() {
               alt=""
               width={22}
               height={22}
-              className={position.status === 'locating' ? 'motion-safe:animate-pulse' : ''}
+              className={myPosition.status === 'locating' ? 'motion-safe:animate-pulse' : ''}
             />
           </button>
         </div>
