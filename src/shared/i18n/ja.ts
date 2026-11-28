@@ -790,7 +790,6 @@ export const ja = {
       participations: '参加したイベント',
       recruitments: '書いた募集文',
       tickets: '予約券',
-      language: '言語 · 日本語',
       logout: 'ログアウト',
     },
     // My companion record under "書いた募集文": posts I wrote and posts I joined.
