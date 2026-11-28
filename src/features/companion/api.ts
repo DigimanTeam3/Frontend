@@ -35,16 +35,17 @@ export function createCompanion(eventId: number, body: CreateCompanionBody) {
 
 export function useCreateCompanionMutation(eventId: number) {
   const queryClient = useQueryClient()
+  // Event queries carry companionCount (S05), so they are refreshed with the lists.
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.events.all })
+  }
   return useMutation({
     mutationFn: (body: CreateCompanionBody) => createCompanion(eventId, body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() })
-    },
+    onSuccess: refresh,
     // Someone (another tab) already posted: refetch so the screen shows the existing post.
     onError: (error) => {
-      if (apiErrorCode(error) === 'ALREADY_POSTED') {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() })
-      }
+      if (apiErrorCode(error) === 'ALREADY_POSTED') refresh()
     },
   })
 }
