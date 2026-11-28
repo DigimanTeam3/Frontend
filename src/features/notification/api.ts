@@ -1,4 +1,5 @@
-// TODO(api): provisional — no backend API for notifications yet (LINE alert for saved conditions). Path and fields are placeholders for the mock only.
+// GET /notifications/{id}: the alert a LINE message links to (a new event matched a saved
+// condition). 404 NOTIFICATION_NOT_FOUND for an unknown id, 403 for someone else's.
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/queryKeys'
