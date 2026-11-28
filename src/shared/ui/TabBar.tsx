@@ -23,7 +23,7 @@ export function TabBar() {
               end={end}
               className={({ isActive }) =>
                 `flex min-h-[52px] flex-col items-center justify-center gap-0.5 py-1.5 text-xs/[1.5] font-bold transition-colors duration-150 ease-out ${
-                  isActive ? 'text-ink' : 'text-ink-faint'
+                  isActive ? 'text-ink' : 'text-ink-muted'
                 }`
               }
             >

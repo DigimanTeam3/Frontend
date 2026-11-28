@@ -51,7 +51,7 @@ export function CompanionRecordList() {
                   className={`shrink-0 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${
                     post.status === 'OPEN'
                       ? 'bg-gate-soft text-gate-ink'
-                      : 'bg-surface-2 text-ink-faint'
+                      : 'bg-surface-2 text-ink-muted'
                   }`}
                 >
                   {copy.status[post.status]}

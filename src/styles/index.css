@@ -9,7 +9,7 @@
   --color-paper: #f6f0e4; /* ticket and card paper */
   --color-ink: #1a1d26;
   --color-ink-muted: #5e6370; /* secondary text (ui color/ink-sub) */
-  --color-ink-faint: #9a9da5; /* inactive tabs, hints (ui color/ink-mute, low contrast) */
+  --color-ink-faint: #9a9da5; /* placeholders, hints, dividers (ui color/ink-mute, low contrast) */
   --color-line: #e4e0d8;
   --color-danger: #d2453b;
   --color-line-brand: #06c755;

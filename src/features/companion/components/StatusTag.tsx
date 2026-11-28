@@ -4,7 +4,7 @@ import type { CompanionStatus } from '@/shared/types/companion'
 const STATUS_CLASS: Record<CompanionStatus, string> = {
   OPEN: 'bg-gate-soft text-gate-ink',
   FULL: 'bg-ink/10 text-ink',
-  CLOSED: 'bg-surface-2 text-ink-faint',
+  CLOSED: 'bg-surface-2 text-ink-muted',
 }
 
 export function StatusTag({ status }: { status: CompanionStatus }) {
