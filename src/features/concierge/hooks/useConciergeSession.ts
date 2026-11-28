@@ -4,7 +4,12 @@ import { saveCondition } from '@/features/concierge/api'
 import { type ChatEntry, useConciergeChat } from '@/features/concierge/hooks/useConciergeChat'
 import { useSpeech } from '@/features/concierge/hooks/useSpeech'
 import { useVoiceRecorder } from '@/features/concierge/hooks/useVoiceRecorder'
-import { keepView, peekView } from '@/features/concierge/lib/keptConversation'
+import {
+  keepSavedReservations,
+  keepView,
+  peekSavedReservations,
+  peekView,
+} from '@/features/concierge/lib/keptConversation'
 import { validRecommendations } from '@/features/concierge/lib/reply'
 import { toTicketCreateRequest } from '@/features/concierge/lib/savedCondition'
 import { queryKeys } from '@/shared/api/queryKeys'
@@ -34,12 +39,18 @@ export function useConciergeSession() {
 
   // 予約券 saved in this conversation, by the id of the reply that offered them. Kept here and not
   // in the card, so switching views neither forgets a saved one nor lets it be saved twice.
-  const [savedReservations, setSavedReservations] = useState<ReadonlySet<string>>(() => new Set())
+  // Kept with the conversation, so coming back from another screen does not offer it again.
+  const [savedReservations, setSavedReservations] =
+    useState<ReadonlySet<string>>(peekSavedReservations)
   const reservationSave = useMutation({
     mutationFn: ({ conditions }: { id: string; conditions: ConciergeConditions }) =>
       saveCondition(toTicketCreateRequest(conditions, t.voice.reservation.noConditions)),
     onSuccess: (_ticket, { id }) => {
-      setSavedReservations((current) => new Set(current).add(id))
+      setSavedReservations((current) => {
+        const next = new Set(current).add(id)
+        keepSavedReservations(next)
+        return next
+      })
       return queryClient.invalidateQueries({ queryKey: queryKeys.tickets.all })
     },
   })

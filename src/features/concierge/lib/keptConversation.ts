@@ -4,6 +4,7 @@ import type { ChatEntry } from '@/features/concierge/hooks/useConciergeChat'
 // Closing the counter (✕) clears it.
 const ENTRIES_KEY = 'digiman.concierge.conversation'
 const VIEW_KEY = 'digiman.concierge.view'
+const SAVED_KEY = 'digiman.concierge.savedReservations'
 // Plenty for one visit; keeps the stored text small.
 const MAX_ENTRIES = 40
 
@@ -67,10 +68,32 @@ export function peekView(): 'voice' | 'chat' {
   }
 }
 
+/** Replies whose 予約券 was saved, so a card does not offer to save it again after coming back. */
+export function keepSavedReservations(ids: ReadonlySet<string>) {
+  try {
+    if (ids.size === 0) sessionStorage.removeItem(SAVED_KEY)
+    else sessionStorage.setItem(SAVED_KEY, JSON.stringify([...ids]))
+  } catch {
+    // Not kept: the card offers to save again.
+  }
+}
+
+export function peekSavedReservations(): Set<string> {
+  try {
+    const raw = sessionStorage.getItem(SAVED_KEY)
+    const value: unknown = raw ? JSON.parse(raw) : null
+    if (!Array.isArray(value)) return new Set()
+    return new Set(value.filter((id): id is string => typeof id === 'string'))
+  } catch {
+    return new Set()
+  }
+}
+
 export function clearConversation() {
   try {
     sessionStorage.removeItem(ENTRIES_KEY)
     sessionStorage.removeItem(VIEW_KEY)
+    sessionStorage.removeItem(SAVED_KEY)
   } catch {
     // Nothing to clear.
   }
