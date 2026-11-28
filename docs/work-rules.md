@@ -103,7 +103,7 @@ src/
 | S18 | 알림으로 들어온 행사  | `/notifications/:notificationId`       | 필요   | `NotificationEventPage`  |
 
 - 로그인이 필요한 경로는 `router.tsx`의 `RequireAuth` 아래에 둡니다. 로그인하지 않았으면 `/login?redirect=<원래 경로>`로 보내고, 로그인 후 원래 화면으로 돌아옵니다.
-- LINE 로그인(S01)이 붙기 전에는 mock 모드(`VITE_USE_MOCK=true`)에서만 보이는 「開発用ログイン」 버튼으로 보호 화면을 시험합니다.
+- mock 모드(`VITE_USE_MOCK=true`)에서는 「LINEでログイン」이 LINE 화면을 건너뛰고 mock 로그인으로 바로 돌아옵니다. 로그인은 localStorage(`digiman.auth`)에 남아 새로고침해도 유지됩니다.
 - 각 페이지는 처음엔 「準備中」 자리표시만 있습니다. 담당자는 자기 페이지 파일과 기능 폴더만 고치면 되고, `router.tsx`는 경로를 바꿀 때만 건드립니다.
 
 - 기능 폴더 안의 파일은 그 기능 담당자가 자유롭게 고칩니다.

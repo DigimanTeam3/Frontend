@@ -34,7 +34,7 @@ export function Toast({ message, onDismiss, durationMs = TOAST_DURATION_MS }: To
     >
       {message !== null && (
         <div className="flex items-center gap-2 rounded-[14px] bg-ink px-4 py-3 text-white">
-          <CheckIcon className="text-gate size-5 shrink-0" />
+          <CheckIcon className="size-5 shrink-0 text-gate" />
           <p className="min-w-0 flex-1 text-[13px] leading-[1.6]">{message}</p>
         </div>
       )}
