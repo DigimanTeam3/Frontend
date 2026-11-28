@@ -181,7 +181,7 @@ export const ja = {
     },
     // S04
     unsupportedList: 'この端末では地図を表示できないため、一覧で表示しています。',
-    searchPlaceholder: '行事名・場所で探す',
+    searchPlaceholder: 'イベント名・場所で探す',
     filterLabel: '種類で絞り込む',
     all: 'すべて',
     flyingTo: 'TO ▸',
