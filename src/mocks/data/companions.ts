@@ -60,6 +60,8 @@ export interface MockPost {
   /** Author first, then accepted people in order. */
   members: MockMember[]
   createdAt: string
+  /** Mock only: the author accepts new requests by themselves a few seconds later (demo). */
+  autoAccept?: boolean
 }
 
 export interface MockRequest {
@@ -83,6 +85,7 @@ export const posts: MockPost[] = [
       { userId: 12, joinedAt: '2026-11-25T21:10:00+09:00' },
     ],
     createdAt: '2026-11-25T20:00:00+09:00',
+    autoAccept: true,
   },
   {
     id: 102,
@@ -163,6 +166,7 @@ export function toSummary(post: MockPost, meId: number | null): CompanionPostSum
 
 const SEAT_LETTERS = ['A', 'B', 'C', 'D']
 const seatLabel = (index: number) => `1${SEAT_LETTERS[index] ?? index + 1}`
+export const AUTO_ACCEPT_DELAY_MS = 5000
 
 export function toDetail(post: MockPost, meId: number | null): CompanionPostDetail {
   const summary = toSummary(post, meId)
@@ -192,5 +196,26 @@ export function toDetail(post: MockPost, meId: number | null): CompanionPostDeta
             createdAt: r.createdAt,
           }))
       : [],
+  }
+}
+
+/** Accepts a pending request: the person takes the next seat. */
+export function acceptRequest(post: MockPost, request: MockRequest) {
+  request.status = 'ACCEPTED'
+  post.members.push({ userId: request.userId, joinedAt: new Date().toISOString() })
+}
+
+/** Mock only: lets the demo show the applicant side of a match without a second account. */
+export function runAutoAccept(post: MockPost) {
+  if (!post.autoAccept) return
+  for (const request of requests) {
+    if (
+      request.postId === post.id &&
+      request.status === 'PENDING' &&
+      statusOf(post) === 'OPEN' &&
+      Date.now() - new Date(request.createdAt).getTime() >= AUTO_ACCEPT_DELAY_MS
+    ) {
+      acceptRequest(post, request)
+    }
   }
 }

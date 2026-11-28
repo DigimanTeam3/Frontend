@@ -2,7 +2,10 @@ import { http, HttpResponse } from 'msw/http'
 import { hasContactInfo } from '@/features/companion/validation'
 import {
   MOCK_ME_ID,
+  acceptRequest,
   posts,
+  requests,
+  runAutoAccept,
   statusOf,
   toDetail,
   toEventSummary,
@@ -20,7 +23,14 @@ function currentUserId(request: Request): number | null {
   return request.headers.get('Authorization') === MOCK_TOKEN ? MOCK_ME_ID : null
 }
 
+const postNotFound = () => errorResponse(404, 'COMPANION_NOT_FOUND', 'post not found')
+
+function findPost(postId: unknown) {
+  return posts.find((post) => post.id === Number(postId))
+}
+
 let nextPostId = 200
+let nextRequestId = 600
 
 // Same rules as the S07 proposal, so the screen's server-error path can be tried in mock mode.
 function validateBody(body: Partial<CreateCompanionBody>, endDate: string) {
@@ -104,5 +114,81 @@ export const companionHandlers = [
     }
     posts.push(post)
     return HttpResponse.json(toDetail(post, meId), { status: 201 })
+  }),
+  http.get('/api/companions/:postId', async ({ request, params }) => {
+    await mockDelay()
+    const meId = currentUserId(request)
+    if (meId === null) return unauthorizedResponse()
+    const post = findPost(params.postId)
+    if (!post) return postNotFound()
+    runAutoAccept(post)
+    return HttpResponse.json(toDetail(post, meId))
+  }),
+
+  http.post('/api/companions/:postId/requests', async ({ request, params }) => {
+    await mockDelay()
+    const meId = currentUserId(request)
+    if (meId === null) return unauthorizedResponse()
+    const post = findPost(params.postId)
+    if (!post) return postNotFound()
+    if (post.authorId === meId) return errorResponse(403, 'OWN_POST', 'cannot request own post')
+    if (requests.some((r) => r.postId === post.id && r.userId === meId)) {
+      return errorResponse(409, 'ALREADY_REQUESTED', 'already requested')
+    }
+    const status = statusOf(post)
+    if (status === 'FULL') return errorResponse(409, 'POST_FULL', 'post is full')
+    if (status === 'CLOSED') return errorResponse(409, 'POST_CLOSED', 'post is closed')
+
+    requests.push({
+      id: nextRequestId++,
+      postId: post.id,
+      userId: meId,
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+    })
+    return HttpResponse.json(toDetail(post, meId), { status: 201 })
+  }),
+
+  http.delete('/api/companions/:postId/requests/me', async ({ request, params }) => {
+    await mockDelay()
+    const meId = currentUserId(request)
+    if (meId === null) return unauthorizedResponse()
+    const post = findPost(params.postId)
+    if (!post) return postNotFound()
+    const index = requests.findIndex((r) => r.postId === post.id && r.userId === meId)
+    if (index === -1) return errorResponse(404, 'REQUEST_NOT_FOUND', 'request not found')
+    if (requests[index].status !== 'PENDING') {
+      return errorResponse(409, 'REQUEST_NOT_PENDING', 'request is not pending')
+    }
+    requests.splice(index, 1)
+    return HttpResponse.json(toDetail(post, meId))
+  }),
+
+  http.post('/api/companions/:postId/requests/:requestId/:action', async ({ request, params }) => {
+    await mockDelay()
+    const meId = currentUserId(request)
+    if (meId === null) return unauthorizedResponse()
+    const post = findPost(params.postId)
+    if (!post) return postNotFound()
+    if (params.action !== 'accept' && params.action !== 'reject') {
+      return errorResponse(404, 'NOT_FOUND', 'unknown action')
+    }
+    if (post.authorId !== meId)
+      return errorResponse(403, 'NOT_AUTHOR', 'only the author can do this')
+    const target = requests.find((r) => r.postId === post.id && r.id === Number(params.requestId))
+    if (!target) return errorResponse(404, 'REQUEST_NOT_FOUND', 'request not found')
+    if (target.status !== 'PENDING') {
+      return errorResponse(409, 'REQUEST_NOT_PENDING', 'request is not pending')
+    }
+
+    if (params.action === 'reject') {
+      target.status = 'REJECTED'
+    } else {
+      const status = statusOf(post)
+      if (status === 'CLOSED') return errorResponse(409, 'POST_CLOSED', 'post is closed')
+      if (status === 'FULL') return errorResponse(409, 'POST_FULL', 'post is full')
+      acceptRequest(post, target)
+    }
+    return HttpResponse.json(toDetail(post, meId))
   }),
 ]
