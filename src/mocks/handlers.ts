@@ -8,6 +8,7 @@ import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { missionHandlers } from '@/mocks/missionHandlers'
 import { mypageHandlers } from '@/mocks/mypageHandlers'
 import { ticketHandlers } from '@/mocks/ticketHandlers'
+import { notificationHandlers } from '@/mocks/notificationHandlers'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
 import {
   MOCK_ACCESS_TOKEN,
@@ -119,6 +120,7 @@ export const handlers = [
   ...cardHandlers,
   ...missionHandlers,
   ...mypageHandlers,
+  ...notificationHandlers,
   ...ticketHandlers,
   ...uploadHandlers,
 ]
