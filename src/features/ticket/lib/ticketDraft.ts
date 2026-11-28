@@ -8,6 +8,16 @@ import type { TicketArea, TicketCategory, TicketCreateRequest } from '@/shared/t
 // through /login. Features do not import each other, so the key is written here again.
 const STORAGE_KEY = 'digiman.concierge.reservationConditions'
 
+// The values POST /saved-conditions takes. Listed here and not read from the copy tables: a
+// category the screens learn later (a pop-up, say) is not sent before the server takes it too.
+const AREAS: readonly TicketArea[] = [
+  'jongno-jung',
+  'mapo-seodaemun',
+  'yongsan-yeouido',
+  'gangnam-songpa',
+]
+const CATEGORIES: readonly TicketCategory[] = ['festival', 'exhibition', 'performance']
+
 // Limits of POST /saved-conditions.
 const LABEL_MAX = 120
 const KEYWORD_MAX = 50
@@ -52,8 +62,8 @@ export function toTicketRequest(conditions: unknown): TicketCreateRequest | null
   let dateTo = toDay(conditions.dateTo)
   if (dateFrom && dateTo && dateFrom > dateTo) [dateFrom, dateTo] = [dateTo, dateFrom]
 
-  const area = toKnown<TicketArea>(conditions.area, ja.search.areas)
-  const category = toKnown<TicketCategory>(conditions.category, ja.eventCategory)
+  const area = toKnown(conditions.area, AREAS)
+  const category = toKnown(conditions.category, CATEGORIES)
   // The concierge says 'group' where the saved condition says 'together'.
   const companion =
     conditions.companion === 'alone'
@@ -96,9 +106,9 @@ function toDay(value: unknown) {
   return date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? value : null
 }
 
-/** The value when it is one of the keys of `table` (the values the server knows), else null. */
-function toKnown<T extends string>(value: unknown, table: Record<T, string>) {
-  return typeof value === 'string' && Object.hasOwn(table, value) ? (value as T) : null
+/** The value when it is one of `known` (the values the server takes), else null. */
+function toKnown<T extends string>(value: unknown, known: readonly T[]) {
+  return known.find((item) => item === value) ?? null
 }
 
 function toKeywords(value: unknown) {

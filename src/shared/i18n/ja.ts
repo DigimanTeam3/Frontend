@@ -879,6 +879,10 @@ export const ja = {
     deleteLabel: (condition: string) => `${condition} の予約券を削除`,
     deleted: '予約券を削除しました。',
     deleteError: '削除できませんでした。もう一度お試しください。',
+    // Link on a ticket an event has arrived for: opens the alert page of that event (S18).
+    viewArrived: '届いたイベントを見る',
+    // Button under the list: to the AI concierge (S16), where a ticket is made.
+    newReservation: '窓口で新しく予約する',
     // A ticket made from the conditions the AI concierge (S16) handed over.
     creating: '予約券をつくっています。',
     created: '予約券をつくりました。',

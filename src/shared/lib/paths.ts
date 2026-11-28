@@ -4,6 +4,7 @@ export const paths = {
   home: () => '/',
   login: () => '/login',
   map: () => '/map',
+  concierge: () => '/concierge',
   eventDetail: (eventId: number) => `/events/${eventId}`,
   checkIn: (eventId: number) => `/events/${eventId}/check-in`,
   badge: (eventId: number) => `/events/${eventId}/badge`,
