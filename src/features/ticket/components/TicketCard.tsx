@@ -10,7 +10,7 @@ export interface TicketCardProps {
 // One saved condition as a ticket (Figma: S17 ReservationTicket). A ticket that has matched an
 // event gets the solid pink frame and the pill; the others have the dashed frame.
 export function TicketCard({ ticket, onDelete }: TicketCardProps) {
-  const { ticket: copy } = ja
+  const { reservationTicket: copy } = ja
 
   return (
     <li
