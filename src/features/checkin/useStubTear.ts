@@ -36,6 +36,12 @@ const SPRING_C = 0.036
 const SCRIPT_MS = 520
 /** With reduced motion the stub does not fly or turn: it just fades. */
 const FADE_MS = 180
+/**
+ * Extra time before onTorn is forced. The tear is drawn frame by frame, and frames can be slow
+ * or stop (a weak phone, power saving, a tab in the background): the next screen must not wait
+ * for them.
+ */
+const FINISH_GRACE_MS = 600
 /** Haptic pulses (Android; iOS has no vibration and keeps the visual only). */
 const HOLE_BUZZ_MS = 5
 const MIN_BUZZ_GAP_MS = 40
@@ -148,6 +154,7 @@ export function useStubTear(onTorn: () => void) {
     lastFrame: 0,
   })
   const frameRef = useRef<number | null>(null)
+  const finishTimerRef = useRef<number | null>(null)
   // Read again after a call that may have changed it (TypeScript keeps the earlier narrowing).
   const modeNow = (): Mode => sim.current.mode
 
@@ -159,6 +166,9 @@ export function useStubTear(onTorn: () => void) {
     () => () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
       frameRef.current = null
+      // Leaving the screen: onTorn must not run later, from the timer.
+      if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current)
+      finishTimerRef.current = null
     },
     [],
   )
@@ -206,9 +216,17 @@ export function useStubTear(onTorn: () => void) {
 
   const finish = () => {
     const s = sim.current
+    if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current)
+    finishTimerRef.current = null
     if (s.mode === 'done') return
     s.mode = 'done'
     onTornRef.current()
+  }
+
+  /** The tear cannot be stopped any more: onTorn runs after `ms` at the latest, frames or not. */
+  const finishWithin = (ms: number) => {
+    if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current)
+    finishTimerRef.current = window.setTimeout(finish, ms + FINISH_GRACE_MS)
   }
 
   const comeOff = (now: number) => {
@@ -221,6 +239,7 @@ export function useStubTear(onTorn: () => void) {
     s.elapsed = 0
     setAway(true)
     setLeaving(true)
+    finishWithin(s.reduced ? FADE_MS : FLY_MS)
     // The last fibres snap: a stronger pulse than the holes.
     s.lastBuzz = -Infinity
     buzz(SNAP_BUZZ_MS, now)
@@ -423,6 +442,7 @@ export function useStubTear(onTorn: () => void) {
     if (s.reduced) {
       comeOff(now)
     } else {
+      finishWithin(SCRIPT_MS + FLY_MS)
       const rect = rootRef.current?.getBoundingClientRect()
       const width = rect?.width ?? 300
       // Held near the free corner, as a hand would.
@@ -434,12 +454,11 @@ export function useStubTear(onTorn: () => void) {
     requestFrame()
   }
 
-  const release = (event: PointerEvent<HTMLElement>, letGo: boolean) => {
+  const release = (event: PointerEvent<HTMLElement>, letGo: boolean, now: number) => {
     const s = sim.current
     if (event.pointerId !== s.pointerId) return
     s.pointerId = null
     if (s.mode !== 'drag') return
-    const now = performance.now()
     // A cancelled pointer does not report a usable position: keep the last move then.
     if (letGo) {
       s.px = event.clientX
@@ -504,8 +523,8 @@ export function useStubTear(onTorn: () => void) {
       }
       requestFrame()
     },
-    onPointerUp: (event: PointerEvent<HTMLElement>) => release(event, true),
-    onPointerCancel: (event: PointerEvent<HTMLElement>) => release(event, false),
+    onPointerUp: (event: PointerEvent<HTMLElement>) => release(event, true, performance.now()),
+    onPointerCancel: (event: PointerEvent<HTMLElement>) => release(event, false, performance.now()),
     // A plain tap (and a screen reader's activation) tears too; the click after a drag does not.
     onClick: () => {
       const s = sim.current
