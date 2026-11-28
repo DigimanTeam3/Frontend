@@ -66,6 +66,7 @@ export const queryKeys = {
   // The page a LINE alert opens (S18).
   notifications: {
     all: ['notifications'] as const,
+    list: () => [...queryKeys.notifications.all, 'list'] as const,
     detail: (notificationId: number) =>
       [...queryKeys.notifications.all, 'detail', notificationId] as const,
   },

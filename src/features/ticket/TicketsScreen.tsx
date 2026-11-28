@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
 import {
   useCreateTicketMutation,
   useDeleteTicketMutation,
@@ -13,6 +13,9 @@ import {
 } from '@/features/ticket/lib/ticketDraft'
 import { ja } from '@/shared/i18n/ja'
 import { apiErrorCode } from '@/shared/api/errors'
+import { useNotificationsQuery } from '@/shared/api/notifications'
+import { paths } from '@/shared/lib/paths'
+import { buttonClassName } from '@/shared/ui/buttonStyles'
 import { State } from '@/shared/ui/State'
 import { Toast } from '@/shared/ui/Toast'
 import type { Ticket, TicketCreateRequest } from '@/shared/types/ticket'
@@ -20,7 +23,8 @@ import type { Ticket, TicketCreateRequest } from '@/shared/types/ticket'
 // S17 saved conditions (page /me/tickets, API /saved-conditions, Figma: S17 切符入れ（予約券）):
 // the search conditions saved from the AI concierge, with delete. The swipe gesture of the design
 // is a plain button for now. Coming from 「この条件で予約券をつくる」 of the AI concierge (S16), the
-// conditions it handed over are saved as a new ticket here.
+// conditions it handed over are saved as a new ticket here. A ticket an event has arrived for is
+// listed first and links to the alert page of that event (S18).
 export function TicketsScreen() {
   const { reservationTicket: copy } = ja
   const ticketsQuery = useTicketsQuery()
@@ -42,6 +46,27 @@ export function TicketsScreen() {
   // Only for tickets still in the list: one that is gone after a refetch (deleted elsewhere)
   // cannot be tried again, so its alert would stay forever.
   const deleteFailed = failedIds.some((id) => tickets?.some((ticket) => ticket.id === id))
+
+  // Arrived tickets first, each group in the order of the server (newest first).
+  const orderedTickets = useMemo(
+    () => tickets && [...tickets].sort((a, b) => Number(b.matched) - Number(a.matched)),
+    [tickets],
+  )
+  // The alerts are only needed to link an arrived ticket to its event. When they cannot be
+  // loaded the tickets are shown without the link.
+  const notificationsQuery = useNotificationsQuery({
+    enabled: tickets?.some((ticket) => ticket.matched) ?? false,
+  })
+  // Ticket id → its newest alert (the list is newest first).
+  const arrivedAlertIds = useMemo(() => {
+    const ids = new Map<number, number>()
+    for (const alert of notificationsQuery.data?.items ?? []) {
+      if (alert.conditionId !== null && !ids.has(alert.conditionId)) {
+        ids.set(alert.conditionId, alert.id)
+      }
+    }
+    return ids
+  }, [notificationsQuery.data])
 
   // The handed-over conditions are read once (above) and taken away here, from the storage and
   // from the router state, so a reload or coming back to this page does not make the same ticket
@@ -99,18 +124,23 @@ export function TicketsScreen() {
   }
 
   let content
-  if (tickets) {
+  if (orderedTickets) {
     // Checked before the error state: a failed background refetch must not close a list that is
     // already on screen.
     content =
-      tickets.length === 0 ? (
+      orderedTickets.length === 0 ? (
         <State kind="empty" title={copy.empty.title} body={copy.empty.body} className="my-auto" />
       ) : (
         <ul aria-label={copy.listLabel} className="flex flex-col gap-4">
-          {tickets.map((ticket) => (
+          {orderedTickets.map((ticket) => (
             <TicketCard
               key={ticket.id}
               ticket={ticket}
+              arrivedTo={
+                ticket.matched && arrivedAlertIds.has(ticket.id)
+                  ? paths.notification(arrivedAlertIds.get(ticket.id) ?? 0)
+                  : undefined
+              }
               onDelete={(ticketId) => void deleteTicket(ticketId)}
             />
           ))}
@@ -167,6 +197,14 @@ export function TicketsScreen() {
         </p>
       )}
       {content}
+      {tickets && (
+        <Link
+          to={paths.concierge()}
+          className={buttonClassName({ variant: 'outline', fullWidth: true })}
+        >
+          {copy.newReservation}
+        </Link>
+      )}
       <Toast message={toast} onDismiss={() => setToast(null)} />
     </section>
   )

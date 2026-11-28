@@ -1,15 +1,18 @@
+import { Link } from 'react-router'
 import { ja } from '@/shared/i18n/ja'
 import { formatDate } from '@/shared/lib/formatDate'
 import type { Ticket } from '@/shared/types/ticket'
 
 export interface TicketCardProps {
   ticket: Ticket
+  /** The alert page of the event that arrived for this ticket; without it no link is shown. */
+  arrivedTo?: string
   onDelete: (ticketId: number) => void
 }
 
 // One saved condition as a ticket (Figma: S17 ReservationTicket). A ticket that has matched an
-// event gets the solid pink frame and the pill; the others have the dashed frame.
-export function TicketCard({ ticket, onDelete }: TicketCardProps) {
+// event gets the solid frame, the pill and a link to that event; the others have the dashed frame.
+export function TicketCard({ ticket, arrivedTo, onDelete }: TicketCardProps) {
   const { reservationTicket: copy } = ja
 
   return (
@@ -43,6 +46,15 @@ export function TicketCard({ ticket, onDelete }: TicketCardProps) {
             </li>
           ))}
         </ul>
+      )}
+
+      {arrivedTo && (
+        <Link
+          to={arrivedTo}
+          className="-my-1 self-start py-2 text-[13px] leading-normal font-bold text-ink underline underline-offset-4"
+        >
+          {copy.viewArrived}
+        </Link>
       )}
 
       <div className="flex items-center gap-2 border-t border-dashed border-ink-faint pt-2.5">
