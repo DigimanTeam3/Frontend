@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { CheckInReading } from '@/features/checkin/useCheckIn'
 import { useStubTear } from '@/features/checkin/useStubTear'
 import { ja } from '@/shared/i18n/ja'
@@ -14,6 +15,11 @@ export interface CheckInReadyProps {
   reading: CheckInReading
   /** The stub is torn off (after its fall): go on to the badge. */
   onTorn: () => void
+}
+
+const STUB_LIGHT: CSSProperties = {
+  backgroundImage:
+    'linear-gradient(calc(var(--tear-dir, 1) * 90deg), rgb(255 255 255 / 0.45), transparent 45%, rgb(0 0 0 / 0.1))',
 }
 
 // Stage "ready" (Figma: S09 改札可能 + S10 改札 切り取り中): the server accepted the position.
@@ -74,11 +80,13 @@ export function CheckInReady({
                 className="pointer-events-none absolute inset-0 -z-10 rounded-b-[16px] bg-ink/60 opacity-0 blur-md will-change-transform"
               />
               {stub}
-              {/* Shading: the stub turns away from the light as it opens. */}
+              {/* Shading: the lifted free corner catches the light, the hinge side falls into
+                  shade (--tear-dir turns the gradient to the side the tear started on). */}
               <div
                 ref={tear.lightRef}
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-b-[16px] bg-linear-to-b from-ink/0 to-ink/10 opacity-0"
+                style={STUB_LIGHT}
+                className="pointer-events-none absolute inset-0 rounded-b-[16px] opacity-0"
               />
             </div>
           )}

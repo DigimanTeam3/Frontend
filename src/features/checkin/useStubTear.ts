@@ -16,9 +16,17 @@ const TAP_SLOP_PX = 6
 /** Let go while flicking down this fast (px/ms) with this much torn: the stub comes off anyway. */
 const FLICK_SPEED = 0.9
 const FLICK_MIN_TORN = 0.35
-/** Free fall after the stub comes off; onTorn runs at its end. */
-const FLY_MS = 620
+/** Fall after the stub comes off; onTorn runs at its end. */
+const FLY_MS = 860
 const GRAVITY = 0.0032
+/** Air holds paper back: it falls no faster than GRAVITY / AIR_DRAG (about 1.3 px/ms). */
+const AIR_DRAG = 0.0025
+/** The free corner lifts toward the viewer as the stub opens, up to this (3D, deg). */
+const LIFT_DEG = 22
+/** While it falls, the paper flutters (turns over its width) and drifts from side to side. */
+const FLUTTER_DEG = 38
+const FLUTTER_PER_MS = 0.013
+const SWAY_PX_PER_MS = 0.22
 /** Spring of an early release (per ms): back home in about 0.3s with one small bounce. */
 const SPRING_K = 0.0011
 const SPRING_C = 0.036
@@ -71,6 +79,9 @@ interface Sim {
   vx: number
   vy: number
   spin: number
+  /** 3D: the free corner lifted toward the viewer (deg), and its speed after the stub came off. */
+  lift: number
+  liftV: number
   elapsed: number
   scriptFrom: number
   lastFrame: number
@@ -123,6 +134,8 @@ export function useStubTear(onTorn: () => void) {
     vx: 0,
     vy: 0,
     spin: 0,
+    lift: 0,
+    liftV: 0,
     elapsed: 0,
     scriptFrom: 0,
     lastFrame: 0,
@@ -155,14 +168,21 @@ export function useStubTear(onTorn: () => void) {
     const stub = stubRef.current
     if (!stub) return
     const falling = s.mode === 'fly' || s.mode === 'done'
-    const fadeFrom = s.reduced ? 0 : FLY_MS * 0.55
+    const fadeFrom = s.reduced ? 0 : FLY_MS * 0.6
     const fadeLength = s.reduced ? FADE_MS : FLY_MS - fadeFrom
     const opacity = falling ? clamp(1 - (s.elapsed - fadeFrom) / fadeLength, 0, 1) : 1
     const tilt = Math.min(Math.abs(s.angle) / 30, 1)
     const lift = falling && !s.reduced ? Math.min(s.elapsed / 240, 1) : 0
 
+    // Held by the hinge the free corner comes up off the page; falling, it keeps turning and
+    // flutters. Turning over its width stays below 90deg, so the blank back never shows.
+    const liftDeg = s.reduced ? 0 : falling ? s.lift : s.dir * tilt * LIFT_DEG
+    const flutter =
+      falling && !s.reduced
+        ? Math.sin(s.elapsed * FLUTTER_PER_MS) * FLUTTER_DEG * Math.min(s.elapsed / 200, 1)
+        : 0
     stub.style.transformOrigin = s.dir === 1 ? '100% 0' : '0 0'
-    stub.style.transform = `translate3d(${s.tx}px, ${s.ty}px, 0) rotate(${s.angle}deg)`
+    stub.style.transform = `perspective(900px) translate3d(${s.tx}px, ${s.ty}px, 0) rotate(${s.angle}deg) rotateY(${liftDeg}deg) rotateX(${flutter}deg)`
     stub.style.opacity = String(opacity)
     rootRef.current?.style.setProperty('--tear-p', s.torn.toFixed(4))
     rootRef.current?.style.setProperty('--tear-dir', String(s.dir))
@@ -203,6 +223,9 @@ export function useStubTear(onTorn: () => void) {
     s.vy = clamp(v.y * 0.7, 0.35, 2)
     // At most about a third of a turn over the whole fall.
     s.spin = -s.dir * clamp(Math.abs(s.angleV), 0.04, 0.18)
+    // The free corner keeps coming up as the hinge lets go.
+    s.lift = s.dir * Math.min(Math.abs(s.angle) / 30, 1) * LIFT_DEG
+    s.liftV = s.dir * 0.06
     // The ticket gives a small jolt when the stub lets go of it.
     rootRef.current?.animate(
       [
@@ -317,10 +340,16 @@ export function useStubTear(onTorn: () => void) {
       case 'fly':
         s.elapsed += dt
         if (!s.reduced) {
-          s.vy += GRAVITY * dt
-          s.tx += s.vx * dt
+          s.vy += (GRAVITY - AIR_DRAG * s.vy) * dt
+          s.vx *= 1 - 0.002 * dt
+          // Drifts to one side and back as it flutters.
+          const sway = Math.cos(s.elapsed * FLUTTER_PER_MS) * SWAY_PX_PER_MS
+          s.tx += (s.vx + sway * s.dir) * dt
           s.ty += s.vy * dt
           s.angle += s.spin * dt
+          s.spin *= 1 - 0.0015 * dt
+          s.lift = clamp(s.lift + s.liftV * dt, -60, 60)
+          s.liftV *= 1 - 0.004 * dt
         }
         if (s.elapsed >= (s.reduced ? FADE_MS : FLY_MS)) {
           finish()
