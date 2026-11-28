@@ -1,4 +1,5 @@
-import type { Ticket } from '@/shared/types/ticket'
+import { ja } from '@/shared/i18n/ja'
+import type { Ticket, TicketCreateRequest } from '@/shared/types/ticket'
 
 // Saved conditions of the mock user, in memory (a reload brings the three samples back). The copy
 // is taken from the Figma "S17 切符入れ（予約券）".
@@ -37,6 +38,39 @@ export function listTickets() {
   return tickets
 }
 
+// 「2026-11-28」 → 「11/28」
+function monthDay(day: string) {
+  const [, month, date] = day.split('-')
+  return `${Number(month)}/${Number(date)}`
+}
+
+/** Saves a new ticket at the top of the list. The chips are built the way the server builds them. */
+export function addTicket(request: TicketCreateRequest): Ticket {
+  const first = request.dateFrom ?? request.dateTo
+  const last = request.dateTo ?? request.dateFrom
+  const labels = [
+    first && last
+      ? first === last
+        ? monthDay(first)
+        : `${monthDay(first)}〜${monthDay(last)}`
+      : '',
+    request.area ? ja.search.areas[request.area] : '',
+    request.category ? ja.eventCategory[request.category] : '',
+    request.companion ? ja.reservationTicket.companion[request.companion] : '',
+    ...request.keywords,
+  ].filter(Boolean)
+  const ticket: Ticket = {
+    // Below 9000: those ids are test hooks (see DELETE_ERROR_TICKET_ID).
+    id: Math.max(0, ...tickets.map((item) => item.id).filter((id) => id < 9000)) + 1,
+    condition: request.labelJa,
+    labels,
+    createdAt: `${new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 19)}+09:00`,
+    matched: false,
+  }
+  tickets = [ticket, ...tickets]
+  return ticket
+}
+
 /** True when a ticket was removed. */
 export function removeTicket(ticketId: number) {
   const before = tickets.length
@@ -49,12 +83,15 @@ export function removeTicket(ticketId: number) {
 //   'empty'    GET answers an empty list
 //   'network'  GET fails without any answer
 //   'server'   GET answers 500 INTERNAL_ERROR
+//   'create'   POST answers 500 INTERNAL_ERROR (the list itself is normal)
 export const TICKETS_MOCK_KEY = 'digiman.ticketsMock'
-export type TicketsMockMode = 'empty' | 'network' | 'server'
+export type TicketsMockMode = 'empty' | 'network' | 'server' | 'create'
 
 export function ticketsMockMode(): TicketsMockMode | null {
   const value = sessionStorage.getItem(TICKETS_MOCK_KEY)
-  return value === 'empty' || value === 'network' || value === 'server' ? value : null
+  return value === 'empty' || value === 'network' || value === 'server' || value === 'create'
+    ? value
+    : null
 }
 
 export function setTicketsMockMode(mode: TicketsMockMode | null) {

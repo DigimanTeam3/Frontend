@@ -824,6 +824,16 @@ export const ja = {
     deleteLabel: (condition: string) => `${condition} の予約券を削除`,
     deleted: '予約券を削除しました。',
     deleteError: '削除できませんでした。もう一度お試しください。',
+    // A ticket made from the conditions the AI concierge (S16) handed over.
+    creating: '予約券をつくっています。',
+    created: '予約券をつくりました。',
+    alreadyExists: '同じ条件の予約券がすでにあります。',
+    createError: '予約券をつくれませんでした。',
+    // Parts of the one-line condition text of a new ticket. Same words as the server's chips.
+    companion: { alone: '一人で', together: '誰かと' },
+    conditionSeparator: '、',
+    // The condition text when the concierge handed over no condition at all.
+    anyCondition: '条件なし',
     empty: {
       title: '予約券はまだありません',
       body: 'AI窓口で条件を保存すると、ここに並びます。',

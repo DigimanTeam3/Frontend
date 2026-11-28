@@ -1,12 +1,31 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/queryKeys'
-import type { Ticket, TicketListResponse } from '@/shared/types/ticket'
+import type { Ticket, TicketCreateRequest, TicketListResponse } from '@/shared/types/ticket'
 
 export function useTicketsQuery() {
   return useQuery({
     queryKey: queryKeys.tickets.list(),
     queryFn: () => apiClient<TicketListResponse>('/saved-conditions'),
+  })
+}
+
+// Saves a condition as a new ticket and puts it at the top of the list (newest first, as the
+// server lists them).
+export function useCreateTicketMutation() {
+  const queryClient = useQueryClient()
+  const listKey = queryKeys.tickets.list()
+
+  return useMutation({
+    mutationFn: (request: TicketCreateRequest) =>
+      apiClient<Ticket>('/saved-conditions', { method: 'POST', body: JSON.stringify(request) }),
+    onSuccess: (ticket) => {
+      queryClient.setQueryData<TicketListResponse>(listKey, (old) =>
+        old ? { items: [ticket, ...old.items.filter((item) => item.id !== ticket.id)] } : old,
+      )
+      // Not returned: the ticket is saved, its result must not wait for the reload.
+      void queryClient.invalidateQueries({ queryKey: listKey })
+    },
   })
 }
 
