@@ -23,13 +23,8 @@ export interface CardDetailProps {
 // shared 52px / 15px size classes whatever their order in the stylesheet.
 const ACTION_SIZE = 'h-[54px]! flex-1 text-base!'
 
-// Plain links under the actions: the ways out of the card. After a card is made, the back
-// button leads into the mission screens again, so the home and My Page are one tap away here.
-const EXIT_LINK =
-  'py-2 text-[13px] leading-normal font-bold text-ink-muted underline underline-offset-4'
-
 // The loaded screen (Figma: S14 カード詳細): the saved card with its badge stickers, the info
-// list with the memo, the actions, and the ways out.
+// list with the memo (edited with the pencil in its row), and the actions: home and share.
 export function CardDetail({ card }: CardDetailProps) {
   const { cardDetail: copy } = ja
   // What was arranged on the completion screen in this session, else what the card keeps, else
@@ -73,6 +68,8 @@ export function CardDetail({ card }: CardDetailProps) {
         <CardInfo
           card={card}
           editing={editing}
+          onEdit={() => setEditing(true)}
+          editButtonRef={editButton}
           onMemoSaved={() => {
             closeEditor()
             setToast(copy.memoSaved)
@@ -84,15 +81,13 @@ export function CardDetail({ card }: CardDetailProps) {
       {/* The editor has its own buttons. */}
       {!editing && (
         <div className="mt-auto flex gap-2.5 pt-[26px]">
-          <button
-            type="button"
-            ref={editButton}
-            onClick={() => setEditing(true)}
+          <Link
+            to={paths.home()}
             className={`${buttonClassName({ variant: 'accentOutline', shape: 'pill' })} ${ACTION_SIZE}`}
           >
-            {copy.editMemo}
-          </button>
-          {/* A plain button with the shared look, like the edit button: it needs the ref. */}
+            {copy.toHome}
+          </Link>
+          {/* A plain button with the shared look: it needs the ref. */}
           <button
             type="button"
             ref={shareButton}
@@ -104,16 +99,6 @@ export function CardDetail({ card }: CardDetailProps) {
             {preparing ? copy.sharePreparing : copy.share}
           </button>
         </div>
-      )}
-      {!editing && (
-        <nav aria-label={copy.exitsLabel} className="mt-2 flex flex-wrap justify-center gap-x-6">
-          <Link to={paths.home()} className={EXIT_LINK}>
-            {copy.toHome}
-          </Link>
-          <Link to={paths.me()} className={EXIT_LINK}>
-            {copy.toMyPage}
-          </Link>
-        </nav>
       )}
 
       {previewUrl && <ShareImagePreview imageUrl={previewUrl} onClose={closeSharePreview} />}
