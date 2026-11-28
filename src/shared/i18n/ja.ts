@@ -93,6 +93,8 @@ export const ja = {
     askAi: 'AIに聞く',
     categories: 'カテゴリ',
     all: 'すべて',
+    // Tab and ticket label for pop-up stores (the API sends them as exhibitions).
+    popup: 'ポップアップ',
     empty: 'いま行けるイベントはありません。',
     emptyCategory: 'この種類のイベントはいまありません。',
     showAll: 'すべてのイベントを見る',

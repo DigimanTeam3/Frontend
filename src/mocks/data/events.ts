@@ -319,6 +319,35 @@ export const eventDetails: EventDetail[] = [
     description: '한국 근현대 미술의 흐름을 한자리에서 볼 수 있는 상설 전시입니다.',
     descriptionJa: '韓国の近現代美術の流れを一か所で見られる常設展示です。',
   },
+  // Pop-up store: the live API sends these as exhibitions with source "popup_map_kr".
+  {
+    id: 13,
+    title: '홍대 캐릭터 팝업스토어',
+    titleJa: '弘大 キャラクター ポップアップストア',
+    category: 'exhibition',
+    source: 'popup_map_kr',
+    startDate: '2026-11-20T11:00:00+09:00',
+    endDate: '2026-12-14T21:00:00+09:00',
+    venueName: '홍대 AK&',
+    venueNameJa: '弘大 AK&',
+    lat: 37.5579,
+    lng: 126.9245,
+    imageUrl: null,
+    isFree: true,
+    companionCount: 0,
+    address: '서울 마포구 양화로 188',
+    addressJa: '麻浦区 楊花路 188',
+    hours: '11:00 – 21:00',
+    hoursJa: '11:00 – 21:00',
+    fee: null,
+    feeJa: null,
+    reservationRequired: false,
+    howToJoin: null,
+    howToJoinJa: null,
+    description: '인기 캐릭터 굿즈와 포토존을 만날 수 있는 기간 한정 팝업스토어입니다.',
+    descriptionJa:
+      '人気キャラクターのグッズとフォトスポットがある期間限定のポップアップストアです。',
+  },
 ]
 
 export function toEventSummary(event: EventDetail): EventSummary {
@@ -336,6 +365,7 @@ export function toEventSummary(event: EventDetail): EventSummary {
     imageUrl: event.imageUrl,
     isFree: event.isFree,
     companionCount: event.companionCount,
+    source: event.source ?? null,
   }
 }
 
@@ -353,4 +383,5 @@ export const mockEventAreas: Record<number, EventArea> = {
   10: 'yongsan-yeouido',
   11: 'gangnam-songpa',
   12: 'jongno-jung',
+  13: 'mapo-seodaemun',
 }

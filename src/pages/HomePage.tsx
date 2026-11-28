@@ -1,21 +1,21 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { useEventPagesQuery } from '@/features/events/api'
+import { useAllEventsQuery, useEventPagesQuery } from '@/features/events/api'
 import chevronIcon from '@/features/events/assets/chevron.svg'
 import mapEntryIcon from '@/features/events/assets/map-entry.svg'
 import searchIcon from '@/features/events/assets/search.svg'
 import { EventTicket, EventTicketSkeleton } from '@/features/events/components/ticket/EventTicket'
-import { categoryLabel } from '@/features/events/lib/eventText'
+import { homeCategoryLabel, isPopup, type HomeCategory } from '@/features/events/lib/popup'
 import { seoulDateString, seoulHeaderDate } from '@/features/events/lib/seoulDate'
 import { useNextPageTrigger } from '@/features/events/lib/useNextPageTrigger'
 import { ja } from '@/shared/i18n/ja'
 import { State } from '@/shared/ui/State'
-import type { EventCategory, EventSummary } from '@/shared/types/event'
+import type { EventSummary } from '@/shared/types/event'
 
 const PAGE_SIZE = 10
-const CATEGORIES: EventCategory[] = ['festival', 'exhibition', 'performance']
+const CATEGORIES: HomeCategory[] = ['festival', 'exhibition', 'performance', 'popup']
 
-function parseCategory(value: string | null): EventCategory | undefined {
+function parseCategory(value: string | null): HomeCategory | undefined {
   return CATEGORIES.find((category) => category === value)
 }
 
@@ -26,10 +26,16 @@ export function HomePage() {
   const category = parseCategory(searchParams.get('category'))
   // Fixed when the screen opens: passing midnight should not reload the list and lose the scroll.
   const [today] = useState(() => seoulDateString())
-  const query = useEventPagesQuery({ category, dateFrom: today }, PAGE_SIZE)
-  const events = query.data?.pages.flatMap((page) => page.items) ?? []
+  // Pop-up stores come as exhibitions, so these two tabs load every exhibition and split them.
+  const split = category === 'exhibition' || category === 'popup'
+  const paged = useEventPagesQuery(
+    { category: split ? undefined : category, dateFrom: today },
+    PAGE_SIZE,
+    !split,
+  )
+  const exhibitions = useAllEventsQuery({ category: 'exhibition', dateFrom: today }, split)
 
-  const selectCategory = (next: EventCategory | undefined) =>
+  const selectCategory = (next: HomeCategory | undefined) =>
     setSearchParams(next ? { category: next } : {}, { replace: true })
 
   return (
@@ -75,23 +81,24 @@ export function HomePage() {
 
       <h2 className="pb-4 text-lg/[1.45] font-bold">{t.title}</h2>
 
-      <nav aria-label={t.categories} className="pb-4">
-        <ul className="flex gap-2">
+      {/* Five tabs are wider than a phone: the row scrolls sideways (padding keeps the tap area). */}
+      <nav aria-label={t.categories} className="-mx-gutter pb-3">
+        <ul className="flex [scrollbar-width:none] gap-2 overflow-x-auto px-gutter py-1">
           {[undefined, ...CATEGORIES].map((value) => {
             const active = value === category
             return (
-              <li key={value ?? 'all'}>
+              <li key={value ?? 'all'} className="shrink-0">
                 <button
                   type="button"
                   aria-pressed={active}
                   onClick={() => selectCategory(value)}
-                  className={`relative flex h-9 items-center rounded-full border px-3.5 text-[13px]/[1.6] transition-colors duration-150 ease-out before:absolute before:-inset-1 before:content-[''] ${
+                  className={`relative flex h-9 items-center rounded-full border px-3.5 text-[13px]/[1.6] whitespace-nowrap transition-colors duration-150 ease-out before:absolute before:-inset-1 before:content-[''] ${
                     active
                       ? 'border-ink bg-ink font-bold text-white'
                       : 'border-line bg-surface text-ink active:bg-surface-2'
                   }`}
                 >
-                  {value ? categoryLabel(value) : t.all}
+                  {value ? homeCategoryLabel(value) : t.all}
                 </button>
               </li>
             )
@@ -99,33 +106,104 @@ export function HomePage() {
         </ul>
       </nav>
 
-      <HomeList
-        query={query}
-        events={events}
-        category={category}
-        onShowAll={() => selectCategory(undefined)}
-      />
+      {split ? (
+        <SplitList
+          // A new tab starts at its first tickets.
+          key={category}
+          query={exhibitions}
+          popup={category === 'popup'}
+          onShowAll={() => selectCategory(undefined)}
+        />
+      ) : (
+        <PagedList query={paged} category={category} onShowAll={() => selectCategory(undefined)} />
+      )}
     </section>
   )
 }
 
-interface HomeListProps {
+interface PagedListProps {
   query: ReturnType<typeof useEventPagesQuery>
-  events: EventSummary[]
-  category: EventCategory | undefined
+  category: HomeCategory | undefined
   onShowAll: () => void
 }
 
-function HomeList({ query, events, category, onShowAll }: HomeListProps) {
-  const t = ja.home
+// All, festival and performance: the server pages the list.
+function PagedList({ query, category, onShowAll }: PagedListProps) {
   const { fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isFetchNextPageError } = query
-  // Wait while any fetch runs: starting the next page would cancel a background refetch.
-  const sentinelRef = useNextPageTrigger(
-    () => void fetchNextPage(),
-    hasNextPage && !isFetching && !isFetchNextPageError,
+  return (
+    <HomeList
+      events={query.data?.pages.flatMap((page) => page.items) ?? []}
+      pending={query.isPending}
+      failed={query.isError}
+      onRetry={() => void query.refetch()}
+      filtered={category !== undefined}
+      onShowAll={onShowAll}
+      // Wait while any fetch runs: starting the next page would cancel a background refetch.
+      canLoadMore={hasNextPage && !isFetching && !isFetchNextPageError}
+      loadingMore={isFetchingNextPage}
+      loadMoreFailed={isFetchNextPageError}
+      onLoadMore={() => void fetchNextPage()}
+    />
   )
+}
 
-  if (query.isPending) {
+interface SplitListProps {
+  query: ReturnType<typeof useAllEventsQuery>
+  popup: boolean
+  onShowAll: () => void
+}
+
+// Exhibition and pop-up: every exhibition is loaded at once, then shown ten more at a time.
+function SplitList({ query, popup, onShowAll }: SplitListProps) {
+  const [shown, setShown] = useState(PAGE_SIZE)
+  const events = (query.data ?? []).filter((event) => isPopup(event) === popup)
+  return (
+    <HomeList
+      events={events.slice(0, shown)}
+      pending={query.isPending}
+      failed={query.isError}
+      onRetry={() => void query.refetch()}
+      filtered
+      onShowAll={onShowAll}
+      canLoadMore={shown < events.length}
+      loadingMore={false}
+      loadMoreFailed={false}
+      onLoadMore={() => setShown((count) => count + PAGE_SIZE)}
+    />
+  )
+}
+
+interface HomeListProps {
+  events: EventSummary[]
+  pending: boolean
+  /** The list could not be loaded (the first time, or a refetch with nothing shown). */
+  failed: boolean
+  onRetry: () => void
+  /** A category is chosen: the empty state offers all events. */
+  filtered: boolean
+  onShowAll: () => void
+  canLoadMore: boolean
+  loadingMore: boolean
+  loadMoreFailed: boolean
+  onLoadMore: () => void
+}
+
+function HomeList({
+  events,
+  pending,
+  failed,
+  onRetry,
+  filtered,
+  onShowAll,
+  canLoadMore,
+  loadingMore,
+  loadMoreFailed,
+  onLoadMore,
+}: HomeListProps) {
+  const t = ja.home
+  const sentinelRef = useNextPageTrigger(onLoadMore, canLoadMore, events.length)
+
+  if (pending) {
     return (
       <div aria-busy="true" className="flex flex-col gap-4">
         <p className="sr-only">{ja.common.loading}</p>
@@ -136,8 +214,8 @@ function HomeList({ query, events, category, onShowAll }: HomeListProps) {
     )
   }
 
-  if (query.isError && events.length === 0) {
-    return <State kind="error" className="py-16" onRetry={() => void query.refetch()} />
+  if (failed && events.length === 0) {
+    return <State kind="error" className="py-16" onRetry={onRetry} />
   }
 
   if (events.length === 0) {
@@ -145,8 +223,8 @@ function HomeList({ query, events, category, onShowAll }: HomeListProps) {
       <State
         kind="empty"
         className="py-16"
-        title={category ? t.emptyCategory : t.empty}
-        action={category ? { label: t.showAll, onClick: onShowAll } : undefined}
+        title={filtered ? t.emptyCategory : t.empty}
+        action={filtered ? { label: t.showAll, onClick: onShowAll } : undefined}
       />
     )
   }
@@ -161,13 +239,13 @@ function HomeList({ query, events, category, onShowAll }: HomeListProps) {
         ))}
       </ul>
       <div ref={sentinelRef} className="flex min-h-12 items-center justify-center py-4">
-        {isFetchingNextPage && <p className="text-xs text-ink-muted">{ja.common.loading}</p>}
-        {isFetchNextPageError && (
+        {loadingMore && <p className="text-xs text-ink-muted">{ja.common.loading}</p>}
+        {loadMoreFailed && (
           <p role="alert" className="flex items-center gap-3 text-xs text-danger">
             {t.loadMoreError}
             <button
               type="button"
-              onClick={() => void fetchNextPage()}
+              onClick={onLoadMore}
               className="font-bold text-ink underline underline-offset-4"
             >
               {t.retry}
