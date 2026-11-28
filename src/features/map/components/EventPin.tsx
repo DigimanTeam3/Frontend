@@ -1,5 +1,5 @@
 import { Marker } from '@vis.gl/react-maplibre'
-import { categoryLabel, preferJa } from '@/features/events/lib/eventText'
+import { categoryLabel, preferJa } from '@/shared/lib/eventText'
 import type { EventCategory, EventSummary } from '@/shared/types/event'
 
 // Category print colors from Figma kippu/* (祭り festival, 展示 exhibit, 公演 stage).
