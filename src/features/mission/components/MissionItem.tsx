@@ -48,7 +48,7 @@ export function MissionItem({ mission, locked }: MissionItemProps) {
             {title}
           </span>
           {mission.required && (
-            <span className="border-festival text-festival shrink-0 rounded-md border px-[5px] py-px text-xs leading-normal font-bold">
+            <span className="shrink-0 rounded-md border border-festival px-[5px] py-px text-xs leading-normal font-bold text-festival">
               {ja.mission.required}
             </span>
           )}
