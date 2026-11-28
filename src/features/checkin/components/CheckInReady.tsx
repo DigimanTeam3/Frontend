@@ -1,5 +1,6 @@
+import type { CSSProperties } from 'react'
 import type { CheckInReading } from '@/features/checkin/useCheckIn'
-import { useStubTear, type TearPhase } from '@/features/checkin/useStubTear'
+import { useStubTear } from '@/features/checkin/useStubTear'
 import { ja } from '@/shared/i18n/ja'
 import { formatDistance } from '@/shared/lib/formatDistance'
 import type { JourneyEvent } from '@/shared/types/eventBrief'
@@ -16,16 +17,15 @@ export interface CheckInReadyProps {
   onTorn: () => void
 }
 
-// The stub follows the finger without delay, springs back with a small overshoot, and falls
-// away when torn. duration-300 belongs to TEAR_ANIMATION_MS in useStubTear.
-const STUB_MOTION: Record<TearPhase, string> = {
-  idle: 'cursor-grab transition-transform duration-300 ease-[cubic-bezier(0.2,1.4,0.4,1)] motion-reduce:transition-none',
-  dragging: 'cursor-grabbing transition-none',
-  tearing: 'transition-[transform,opacity] duration-300 ease-in',
+const STUB_LIGHT: CSSProperties = {
+  backgroundImage:
+    'linear-gradient(calc(var(--tear-dir, 1) * 90deg), rgb(255 255 255 / 0.45), transparent 45%, rgb(0 0 0 / 0.1))',
 }
 
 // Stage "ready" (Figma: S09 改札可能 + S10 改札 切り取り中): the server accepted the position.
-// Pulling the stub down past 96px, or tapping the pill below, tears the ticket.
+// Pulling the stub tears it along the perforation like paper: the tear runs from the side it is
+// held at, holds at each hole, springs back when let go early, and comes off past 96px. A tap,
+// Enter / Space on the stub, or the pill below plays the same tear by itself.
 export function CheckInReady({
   event,
   ticketNumber,
@@ -35,9 +35,6 @@ export function CheckInReady({
 }: CheckInReadyProps) {
   const { ready } = ja.checkIn
   const tear = useStubTear(onTorn)
-  // The glow frames the whole ticket, so it goes as soon as the stub leaves its place and
-  // comes back only when the stub is home again (not while it springs back).
-  const pulled = tear.offsetY > 0 || tear.settling || tear.phase === 'tearing'
 
   return (
     <div className="flex flex-col items-center">
@@ -53,35 +50,55 @@ export function CheckInReady({
         {ready.reading(formatDistance(reading.distanceM), reading.accuracyM)}
       </p>
 
-      {/* z-10: the pulled stub passes over the pill below it. */}
-      <GateTicket
-        className="z-10 mt-[15px]"
-        event={event}
-        ticketNumber={ticketNumber}
-        visitDate={visitDate}
-        stub="attached"
-        look={pulled ? 'plain' : 'glowing'}
-        renderStub={(stub) => (
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label={ready.stubLabel}
-            {...tear.stubHandlers}
-            style={tear.stubStyle}
-            // touch-none: a pull that starts on the stub must not scroll or refresh the page.
-            className={`touch-none rounded-b-[16px] select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${STUB_MOTION[tear.phase]}`}
-          >
-            {stub}
-          </div>
-        )}
-      />
+      {/* z-10: the pulled stub passes over the pill below it. The wrapper carries the tear
+          progress for the seam (see useStubTear). */}
+      <div ref={tear.rootRef} className="relative z-10 mt-[15px] w-[300px] max-w-full">
+        <GateTicket
+          event={event}
+          ticketNumber={ticketNumber}
+          visitDate={visitDate}
+          stub="attached"
+          // The glow frames the whole ticket, so it goes while the stub is out of its place.
+          look={tear.away ? 'plain' : 'glowing'}
+          renderStub={(stub) => (
+            <div
+              ref={tear.stubRef}
+              role="button"
+              tabIndex={0}
+              aria-label={ready.stubLabel}
+              aria-disabled={tear.leaving || undefined}
+              {...tear.stubHandlers}
+              // touch-none: a pull that starts on the stub must not scroll or refresh the page.
+              // isolate: its shadow stays behind the stub, not behind the whole ticket.
+              className={`relative isolate touch-none rounded-b-[16px] will-change-transform select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                tear.leaving ? '' : 'cursor-grab active:cursor-grabbing'
+              }`}
+            >
+              <div
+                ref={tear.shadowRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 -z-10 rounded-b-[16px] bg-ink/60 opacity-0 blur-md will-change-transform"
+              />
+              {stub}
+              {/* Shading: the lifted free corner catches the light, the hinge side falls into
+                  shade (--tear-dir turns the gradient to the side the tear started on). */}
+              <div
+                ref={tear.lightRef}
+                aria-hidden="true"
+                style={STUB_LIGHT}
+                className="pointer-events-none absolute inset-0 rounded-b-[16px] opacity-0"
+              />
+            </div>
+          )}
+        />
+      </div>
 
       {/* A real button: pull gestures can collide with the browser's pull-to-refresh, so a
           tap has to tear the ticket too. */}
       <button
         type="button"
         onClick={tear.tear}
-        disabled={tear.phase === 'tearing'}
+        disabled={tear.leaving}
         className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-ink px-3.5 py-2 text-[15px] leading-[1.65] font-bold text-white transition-opacity duration-150 ease-out active:opacity-80"
       >
         <ChevronRightIcon className="size-4 shrink-0 rotate-90" />
