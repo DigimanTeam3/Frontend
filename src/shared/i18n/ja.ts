@@ -467,4 +467,43 @@ export const ja = {
       action: 'ミッションへ',
     },
   },
+  // Card detail (S14: src/features/card/CardDetailScreen.tsx).
+  cardDetail: {
+    title: 'カード',
+    missionLabel: 'ミッション',
+    missionValue: (done: number, total: number) => `${done} / ${total} 完了`,
+    memoLabel: 'メモ',
+    memoEmpty: 'メモはまだありません',
+    editMemo: 'メモを編集',
+    memoCounter: (length: number, max: number) => `${length} / ${max}`,
+    saveMemo: '保存する',
+    savingMemo: '保存中…',
+    cancelMemo: 'キャンセル',
+    memoSaved: 'メモを保存しました',
+    // Keys are API error codes of PATCH /experience-cards/{cardId}, plus UNKNOWN (network,
+    // server and every other error).
+    memoErrors: {
+      VALIDATION_ERROR: 'メモは500文字以内で入力してください',
+      UNKNOWN: '保存できませんでした。もう一度お試しください。',
+    },
+    notFound: {
+      title: 'カードが見つかりません',
+      body: 'URLが正しいか、もう一度ご確認ください',
+      action: 'マイページへ',
+    },
+    share: '共有する',
+    sharePreparing: '準備中…',
+    shareFailed: '共有できませんでした。もう一度お試しください。',
+    // The browser refused the share sheet because the image was not ready at the tap. It is now.
+    shareTapAgain: '画像の準備ができました。もう一度タップしてください',
+    // Overlay with the image where the share sheet cannot take a file (S14, in-app browsers).
+    sharePreview: {
+      title: '共有用の画像',
+      imageAlt: '思い出カードの画像',
+      hint: '自動で保存されないときは、画像を長押しして保存してください',
+      close: '閉じる',
+    },
+    // A title or venue that is too long for its line in the share image.
+    shareImageCut: (text: string) => `${text}…`,
+  },
 } as const

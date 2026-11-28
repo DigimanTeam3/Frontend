@@ -12,7 +12,9 @@ import type { Page } from '@/shared/types/page'
 //   9001  network error (no answer at all)
 //   9002  500 INTERNAL_ERROR
 //   any other unknown id → 404 CARD_NOT_FOUND
-// PATCH: a memo longer than 500 characters answers 422 VALIDATION_ERROR with field "memo".
+// PATCH: a memo longer than 500 characters answers 422 VALIDATION_ERROR with field "memo"; a
+// null memo removes it. A memo that is "!" + a code forces that answer on any card:
+//   !VALIDATION_ERROR  (422)   !INTERNAL_ERROR  (500)   !NETWORK  (no answer at all)
 // The list (GET /me/experience-cards) has no id; S13 shows its error states through the event
 // ids 9001 / 9002 of GET /events/:eventId (see checkinHandlers.ts).
 
@@ -21,6 +23,10 @@ const SERVER_ERROR_CARD_ID = 9002
 
 const DEFAULT_PAGE_SIZE = 20
 const MEMO_MAX_LENGTH = 500
+
+const FORCED_VALIDATION_MEMO = '!VALIDATION_ERROR'
+const FORCED_SERVER_ERROR_MEMO = '!INTERNAL_ERROR'
+const FORCED_NETWORK_MEMO = '!NETWORK'
 
 function parsePositiveInt(value: string | null, fallback: number) {
   const number = Number(value)
@@ -87,8 +93,18 @@ export const cardHandlers = [
       body = {}
     }
     const changes: ExperienceCardUpdate = {}
-    if (body.memo !== undefined) {
-      if (typeof body.memo !== 'string' || body.memo.length > MEMO_MAX_LENGTH) {
+    if (body.memo === null) {
+      changes.memo = null
+    } else if (body.memo !== undefined) {
+      if (body.memo === FORCED_NETWORK_MEMO) return HttpResponse.error()
+      if (body.memo === FORCED_SERVER_ERROR_MEMO) {
+        return errorResponse(500, 'INTERNAL_ERROR', 'mock server error')
+      }
+      if (
+        typeof body.memo !== 'string' ||
+        body.memo.length > MEMO_MAX_LENGTH ||
+        body.memo === FORCED_VALIDATION_MEMO
+      ) {
         return errorResponse(422, 'VALIDATION_ERROR', 'memo must be 500 characters or less', {
           field: 'memo',
         })

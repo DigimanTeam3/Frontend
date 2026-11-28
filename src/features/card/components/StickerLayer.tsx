@@ -1,9 +1,9 @@
 import { useId } from 'react'
 import { PlacedSticker } from '@/features/card/components/PlacedSticker'
-import { STICKER_SIZE, STICKER_TILT, STICKER_TYPES } from '@/features/card/stickers'
+import { StickerFace } from '@/features/card/components/StickerFace'
+import { STICKER_LOOK, STICKER_TYPES, stickerBoxStyle } from '@/features/card/stickers'
 import type { StickerBoard } from '@/features/card/useStickerBoard'
 import { ja } from '@/shared/i18n/ja'
-import { BadgeSticker } from '@/shared/ui/BadgeSticker'
 
 export interface StickerLayerProps {
   board: StickerBoard
@@ -34,10 +34,10 @@ export function StickerLayer({ board }: StickerLayerProps) {
       {ghost && (
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute z-20 -translate-1/2 ${STICKER_SIZE[ghost.type]}`}
-          style={{ left: `${ghost.x * 100}%`, top: `${ghost.y * 100}%` }}
+          className="pointer-events-none absolute z-20 -translate-1/2"
+          style={stickerBoxStyle({ ...ghost, size: STICKER_LOOK[ghost.type].size })}
         >
-          <BadgeSticker kind={ghost.type} className={STICKER_TILT[ghost.type]} />
+          <StickerFace type={ghost.type} tilt={STICKER_LOOK[ghost.type].tilt} />
         </div>
       )}
     </>
