@@ -13,6 +13,7 @@ import {
   DATE_PRESETS,
   KEYWORD_MAX,
   countFilters,
+  isFromMap,
   pickedDayLabel,
   readConditions,
   toListParams,
@@ -41,6 +42,7 @@ export function SearchPage() {
   const [now] = useState(() => new Date())
   const today = seoulDateString(now)
   const conditions = readConditions(searchParams, today)
+  const fromMap = isFromMap(searchParams)
   const [sheetOpen, setSheetOpen] = useState(false)
   const filterButtonRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -53,8 +55,11 @@ export function SearchPage() {
   })
   const update = useCallback(
     (next: Partial<SearchConditions>) => {
-      const current = readConditions(new URLSearchParams(window.location.search), today)
-      setParamsRef.current(writeConditions({ ...current, ...next }), { replace: true })
+      const params = new URLSearchParams(window.location.search)
+      const current = readConditions(params, today)
+      setParamsRef.current(writeConditions({ ...current, ...next }, isFromMap(params)), {
+        replace: true,
+      })
     },
     [today],
   )
@@ -151,7 +156,7 @@ export function SearchPage() {
     setDraft('')
     setLocationNotice(false)
     lastAsk.current += 1
-    setSearchParams(new URLSearchParams(), { replace: true })
+    setSearchParams(writeConditions({ keyword: '', sort: 'date' }, fromMap), { replace: true })
   }
 
   const filterCount = countFilters(conditions)
@@ -288,7 +293,7 @@ export function SearchPage() {
             : null}
       </p>
 
-      <ResultList query={query} events={events} onReset={resetAll} />
+      <ResultList query={query} events={events} fromMap={fromMap} onReset={resetAll} />
 
       {sheetOpen && (
         <FilterSheet
@@ -306,10 +311,11 @@ export function SearchPage() {
 interface ResultListProps {
   query: ReturnType<typeof useEventPagesQuery>
   events: EventListItem[]
+  fromMap: boolean
   onReset: () => void
 }
 
-function ResultList({ query, events, onReset }: ResultListProps) {
+function ResultList({ query, events, fromMap, onReset }: ResultListProps) {
   const t = ja.search
   const { fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isFetchNextPageError } = query
   // Wait while any fetch runs: starting the next page would cancel a background refetch.
@@ -350,7 +356,11 @@ function ResultList({ query, events, onReset }: ResultListProps) {
       <ul className="flex flex-col gap-3">
         {events.map((event) => (
           <li key={event.id}>
-            <SearchResultCard event={event} />
+            <SearchResultCard
+              event={event}
+              // Opened from the map: back to the map, which selects the event and flies to it.
+              to={fromMap ? `/map?event=${event.id}` : `/events/${event.id}`}
+            />
           </li>
         ))}
       </ul>
