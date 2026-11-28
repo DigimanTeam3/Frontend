@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw/http'
+import { hasContactInfo } from '@/features/companion/validation'
 import {
   MOCK_ME_ID,
   posts,
@@ -7,6 +8,7 @@ import {
   toEventSummary,
   toSummary,
 } from '@/mocks/data/companions'
+import { errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import type { CompanionStatus, CreateCompanionBody } from '@/shared/types/companion'
 
 // Companion API mocks (S06–S08). Shapes follow the API proposals in GitHub issues (S06 #16).
@@ -17,12 +19,6 @@ const STATUS_ORDER: Record<CompanionStatus, number> = { OPEN: 0, FULL: 1, CLOSED
 function currentUserId(request: Request): number | null {
   return request.headers.get('Authorization') === MOCK_TOKEN ? MOCK_ME_ID : null
 }
-
-function errorResponse(status: number, code: string, message: string, field?: string) {
-  return HttpResponse.json({ code, message, field }, { status })
-}
-
-const unauthorized = () => errorResponse(401, 'UNAUTHORIZED', 'login required')
 
 let nextPostId = 200
 
@@ -42,19 +38,16 @@ function validateBody(body: Partial<CreateCompanionBody>, endDate: string) {
   if (!intro || Array.from(intro).length > 60 || intro.includes('\n')) {
     return errorResponse(400, 'VALIDATION_ERROR', 'intro must be 1-60 characters', 'intro')
   }
-  // NFKC turns full-width digits and letters into half-width ones before matching.
-  const normalized = intro.normalize('NFKC')
-  if (
-    /https?:\/\/|www\./i.test(normalized) ||
-    /\d{2,4}[-\s.‐‑–—−ー－]?\d{3,4}[-\s.‐‑–—−ー－]?\d{4}/.test(normalized)
-  ) {
+  // Same check as the screen, so mock and screen agree.
+  if (hasContactInfo(intro)) {
     return errorResponse(400, 'CONTACT_INFO_NOT_ALLOWED', 'contact info is not allowed', 'intro')
   }
   return null
 }
 
 export const companionHandlers = [
-  http.get('/api/events/:eventId/companions', ({ request, params }) => {
+  http.get('/api/events/:eventId/companions', async ({ request, params }) => {
+    await mockDelay()
     const eventId = Number(params.eventId)
     const event = toEventSummary(eventId)
     if (!event) return errorResponse(404, 'EVENT_NOT_FOUND', 'event not found')
@@ -81,8 +74,9 @@ export const companionHandlers = [
     return HttpResponse.json({ event, items, page, size, total: matched.length })
   }),
   http.post('/api/events/:eventId/companions', async ({ request, params }) => {
+    await mockDelay()
     const meId = currentUserId(request)
-    if (meId === null) return unauthorized()
+    if (meId === null) return unauthorizedResponse()
     const eventId = Number(params.eventId)
     const event = toEventSummary(eventId)
     if (!event) return errorResponse(404, 'EVENT_NOT_FOUND', 'event not found')

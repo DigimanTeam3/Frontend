@@ -11,8 +11,8 @@ const URL_PATTERN = /(https?:\/\/|www\.)\S+|\b[\w-]+\.(com|net|jp|kr|me|io|ly)\b
 // Separators: ASCII hyphen, spaces, dots, Unicode dashes, minus, ー and full-width hyphen.
 const PHONE_PATTERN = /\d{2,4}[-\s.‐‑–—−ー－]?\d{3,4}[-\s.‐‑–—−ー－]?\d{4}/
 
-/** NFKC first so full-width digits and letters (０９０, ｗｗｗ) are caught too. */
-function hasContactInfo(intro: string) {
+/** NFKC first so full-width digits and letters (０９０, ｗｗｗ) are caught too. Shared with the mock. */
+export function hasContactInfo(intro: string) {
   const normalized = intro.normalize('NFKC')
   return URL_PATTERN.test(normalized) || PHONE_PATTERN.test(normalized)
 }
