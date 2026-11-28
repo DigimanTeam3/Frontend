@@ -14,6 +14,7 @@ const TAB_PATHS = ['/', '/map', '/me']
 // Add a path here when its page lays itself out edge to edge and renders its own TopBar.
 const BARE_PATHS: string[] = [
   '/events/:eventId', // S05: hero image edge to edge, back button drawn in the hero
+  '/concierge', // S16: counter pinned at the top, input bar at the bottom
 ]
 
 // The gate flow is a scene you leave rather than go back from, so it gets a close button.
