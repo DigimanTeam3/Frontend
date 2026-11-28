@@ -13,6 +13,7 @@ import type { ChatEntry } from '@/features/concierge/hooks/useConciergeChat'
 import type { ConciergeSession } from '@/features/concierge/hooks/useConciergeSession'
 import { isRecordingSupported } from '@/features/concierge/hooks/useVoiceRecorder'
 import { conditionLabels } from '@/features/concierge/lib/format'
+import { clearConversation } from '@/features/concierge/lib/keptConversation'
 import { offersReservation, validRecommendations } from '@/features/concierge/lib/reply'
 import {
   clearPendingReservation,
@@ -107,10 +108,14 @@ function ThinkingBubble() {
   return <DiguBubble text={t.thinking[line] ?? t.thinking[0]} />
 }
 
-/** Close: back to the previous screen in this app, or home when S16 was opened first. */
+/**
+ * Close: back to the previous screen in this app, or home when S16 was opened first. Closing ends
+ * the conversation (going to an event page and back keeps it).
+ */
 function useClose() {
   const navigate = useNavigate()
   return () => {
+    clearConversation()
     const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0
     if (idx > 0) navigate(-1)
     else navigate('/', { replace: true })
@@ -342,7 +347,11 @@ export function VoiceCounter({ session }: { session: ConciergeSession }) {
   // Found: tickets print out of the slot (k1), then ディグ reads them one by one (k2).
   const replyEntry = phase.kind === 'reply' ? phase.entry : null
   const recommendations = replyEntry ? validRecommendations(replyEntry.reply) : []
-  const [issuedId, setIssuedId] = useState<string | null>(null)
+  // A reply already there when the counter opens (back from an event page, or from the chat
+  // counter) was issued before: show its list without printing it again.
+  const [issuedId, setIssuedId] = useState<string | null>(
+    () => chat.entries.findLast((entry) => entry.role === 'assistant')?.id ?? null,
+  )
   const printing = recommendations.length > 0 && replyEntry !== null && issuedId !== replyEntry.id
   const printMs = PRINT_MS + (recommendations.length - 1) * PRINT_STAGGER_MS + ISSUED_HOLD_MS
   useEffect(() => {

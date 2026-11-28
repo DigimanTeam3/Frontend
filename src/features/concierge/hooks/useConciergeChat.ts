@@ -5,6 +5,7 @@ import {
   toConciergeError,
   transcribeAudio,
 } from '@/features/concierge/api'
+import { keepConversation, peekConversation } from '@/features/concierge/lib/keptConversation'
 import type {
   ConciergeConditions,
   ConciergeHistoryItem,
@@ -26,6 +27,16 @@ export type ClerkMood = 'idle' | 'listening' | 'thinking' | 'speaking' | 'clarif
 let nextId = 0
 const newId = () => `c${++nextId}`
 
+/** The kept conversation; new ids continue after its ids so keys never repeat. */
+function restore(): ChatEntry[] {
+  const entries = peekConversation()
+  for (const entry of entries) {
+    const n = Number(entry.id.slice(1))
+    if (Number.isInteger(n) && n > nextId) nextId = n
+  }
+  return entries
+}
+
 function toHistory(entries: ChatEntry[]): ConciergeHistoryItem[] {
   const items: ConciergeHistoryItem[] = []
   entries.forEach((entry, i) => {
@@ -42,18 +53,22 @@ function toHistory(entries: ChatEntry[]): ConciergeHistoryItem[] {
 
 /**
  * Conversation state for S16. Keeps the last reply's conditions and sends them back with the
- * next question, so 「土曜日だけ」 narrows the previous search. Nothing is stored after leaving.
+ * next question, so 「土曜日だけ」 narrows the previous search. The conversation is kept for this
+ * tab (lib/keptConversation), so coming back from an event page shows the same tickets.
  */
 export function useConciergeChat() {
-  const [entries, setEntries] = useState<ChatEntry[]>([])
+  const [entries, setEntries] = useState<ChatEntry[]>(restore)
   const [pending, setPending] = useState<'transcribe' | 'messages' | null>(null)
   const entriesRef = useRef(entries)
-  const conditionsRef = useRef<ConciergeConditions | null>(null)
+  const conditionsRef = useRef<ConciergeConditions | null>(
+    entries.findLast((entry) => entry.role === 'assistant')?.reply.conditions ?? null,
+  )
   const mountedRef = useRef(true)
   const busyRef = useRef(false)
 
   useEffect(() => {
     entriesRef.current = entries
+    keepConversation(entries)
   }, [entries])
 
   useEffect(() => {

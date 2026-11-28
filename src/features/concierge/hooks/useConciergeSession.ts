@@ -4,6 +4,7 @@ import { saveCondition } from '@/features/concierge/api'
 import { type ChatEntry, useConciergeChat } from '@/features/concierge/hooks/useConciergeChat'
 import { useSpeech } from '@/features/concierge/hooks/useSpeech'
 import { useVoiceRecorder } from '@/features/concierge/hooks/useVoiceRecorder'
+import { keepView, peekView } from '@/features/concierge/lib/keptConversation'
 import { validRecommendations } from '@/features/concierge/lib/reply'
 import { toTicketCreateRequest } from '@/features/concierge/lib/savedCondition'
 import { queryKeys } from '@/shared/api/queryKeys'
@@ -26,7 +27,7 @@ export type ReservationStatus = 'idle' | 'saving' | 'saved' | 'failed'
 export function useConciergeSession() {
   const chat = useConciergeChat()
   const speech = useSpeech()
-  const [view, setViewState] = useState<ConciergeView>('voice')
+  const [view, setViewState] = useState<ConciergeView>(peekView)
   const [draft, setDraft] = useState('')
   const viewRef = useRef(view)
   const queryClient = useQueryClient()
@@ -126,6 +127,7 @@ export function useConciergeSession() {
       viewRef.current = next
       speech.cancel()
       setViewState(next)
+      keepView(next)
     },
     [speech],
   )
