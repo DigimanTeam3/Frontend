@@ -12,8 +12,12 @@ import type { UploadedImage } from '@/shared/types/upload'
 function multipartImage(file: File) {
   const boundary = `----digiman${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`
   // Fixed ASCII file name: a phone's file name may hold quotes or non-ASCII text, and the server
-  // names the stored file itself.
-  const extension = /^image\/([a-z0-9]+)$/.exec(file.type)?.[1] ?? 'bin'
+  // names the stored file itself. Only the extension is kept: when the browser gives no type (some
+  // Android pickers, a photo it cannot decode), the server tells the format by the extension.
+  const extension =
+    /^image\/([a-z0-9]+)$/.exec(file.type)?.[1] ??
+    /\.([a-z0-9]{2,5})$/i.exec(file.name)?.[1]?.toLowerCase() ??
+    'bin'
   const head =
     `--${boundary}\r\n` +
     `Content-Disposition: form-data; name="file"; filename="photo.${extension}"\r\n` +
