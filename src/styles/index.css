@@ -1,29 +1,35 @@
 @import 'tailwindcss';
 
-/* Design tokens from the Figma "Concept 切符" variables (kippu/*). Keep the names; change values here. */
+/* Design tokens from the Figma "ui" variables, mode "2案 Pink". Keep the names; change values here. */
 @theme {
-  --color-primary: #e4572e;
-  --color-app: #e9e5dc; /* app background behind tickets */
-  --color-surface: #f6f0e4; /* ticket paper, bars */
-  --color-ink: #1e2230;
-  --color-ink-muted: #5b6070; /* secondary text, readable on paper */
-  --color-ink-faint: #9a9c9f; /* inactive tabs, decoration only (low contrast) */
-  --color-line: #c9bda6;
-  --color-danger: #d92d20;
+  --color-primary: #1a1d26; /* main action (dark) */
+  --color-app: #f5f3ef; /* app background (ui color/bg) */
+  --color-surface: #ffffff; /* cards, sheets, bars */
+  --color-surface-2: #eeebe5; /* inputs, quiet boxes inside a card */
+  --color-paper: #f6f0e4; /* ticket and card paper */
+  --color-ink: #1a1d26;
+  --color-ink-muted: #5e6370; /* secondary text (ui color/ink-sub) */
+  --color-ink-faint: #9a9da5; /* inactive tabs, hints (ui color/ink-mute, low contrast) */
+  --color-line: #e4e0d8;
+  --color-danger: #d2453b;
   --color-line-brand: #06c755;
 
   --font-sans: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
   --font-mincho: 'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
 
+  /* Floating button shadow from the Figma ui FAB */
+  --shadow-float: 0 6px 8px rgba(0, 0, 0, 0.2);
+
   /* Mobile layout */
   --spacing-gutter: 24px; /* side margin: 342px content in a 390px screen */
   --container-app: 430px; /* widest phone; wider screens show the app centered */
 }
 
-/* Event category and state colors from the Figma ui variables. Added for S05. */
+/* Event category and state colors from the Figma ui variables. Gate is the pink point color. */
 @theme {
-  --color-gate: #12a57c;
+  --color-gate: #ec8faa;
+  --color-gate-soft: #fce4ec;
   --color-festival: #d0532e;
   --color-festival-soft: #fbe2d8;
   --color-exhibit: #2f64a0;
