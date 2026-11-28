@@ -14,7 +14,10 @@ import type { EventSummary } from '@/shared/types/event'
 
 const INITIAL_VIEW = { ...SEOUL_CENTER, zoom: 12, pitch: 45, bearing: -20 }
 
-/** All events on one 3D map, fitted to where they are. Tap a pin for a short card. */
+/**
+ * The first page of events (server default size) on one 3D map, fitted to where they are.
+ * Tap a pin for a short card. S04 switches this to the map endpoint to show every event.
+ */
 export function EventMap() {
   const { data: events } = useEventsQuery()
   const mapRef = useRef<MapRef>(null)

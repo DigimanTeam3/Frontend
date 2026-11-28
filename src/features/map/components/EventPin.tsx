@@ -68,7 +68,9 @@ export function EventPin({ event, selected = false, onSelect }: EventPinProps) {
           aria-label={label}
           aria-pressed={selected}
           onClick={(e) => {
-            // Keep the tap from also reaching the map (which would clear the selection).
+            // MapLibre's native listener on the canvas container sees this click first and fires the
+            // map click (setSelected(null)). Both updates land in one batch and this one runs last,
+            // so the pin stays selected. stopPropagation only stops React parents, not the map.
             e.stopPropagation()
             onSelect(event)
           }}
