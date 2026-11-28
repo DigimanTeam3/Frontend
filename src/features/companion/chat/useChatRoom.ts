@@ -54,12 +54,17 @@ let localIdSeed = 0
 export function useChatRoom(postId: number) {
   const [messages, setMessages] = useState<CompanionMessage[]>([])
   const [pending, setPending] = useState<PendingMessage[]>([])
-  const [status, setStatus] = useState<ChatRoomStatus>({ kind: 'loading' })
+  const validId = Number.isSafeInteger(postId) && postId > 0
+  // A broken address (/companions/abc/chat) asks nothing and shows "not found".
+  const [status, setStatus] = useState<ChatRoomStatus>(
+    validId ? { kind: 'loading' } : { kind: 'closed', reason: 'notFound' },
+  )
   /** A poll failed after the first load; the next one tries again by itself. */
   const [unstable, setUnstable] = useState(false)
   const [loadKey, setLoadKey] = useState(0)
 
   useEffect(() => {
+    if (!validId) return
     let cancelled = false
     let timer: ReturnType<typeof setTimeout> | undefined
     let inFlight = false
@@ -132,7 +137,7 @@ export function useChatRoom(postId: number) {
       clearTimeout(timer)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [postId, loadKey])
+  }, [postId, validId, loadKey])
 
   const deliver = useCallback(
     (localId: string, content: string) => {

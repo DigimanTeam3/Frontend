@@ -33,6 +33,8 @@ export function ChatRoom({ postId }: { postId: number }) {
   const [showNewButton, setShowNewButton] = useState(false)
   const nearBottomRef = useRef(true)
   const seenRef = useRef({ messages: 0, pending: 0 })
+  const isReady = room.status.kind === 'ready'
+  const openedRef = useRef(false)
 
   // Keep the last message above the fixed input bar, whatever its height.
   useEffect(() => {
@@ -52,22 +54,30 @@ export function ChatRoom({ postId }: { postId: number }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // New messages: follow them when the reader is at the bottom or just sent one; otherwise
-  // leave the scroll where it is and offer a button.
+  // Opening: jump to the latest once the list is on screen (the first load can take several
+  // pages). After that, follow new messages when the reader is at the bottom or just sent one;
+  // otherwise leave the scroll where it is and offer a button.
   useLayoutEffect(() => {
     const seen = seenRef.current
     const messageCount = room.messages.length
     const pendingCount = room.pending.length
     seenRef.current = { messages: messageCount, pending: pendingCount }
-    if (messageCount === seen.messages && pendingCount <= seen.pending) return
-    if (seen.messages === 0 && seen.pending === 0) {
+    if (!isReady) {
+      openedRef.current = false
+      return
+    }
+    if (!openedRef.current) {
+      openedRef.current = true
       scrollToBottom('instant')
-    } else if (pendingCount > seen.pending || nearBottomRef.current) {
+      return
+    }
+    if (messageCount === seen.messages && pendingCount <= seen.pending) return
+    if (pendingCount > seen.pending || nearBottomRef.current) {
       scrollToBottom('smooth')
     } else {
       setShowNewButton(true)
     }
-  }, [room.messages.length, room.pending.length])
+  }, [isReady, room.messages.length, room.pending.length])
 
   if (room.status.kind === 'closed') {
     return <ClosedState reason={room.status.reason} postId={postId} onRetry={room.reload} />

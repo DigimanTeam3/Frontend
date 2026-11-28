@@ -12,9 +12,15 @@ export interface ChatComposerProps {
   ref?: Ref<HTMLFormElement>
 }
 
-// Input bar pinned to the bottom of the chat screen. Enter sends, Shift+Enter adds a line.
-// Enter that confirms a Japanese IME conversion only confirms it.
+// Phones have no Shift+Enter: there Enter adds a line and the button sends, as in LINE.
+function enterAddsLine() {
+  return window.matchMedia('(pointer: coarse)').matches
+}
+
+// Input bar pinned to the bottom of the chat screen. With a keyboard, Enter sends and
+// Shift+Enter adds a line. Enter that confirms a Japanese IME conversion only confirms it.
 export function ChatComposer({ onSend, ref }: ChatComposerProps) {
+  const [touch] = useState(enterAddsLine)
   const inputId = useId()
   const counterId = useId()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -39,7 +45,7 @@ export function ChatComposer({ onSend, ref }: ChatComposerProps) {
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     // keyCode 229: Safari reports the Enter that ends a conversion this way.
     const composing = event.nativeEvent.isComposing || event.keyCode === 229
-    if (event.key === 'Enter' && !event.shiftKey && !composing) {
+    if (event.key === 'Enter' && !event.shiftKey && !composing && !touch) {
       event.preventDefault()
       submit()
     }
@@ -66,7 +72,7 @@ export function ChatComposer({ onSend, ref }: ChatComposerProps) {
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={onKeyDown}
           placeholder={text.placeholder}
-          enterKeyHint="send"
+          enterKeyHint={touch ? 'enter' : 'send'}
           aria-describedby={counterId}
           aria-invalid={tooLong || undefined}
           className="min-h-10 min-w-0 flex-1 resize-none rounded-[20px] bg-surface-2 px-4 py-2.5 text-sm leading-[1.4] placeholder:text-ink-faint focus:ring-2 focus:ring-gate focus:outline-none"
