@@ -111,6 +111,8 @@ export function useConciergeSession() {
   const startRecording = () => {
     recorder.clearError()
     speech.cancel()
+    // Also here: a recording that stops by itself (time limit) has no tap of its own.
+    speech.prime()
     void recorder.start()
   }
 

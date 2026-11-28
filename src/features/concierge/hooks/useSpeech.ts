@@ -61,8 +61,8 @@ export function useSpeech() {
     setSpeakingId(id)
   }, [])
 
-  // iPhone Safari only lets speech start from a tap. Call this in the tap that ends recording,
-  // so the answer that arrives seconds later can be read aloud.
+  // iPhone Safari only lets speech start from a tap. Call this in the taps that start and end
+  // recording, so the answer that arrives seconds later can be read aloud.
   const prime = useCallback(() => {
     if (!isSpeechSupported()) return
     window.speechSynthesis.speak(new SpeechSynthesisUtterance(''))
