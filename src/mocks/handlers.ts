@@ -2,6 +2,7 @@ import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
 import { companionHandlers } from '@/mocks/companionHandlers'
 import { conciergeHandlers } from '@/mocks/conciergeHandlers'
+import { badgeHandlers } from '@/mocks/badgeHandlers'
 import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
 import {
@@ -110,5 +111,6 @@ export const handlers = [
   }),
   ...companionHandlers,
   ...conciergeHandlers,
+  ...badgeHandlers,
   ...uploadHandlers,
 ]

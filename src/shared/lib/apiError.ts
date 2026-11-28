@@ -46,3 +46,9 @@ export function apiErrorStatus(error: unknown): number | null {
 export function isNetworkError(error: unknown) {
   return error instanceof TypeError
 }
+
+/** 404 EVENT_NOT_FOUND; a 404 without a body (older mocks) counts too. */
+export function isEventNotFound(error: unknown) {
+  const code = apiErrorCode(error)
+  return code === 'EVENT_NOT_FOUND' || (code === null && apiErrorStatus(error) === 404)
+}

@@ -28,3 +28,15 @@ export function formatMonthDay(date: Date | string) {
   const { month, day } = seoulDateParts(date)
   return `${month}.${day}`
 }
+
+const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Seoul',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+})
+
+/** "18:12" */
+export function formatTime(date: Date | string) {
+  return timeFormatter.format(typeof date === 'string' ? new Date(date) : date)
+}

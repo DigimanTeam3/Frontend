@@ -325,4 +325,27 @@ export const ja = {
       missions: 'ミッションへ',
     },
   },
+  // Participation badge after the ticket is torn (S10: src/features/badge).
+  participationBadge: {
+    title: '改札完了',
+    // Two lines.
+    // TODO(S11): the Figma copy says "ミッションが開きました（4つ）". The count is items.length of
+    // GET /events/{eventId}/missions; add the query with S11, then make this line a function.
+    body: ['参加バッジを手に入れました。', 'ミッションが開きました'],
+    // Date, time and the venue name (a separate element, so a Korean original can be marked
+    // lang="ko"). The double spaces around the dot are part of the design.
+    metaBeforeVenue: (date: string, time: string) => `${date}  ${time}  ·  `,
+    stampLabel: (date: string) => `参加バッジ ${date}`,
+    stampCaption: 'ADMITTED',
+    stampTitle: '参加',
+    notVerified: {
+      title: 'まだ到着チェックが済んでいません',
+      body: '会場で到着チェックをすると、参加バッジがもらえます',
+      action: '到着チェックへ',
+    },
+    actions: {
+      missions: 'ミッションを見る',
+      later: 'あとで',
+    },
+  },
 } as const

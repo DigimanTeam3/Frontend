@@ -1,4 +1,4 @@
-import type { Badge } from '@/shared/types/badge'
+import type { Badge, BadgeType } from '@/shared/types/badge'
 import type { EventBrief, JourneyEvent } from '@/shared/types/eventBrief'
 import type { Participation } from '@/shared/types/participation'
 
@@ -213,6 +213,13 @@ export function findParticipation(eventId: number, userId: number) {
 
 export function findParticipationById(participationId: number) {
   return state.participations.find((p) => p.id === participationId)
+}
+
+/** My badges, newest first; every badge belongs to the one mock user. */
+export function listBadges(badgeType?: BadgeType) {
+  return state.badges
+    .filter((badge) => badgeType === undefined || badge.badgeType === badgeType)
+    .toReversed()
 }
 
 /** Create-or-get, like POST /events/{eventId}/participation. */

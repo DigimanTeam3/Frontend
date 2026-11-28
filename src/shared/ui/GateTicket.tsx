@@ -19,6 +19,8 @@ export interface GateTicketProps {
   /** attached: with the tear-off stub, perforation and notches. none: the stub is torn off. */
   stub: 'attached' | 'none'
   look?: GateTicketLook
+  /** With stub 'none': the dark punch hole where the stub was torn off (S10). */
+  punched?: boolean
   /**
    * Wraps the stub paper, so the screen that tears it can move it and listen to the drag:
    * `renderStub={(stub) => <div style={{ transform }}>{stub}</div>}`.
@@ -45,6 +47,7 @@ export function GateTicket({
   visitDate,
   stub,
   look = 'plain',
+  punched = false,
   renderStub,
   className,
 }: GateTicketProps) {
@@ -124,6 +127,12 @@ export function GateTicket({
             </div>
           </dl>
         </div>
+        {punched && stub === 'none' && (
+          <span
+            aria-hidden="true"
+            className="absolute right-3.5 bottom-[57px] size-[30px] rounded-full border border-dashed border-ink-faint bg-ink shadow-[inset_0_2px_3px] shadow-black/35"
+          />
+        )}
       </div>
 
       {stub === 'attached' && (
