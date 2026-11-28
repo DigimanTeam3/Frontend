@@ -25,7 +25,7 @@ export function CheckInIntro({ busy, onStart }: CheckInIntroProps) {
         >
           <PinIcon />
         </div>
-        <h1 className="font-mincho text-center text-2xl leading-[1.3] font-extrabold tracking-[0.01em] text-ink">
+        <h1 className="text-center font-mincho text-2xl leading-[1.3] font-extrabold tracking-[0.01em] text-ink">
           {intro.headline.map((line) => (
             <span key={line} className="block">
               {line}
@@ -60,7 +60,7 @@ export function CheckInIntro({ busy, onStart }: CheckInIntroProps) {
         <Button variant="accent" fullWidth disabled={busy} aria-busy={busy} onClick={onStart}>
           {busy ? ja.checkIn.checking : intro.start}
         </Button>
-        <p className="text-ink-faint text-center text-xs leading-normal">{intro.httpsNote}</p>
+        <p className="text-center text-xs leading-normal text-ink-faint">{intro.httpsNote}</p>
       </div>
     </>
   )
