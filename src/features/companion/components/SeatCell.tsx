@@ -47,17 +47,17 @@ export function SeatCell({ seat, name, isMe = false }: SeatCellProps) {
   return (
     <div
       className={`flex h-16 flex-col justify-between rounded-lg border p-2 transition-colors duration-500 ${
-        isMe ? 'border-primary bg-primary/10' : 'border-ink/40 bg-surface'
+        isMe ? 'border-gate bg-gate-soft' : 'border-ink/40 bg-surface'
       }`}
     >
       <span className="font-mono text-[11px] text-ink-muted">
         {seat}
-        {isMe && <span className="ml-1 text-primary">{ja.companionDetail.you}</span>}
+        {isMe && <span className="ml-1 text-gate-ink">{ja.companionDetail.you}</span>}
       </span>
       <span className="truncate font-bold" aria-label={name}>
         {letters.slice(0, printed).join('')}
         {printing && (
-          <span aria-hidden className="ml-px animate-pulse text-primary">
+          <span aria-hidden className="ml-px animate-pulse text-gate">
             |
           </span>
         )}

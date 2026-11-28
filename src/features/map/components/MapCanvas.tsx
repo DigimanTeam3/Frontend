@@ -41,7 +41,7 @@ export interface MapCanvasProps extends Omit<MapProps, 'mapStyle' | 'style' | 'i
 
 /**
  * The one MapLibre setup every map screen shares: OpenFreeMap tiles in the 切符 palette with
- * Japanese labels, Seoul bounds, phone-friendly limits, visible attribution, and the
+ * Japanese labels, Seoul bounds, phone-friendly limits, the attribution 「ⓘ」 button, and the
  * loading / failed / no-WebGL states. Screens put markers and controls inside as children.
  */
 export function MapCanvas({
@@ -95,7 +95,8 @@ export function MapCanvas({
         maxPitch={MAP_LIMITS.maxPitch}
         maxBounds={SEOUL_MAX_BOUNDS}
         pixelRatio={mapPixelRatio()}
-        attributionControl={{ compact: false }}
+        // Shown open on load, folded into the 「ⓘ」 button once the map is moved (tap to open again).
+        attributionControl={{ compact: true }}
         locale={MAP_LOCALE}
         // Japanese and Korean glyphs come from the phone's own fonts (no big font downloads).
         localIdeographFontFamily="'Hiragino Sans', 'IBM Plex Sans JP', 'Noto Sans JP', sans-serif"

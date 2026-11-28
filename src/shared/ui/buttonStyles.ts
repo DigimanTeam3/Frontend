@@ -19,9 +19,9 @@ const BASE =
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-ink text-white',
-  accent: 'bg-gate text-white',
+  accent: 'bg-gate text-ink',
   outline: 'border border-line bg-surface text-ink',
-  accentOutline: 'border-[1.5px] border-gate bg-surface text-gate',
+  accentOutline: 'border-[1.5px] border-gate bg-surface text-gate-ink',
   ghost: 'text-ink-muted',
 }
 

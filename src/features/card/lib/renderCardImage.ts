@@ -179,6 +179,7 @@ function drawCaption(
   const meta = `${ja.polaroidCard.metaBeforeVenue(input.dateText)}${input.venueText}`
   context.font = `500 ${META_SIZE}px ${style.fontFamily}`
   context.textAlign = 'left'
+  context.fillStyle = style.gateInk
   context.fillText(
     fitText(context, meta, TEXT_RIGHT - TEXT_LEFT - numberWidth - META_NUMBER_GAP),
     TEXT_LEFT,

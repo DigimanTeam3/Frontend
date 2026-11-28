@@ -74,7 +74,7 @@ export function EventTicket({ event }: EventTicketProps) {
     <Link
       ref={ref}
       to={`/events/${event.id}`}
-      className={`relative flex min-h-[196px] overflow-hidden rounded-[10px] shadow-[0_2px_10px_rgba(30,34,48,0.08)] outline-offset-2 transition-transform duration-150 ease-out active:scale-[0.99] ${color.paper}`}
+      className={`relative flex min-h-[196px] overflow-hidden rounded-[10px] shadow-[0_2px_10px_rgba(26,29,38,0.08)] outline-offset-2 transition-transform duration-150 ease-out active:scale-[0.99] ${color.paper}`}
     >
       <PaperGrain />
       <article className="relative flex min-w-0 flex-1 flex-col gap-2 py-3.5 pr-3 pl-4">
@@ -132,7 +132,9 @@ export function EventTicket({ event }: EventTicketProps) {
         </span>
         {event.companionCount > 0 && (
           <span
-            className={`mt-1 rounded-full border px-1.5 text-[10px]/[1.6] font-bold ${color.border} ${color.text}`}
+            className={
+              'mt-1 rounded-full bg-gate-soft px-1.5 text-[10px]/[1.6] font-bold text-gate-ink'
+            }
           >
             <span aria-hidden="true">{t.companions(event.companionCount)}</span>
             <span className="sr-only">{t.companionsLabel(event.companionCount)}</span>
@@ -159,7 +161,7 @@ export function EventTicket({ event }: EventTicketProps) {
 /** Ticket-shaped placeholder while the list loads. */
 export function EventTicketSkeleton() {
   return (
-    <div className="relative flex h-[196px] animate-pulse overflow-hidden rounded-[10px] bg-surface">
+    <div className="relative flex h-[196px] animate-pulse overflow-hidden rounded-[10px] bg-paper">
       <div className="flex flex-1 flex-col gap-3 py-3.5 pr-3 pl-4">
         <div className="h-6 w-24 rounded-sm bg-line/60" />
         <div className="h-8 w-4/5 rounded bg-line/60" />

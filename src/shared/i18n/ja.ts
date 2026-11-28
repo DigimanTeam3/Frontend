@@ -75,9 +75,9 @@ export const ja = {
   // Bottom tab bar. `code` is the small printed label above the name (decoration, like on a ticket).
   nav: {
     label: 'メインメニュー',
-    home: { code: 'HOME', name: 'ホーム' },
-    map: { code: 'MAP', name: 'マップ' },
-    wallet: { code: 'WALLET', name: '切符入れ' },
+    home: { name: 'ホーム' },
+    map: { name: 'マップ' },
+    wallet: { name: '切符入れ' },
   },
   topBar: {
     back: '戻る',
@@ -86,7 +86,9 @@ export const ja = {
   // S02 home
   home: {
     place: 'SEOUL',
+    greeting: 'ソウルで、どこ行こう？',
     title: '今日、行ける切符',
+    mapEntry: { title: '地図で探す', body: '3Dのソウルで、近くの切符を見つける' },
     search: 'イベント名・場所で探す',
     askAi: 'AIに聞く',
     categories: 'カテゴリ',
@@ -193,7 +195,6 @@ export const ja = {
     checkIn: '到着チェック',
     notFound: 'イベントが見つかりません',
     notFoundHint: '終了したか、URLが間違っている可能性があります。',
-    retry: 'もう一度試す',
   },
   map: {
     title: '近くのイベント',
@@ -844,7 +845,6 @@ export const ja = {
       participations: '参加したイベント',
       recruitments: '書いた募集文',
       tickets: '予約券',
-      language: '言語 · 日本語',
       logout: 'ログアウト',
     },
     // My companion record under "書いた募集文": posts I wrote and posts I joined.

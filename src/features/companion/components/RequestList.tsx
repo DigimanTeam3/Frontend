@@ -51,7 +51,7 @@ export function RequestList({ post, busy, onAccept, onReject }: RequestListProps
                     type="button"
                     disabled={busy}
                     onClick={() => onAccept(request.id)}
-                    className="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-surface disabled:opacity-50"
+                    className="rounded-[10px] bg-primary px-3 py-2 text-sm font-bold text-white disabled:opacity-40"
                   >
                     {text.accept}
                   </button>

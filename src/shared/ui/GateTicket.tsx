@@ -68,7 +68,7 @@ export function GateTicket({
   const dimmed = look === 'dimmed'
 
   const stubPaper = (
-    <div className="flex flex-col items-center gap-0.5 rounded-b-[16px] bg-surface px-5 py-[18px]">
+    <div className="flex flex-col items-center gap-0.5 rounded-b-[16px] bg-paper px-5 py-[18px]">
       <p className={`${LABEL} text-center whitespace-pre-wrap`}>{ja.gateTicket.stubCaption}</p>
       {serial && (
         // The negative margin takes back the spacing after the last digit, so the number is centered.
@@ -90,7 +90,7 @@ export function GateTicket({
         />
       )}
 
-      <div className="relative overflow-hidden rounded-t-[16px] bg-surface">
+      <div className="relative overflow-hidden rounded-t-[16px] bg-paper">
         <img
           src={photo}
           alt=""

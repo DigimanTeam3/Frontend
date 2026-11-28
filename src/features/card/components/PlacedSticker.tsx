@@ -132,7 +132,7 @@ export function PlacedSticker({ placement, board, hintId }: PlacedStickerProps) 
             type="button"
             aria-label={copy.removeBadge[type]}
             onClick={() => board.remove(type)}
-            className={`absolute -top-[2.12cqw] flex size-[max(24px,8.47cqw)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gate text-white before:absolute before:-inset-2.5 before:rounded-full before:content-[''] ${
+            className={`absolute -top-[2.12cqw] flex size-[max(24px,8.47cqw)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gate text-ink before:absolute before:-inset-2.5 before:rounded-full before:content-[''] ${
               x > REMOVE_BUTTON_FLIP_X
                 ? '-left-[2.12cqw] -translate-x-1/2'
                 : '-right-[2.12cqw] translate-x-1/2'
