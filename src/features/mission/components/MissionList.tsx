@@ -48,7 +48,7 @@ export function MissionList({ event, data }: MissionListProps) {
         />
 
         {!isVerified && (
-          <div className="bg-gate/15 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[14px] p-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[14px] bg-gate/15 p-3.5">
             <p className="min-w-0 flex-1 basis-40 text-[13px] leading-[1.6] text-ink">
               {copy.notVerified.body}
             </p>
