@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw/http'
+import { eventDetails } from '@/mocks/data/events'
 import {
   countMissions,
   findJourneyEvent,
@@ -62,8 +63,10 @@ const hasEnded = (event: JourneyEvent) => Date.now() > Date.parse(event.endDate)
 const hasNotStarted = (event: JourneyEvent) => Date.now() < Date.parse(event.startDate)
 
 export const checkinHandlers = [
-  // TEMP: remove when S05 (#15) lands its event mock. The old handler in handlers.ts still
-  // answers in the old event shape, so this one comes first and answers in the issue-#15 shape.
+  // The event detail as the journey screens (S09–S13) read it. S05's mock data is the base for
+  // the events both mocks have; this adds what the real server also sends (missionCount,
+  // verificationRadius) and the journey test events (25, 9003–9006) that exist only here.
+  // It is listed before the event handlers in handlers.ts, so it answers for every event id.
   http.get('/api/events/:eventId', async ({ params }) => {
     await mockDelay()
     const eventId = Number(params.eventId)
@@ -71,9 +74,9 @@ export const checkinHandlers = [
     if (hooked) return hooked
 
     const event = findJourneyEvent(eventId)
-    if (!event) return eventNotFound()
-    const body: JourneyEvent = { ...event, missionCount: countMissions(eventId) }
-    return HttpResponse.json(body)
+    const detail = eventDetails.find((item) => item.id === eventId)
+    if (!event && !detail) return eventNotFound()
+    return HttpResponse.json({ ...detail, ...event, missionCount: countMissions(eventId) })
   }),
 
   // Create-or-get: 201 for a new participation, 200 for the one I already have.
