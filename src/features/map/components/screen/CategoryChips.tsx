@@ -1,15 +1,16 @@
-import { categoryLabel } from '@/shared/lib/eventText'
+import { homeCategoryLabel, type HomeCategory } from '@/features/events/lib/popup'
 import { ja } from '@/shared/i18n/ja'
-import type { EventCategory } from '@/shared/types/event'
 
-export type CategoryFilter = EventCategory | 'all'
+/** Pop-up stores are a tab of their own, apart from the exhibitions they are sent as. */
+export type CategoryFilter = HomeCategory | 'all'
 
-const FILTERS: CategoryFilter[] = ['all', 'festival', 'exhibition', 'performance']
+const FILTERS: CategoryFilter[] = ['all', 'festival', 'exhibition', 'performance', 'popup']
 
-const DOT: Record<EventCategory, string> = {
+const DOT: Record<HomeCategory, string> = {
   festival: 'bg-festival',
   exhibition: 'bg-exhibit',
   performance: 'bg-stage',
+  popup: 'bg-gate',
 }
 
 export interface CategoryChipsProps {
@@ -18,7 +19,7 @@ export interface CategoryChipsProps {
   onChange: (value: CategoryFilter) => void
 }
 
-/** すべて / 祭り / 展示 / 公演 with counts. Filters the pins and the tickets together. */
+/** すべて / 祭り / 展示 / 公演 / ポップアップ with counts. Filters the pins and the tickets together. */
 export function CategoryChips({ value, counts, onChange }: CategoryChipsProps) {
   return (
     <div role="group" aria-label={ja.map.filterLabel} className="flex gap-2 overflow-x-auto">
@@ -37,7 +38,7 @@ export function CategoryChips({ value, counts, onChange }: CategoryChipsProps) {
             {filter !== 'all' && (
               <span aria-hidden className={`size-2 rounded-full ${DOT[filter]}`} />
             )}
-            {filter === 'all' ? ja.map.all : categoryLabel(filter)}
+            {filter === 'all' ? ja.map.all : homeCategoryLabel(filter)}
             <span
               className={`font-mono text-[10px] ${active ? 'text-surface/70' : 'text-ink-muted'}`}
             >

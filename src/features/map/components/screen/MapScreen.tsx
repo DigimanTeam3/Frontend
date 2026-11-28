@@ -2,6 +2,7 @@ import type { MapRef } from '@vis.gl/react-maplibre'
 import type { PaddingOptions } from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { ticketCategory } from '@/features/events/lib/popup'
 import { useMapEventsQuery } from '@/features/map/api'
 import locateIcon from '@/features/map/assets/locate.svg'
 import overviewIcon from '@/features/map/assets/overview.svg'
@@ -64,7 +65,7 @@ export function MapScreen() {
 
   const mapped = useMemo(() => sortForMap((data ?? []).filter(hasValidCoords)), [data])
   const visible = useMemo(
-    () => (filter === 'all' ? mapped : mapped.filter((e) => e.category === filter)),
+    () => (filter === 'all' ? mapped : mapped.filter((e) => ticketCategory(e) === filter)),
     [mapped, filter],
   )
   const counts = useMemo(() => {
@@ -73,8 +74,10 @@ export function MapScreen() {
       festival: 0,
       exhibition: 0,
       performance: 0,
+      popup: 0,
     }
-    for (const e of mapped) c[e.category] += 1
+    // Pop-up stores come as exhibitions: counted as pop-ups only.
+    for (const e of mapped) c[ticketCategory(e)] += 1
     return c
   }, [mapped])
 
