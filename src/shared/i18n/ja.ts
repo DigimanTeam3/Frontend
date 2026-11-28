@@ -500,7 +500,7 @@ export const ja = {
     sending: '送信中…',
     mine: 'あなた',
     delete: '削除',
-    deleteLabel: (name: string) => `${name}さんのコメントを削除`,
+    deleteLabel: '自分のコメントを削除',
     confirmDelete: 'このコメントを削除しますか？',
     confirm: '削除する',
     keep: 'やめる',

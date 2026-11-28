@@ -33,7 +33,8 @@ export function CommentSection({ postId }: { postId: number }) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  const items = comments.data?.pages.flatMap((page) => page.items) ?? []
+  // A comment written or deleted while pages load shifts the page edges: keep each id once.
+  const items = uniqueById(comments.data?.pages.flatMap((page) => page.items) ?? [])
   const total = comments.data?.pages.at(-1)?.total ?? 0
 
   const onDelete = (commentId: number) => {
@@ -83,6 +84,8 @@ export function CommentSection({ postId }: { postId: number }) {
               comment={comment}
               confirming={confirmingId === comment.id}
               deleting={remove.isPending && remove.variables === comment.id}
+              // One deletion at a time: another confirm would be closed by this one's answer.
+              deleteLocked={remove.isPending}
               onAskDelete={() => {
                 setDeleteError(null)
                 setConfirmingId(comment.id)
@@ -124,10 +127,18 @@ export function CommentSection({ postId }: { postId: number }) {
   )
 }
 
+function uniqueById(comments: CompanionComment[]) {
+  const byId = new Map<number, CompanionComment>()
+  for (const comment of comments) if (!byId.has(comment.id)) byId.set(comment.id, comment)
+  return [...byId.values()]
+}
+
 interface CommentItemProps {
   comment: CompanionComment
   confirming: boolean
   deleting: boolean
+  /** Another comment is being deleted. */
+  deleteLocked: boolean
   onAskDelete: () => void
   onKeep: () => void
   onDelete: () => void
@@ -137,6 +148,7 @@ function CommentItem({
   comment,
   confirming,
   deleting,
+  deleteLocked,
   onAskDelete,
   onKeep,
   onDelete,
@@ -186,8 +198,9 @@ function CommentItem({
             <button
               type="button"
               onClick={onAskDelete}
-              aria-label={text.deleteLabel(comment.author.nickname)}
-              className="rounded-lg px-2 py-1.5 text-xs text-ink-muted active:bg-ink/5"
+              aria-label={text.deleteLabel}
+              disabled={deleteLocked}
+              className="rounded-lg px-2 py-1.5 text-xs text-ink-muted active:bg-ink/5 disabled:opacity-40"
             >
               {text.delete}
             </button>
