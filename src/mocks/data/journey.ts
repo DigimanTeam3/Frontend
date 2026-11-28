@@ -1,5 +1,6 @@
 import type { Badge, BadgeType } from '@/shared/types/badge'
 import type { EventBrief, JourneyEvent } from '@/shared/types/eventBrief'
+import type { Mission, MissionListResponse, Submission } from '@/shared/types/mission'
 import type { Participation } from '@/shared/types/participation'
 
 // Mock data and state of the journey screens (check-in, badge, missions, card, my page) in one
@@ -139,6 +140,97 @@ export const journeyEvents: JourneyEvent[] = [
   },
 ]
 
+type MissionTemplate = Omit<Mission, 'mySubmission'>
+
+// Missions per event: event 1 mirrors the Figma list, event 25 (indoor demo) works anywhere.
+// Other events have none. Mission 102 has no Japanese text, to show the lang="ko" fallback.
+const missionTemplates: MissionTemplate[] = [
+  {
+    id: 101,
+    eventId: 1,
+    title: '등불 앞에서 셀카 찍기',
+    titleJa: '提灯の前で自撮り',
+    description: '마음에 드는 등불 앞에서 셀카를 찍어 보내 주세요.',
+    descriptionJa: '好きな提灯の前で自撮りをして、写真を送ってください。',
+    difficulty: 'easy',
+    verificationMethod: 'photo',
+    required: true,
+    sortOrder: 1,
+  },
+  {
+    id: 102,
+    eventId: 1,
+    title: '제일 마음에 드는 등불 찍기',
+    titleJa: null,
+    description: '가장 마음에 든 등불의 사진을 보내 주세요.',
+    descriptionJa: null,
+    difficulty: 'easy',
+    verificationMethod: 'photo',
+    required: true,
+    sortOrder: 2,
+  },
+  {
+    id: 103,
+    eventId: 1,
+    title: '포장마차에서 뭔가 먹어 보기',
+    titleJa: '屋台で何か食べてみる',
+    description: '먹은 음식의 사진과 한마디를 보내 주세요.',
+    descriptionJa: '食べたものの写真と、ひとことを送ってください。',
+    difficulty: 'normal',
+    verificationMethod: 'photo',
+    required: true,
+    sortOrder: 3,
+  },
+  {
+    id: 104,
+    eventId: 1,
+    title: '한국어로 "예쁘다"라고 말해 보기',
+    titleJa: '韓国語で「きれい」と言ってみる',
+    description: '한국어로 "예쁘다"라고 말해 본 소감을 적어 주세요.',
+    descriptionJa: '韓国語で「きれい」と言ってみた感想を書いてください。',
+    difficulty: 'hard',
+    verificationMethod: 'text',
+    required: false,
+    sortOrder: 4,
+  },
+  {
+    id: 251,
+    eventId: INDOOR_DEMO_EVENT_ID,
+    title: '행사장 입구에서 사진 찍기',
+    titleJa: '会場の入口で写真を撮る',
+    description: '행사장 입구가 보이는 사진을 보내 주세요.',
+    descriptionJa: '会場の入口が写った写真を送ってください。',
+    difficulty: 'easy',
+    verificationMethod: 'photo',
+    required: true,
+    sortOrder: 1,
+  },
+  {
+    id: 252,
+    eventId: INDOOR_DEMO_EVENT_ID,
+    title: '오늘의 소감 한마디',
+    titleJa: '今日の感想をひとこと',
+    description: '오늘 행사의 소감을 한마디로 적어 주세요.',
+    descriptionJa: '今日のイベントの感想をひとことで書いてください。',
+    difficulty: 'easy',
+    verificationMethod: 'text',
+    required: true,
+    sortOrder: 2,
+  },
+  {
+    id: 253,
+    eventId: INDOOR_DEMO_EVENT_ID,
+    title: '옆 사람에게 인사하기',
+    titleJa: 'となりの人にあいさつする',
+    description: '옆에 있는 사람에게 인사를 건넨 소감을 적어 주세요.',
+    descriptionJa: 'となりの人にあいさつをした感想を書いてください。',
+    difficulty: 'normal',
+    verificationMethod: 'text',
+    required: false,
+    sortOrder: 3,
+  },
+]
+
 export function findJourneyEvent(eventId: number) {
   return journeyEvents.find((event) => event.id === eventId)
 }
@@ -163,6 +255,8 @@ interface JourneyState {
   nextBadgeId: number
   participations: Participation[]
   badges: Badge[]
+  nextSubmissionId: number
+  submissions: Submission[]
 }
 
 const STORAGE_KEY = 'digiman.mock.journey'
@@ -173,6 +267,8 @@ function initialState(): JourneyState {
     nextBadgeId: 1,
     participations: [],
     badges: [],
+    nextSubmissionId: 1,
+    submissions: [],
   }
 }
 
@@ -197,7 +293,7 @@ function saveState() {
   }
 }
 
-/** Forgets every participation and badge of the mock. */
+/** Forgets every participation, badge and submission of the mock. */
 export function resetJourneyMock() {
   state = initialState()
   try {
@@ -259,4 +355,54 @@ export function verifyParticipation(participation: Participation, event: Journey
   state.badges.push(badge)
   saveState()
   return { participation, badge }
+}
+
+/** The missions of an event with my progress. Logged out (userId null): locked, nothing done. */
+export function listMissions(eventId: number, userId: number | null): MissionListResponse {
+  const isVerified = userId !== null && findParticipation(eventId, userId)?.status === 'verified'
+  const items: Mission[] = missionTemplates
+    .filter((mission) => mission.eventId === eventId)
+    .map((mission) => ({
+      ...mission,
+      mySubmission:
+        userId === null
+          ? null
+          : (state.submissions.find((s) => s.missionId === mission.id && s.userId === userId) ??
+            null),
+    }))
+  const required = items.filter((mission) => mission.required)
+  return {
+    items,
+    requiredCount: required.length,
+    myCompletedRequiredCount: required.filter((mission) => mission.mySubmission).length,
+    isVerified,
+  }
+}
+
+export function findMission(missionId: number) {
+  return missionTemplates.find((mission) => mission.id === missionId)
+}
+
+/** Records an approved submission (a mission is approved at once). Returns the existing one when there is one. */
+export function submitMission(
+  mission: Pick<Mission, 'id' | 'verificationMethod'>,
+  userId: number,
+  input: { image?: string; text?: string },
+) {
+  const existing = state.submissions.find((s) => s.missionId === mission.id && s.userId === userId)
+  if (existing) return { submission: existing, created: false }
+
+  const submission: Submission = {
+    id: state.nextSubmissionId++,
+    missionId: mission.id,
+    userId,
+    submissionType: mission.verificationMethod,
+    text: input.text ?? null,
+    image: input.image ?? null,
+    verificationStatus: 'approved',
+    submittedAt: nowIso(),
+  }
+  state.submissions.push(submission)
+  saveState()
+  return { submission, created: true }
 }

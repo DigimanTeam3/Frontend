@@ -4,6 +4,7 @@ import { companionHandlers } from '@/mocks/companionHandlers'
 import { conciergeHandlers } from '@/mocks/conciergeHandlers'
 import { badgeHandlers } from '@/mocks/badgeHandlers'
 import { checkinHandlers } from '@/mocks/checkinHandlers'
+import { missionHandlers } from '@/mocks/missionHandlers'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
 import {
   MOCK_ACCESS_TOKEN,
@@ -112,5 +113,6 @@ export const handlers = [
   ...companionHandlers,
   ...conciergeHandlers,
   ...badgeHandlers,
+  ...missionHandlers,
   ...uploadHandlers,
 ]

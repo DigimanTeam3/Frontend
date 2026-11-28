@@ -348,4 +348,32 @@ export const ja = {
       later: 'あとで',
     },
   },
+  // Mission list (S11: src/features/mission).
+  mission: {
+    title: 'ミッション',
+    required: '必須',
+    verifiedTag: '認証済み',
+    hint: '必須ミッションをすべて終えると、完走バッジと思い出カードができます',
+    hintDone: '必須ミッションをすべて終えました。完走バッジと思い出カードができました',
+    count: (done: number, total: number) => `${done}/${total}`,
+    progressLabel: (done: number, total: number) => `必須ミッション ${total}件中 ${done}件完了`,
+    status: {
+      locked: '到着チェック後に開きます',
+      todo: '未完了',
+      todoOptional: '未完了 · 任意',
+      done: '完了',
+      doneOptional: '完了 · 任意',
+    },
+    notVerified: {
+      body: '到着チェックを済ませると、ミッションに挑戦できます',
+      action: '到着チェックへ',
+    },
+    empty: {
+      title: 'ミッションはまだありません',
+      body: 'このイベントにはミッションがありません',
+      action: 'イベントの詳細へ',
+    },
+    viewCard: '思い出カードを見る',
+    submittedToast: 'ミッションを提出しました',
+  },
 } as const
