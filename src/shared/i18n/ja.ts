@@ -9,7 +9,7 @@ export const ja = {
     error: 'エラーが発生しました。もう一度お試しください。',
     comingSoon: '準備中です。',
     // Network failure (no answer from the server).
-    offline: '通信できませんでした。電波の良い場所でもう一度お試しください。',
+    offline: '通信できませんでした。接続を確認して、もう一度お試しください。',
     retry: 'もう一度試す',
     free: '無料',
     // Original (Korean) text shown as is, with lang="ko".
