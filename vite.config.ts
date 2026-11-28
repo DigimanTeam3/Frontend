@@ -44,9 +44,8 @@ export default defineConfig(({ mode }) => {
         ? {
             '/api': {
               target: apiProxyTarget,
+              // Backend routes start with /api, so the path is forwarded as is (same as vercel.json).
               changeOrigin: true,
-              // Backend routes start at /events, /me ... (same as Vercel rewrites in production).
-              rewrite: (path) => path.replace(/^\/api/, ''),
             },
           }
         : undefined,
