@@ -1,4 +1,4 @@
-import { seoulDateString, seoulMonthDay } from '@/features/events/lib/seoulDate'
+import { seoulDateString, seoulMonthDay, seoulYear } from '@/features/events/lib/seoulDate'
 import type { EventSummary } from '@/shared/types/event'
 
 /** Printed ticket number: start month-day + id, e.g. 「1101-0001」. Decoration only. */
@@ -9,13 +9,14 @@ export function ticketNumber(event: Pick<EventSummary, 'id' | 'startDate'>) {
 
 /**
  * DATE field: 「11.29」 for one day, 「〜 12.15」 when it has already started,
- * otherwise 「11.29 — 12.15」.
+ * otherwise 「11.29 — 12.15」. A date outside this year gets its year: 「〜 2027.05.30」.
  */
 export function ticketDate(startIso: string, endIso: string, now = new Date()) {
   const start = new Date(startIso)
   const end = new Date(endIso)
-  const startText = seoulMonthDay(start)
-  const endText = seoulMonthDay(end)
+  const thisYear = seoulYear(now)
+  const startText = seoulMonthDay(start, seoulYear(start) !== thisYear)
+  const endText = seoulMonthDay(end, seoulYear(end) !== thisYear)
   if (seoulDateString(start) === seoulDateString(end)) return startText
   if (now >= start) return `〜 ${endText}`
   return `${startText} — ${endText}`

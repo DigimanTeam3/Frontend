@@ -31,8 +31,13 @@ export function seoulHeaderDate(date = new Date()) {
   return `${year}.${month}.${day} ${weekday.toUpperCase()}`
 }
 
-/** 「11.29」 */
-export function seoulMonthDay(date: Date) {
-  const { month, day } = seoulParts(date)
-  return `${month}.${day}`
+/** 「11.29」, or 「2027.05.30」 with `withYear`. */
+export function seoulMonthDay(date: Date, withYear = false) {
+  const { year, month, day } = seoulParts(date)
+  return withYear ? `${year}.${month}.${day}` : `${month}.${day}`
+}
+
+/** Seoul year, e.g. 「2026」. */
+export function seoulYear(date: Date) {
+  return seoulParts(date).year
 }
