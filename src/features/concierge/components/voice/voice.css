@@ -87,54 +87,6 @@
   animation: digu-sniff 1.6s ease-in-out infinite;
 }
 
-/* Found: hops with the ticket in its mouth. */
-@keyframes digu-hop {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-8px);
-  }
-  55% {
-    transform: translateY(0);
-  }
-}
-.digu-hop {
-  animation: digu-hop 0.9s cubic-bezier(0.3, 0, 0.3, 1) 2;
-}
-
-/* Glow behind ディグ: pulses while listening. */
-@keyframes digu-glow {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.06);
-    opacity: 0.75;
-  }
-}
-.digu-glow-pulse {
-  animation: digu-glow 1.6s ease-in-out infinite;
-}
-
-/* Mic rings while recording. */
-@keyframes digu-ring {
-  from {
-    transform: scale(0.7);
-    opacity: 0.7;
-  }
-  to {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-.digu-ring {
-  animation: digu-ring 1.8s ease-out infinite;
-}
-
 /* Sound bars beside the mic. */
 @keyframes digu-bar {
   0%,
@@ -150,10 +102,11 @@
   animation: digu-bar 0.9s ease-in-out infinite;
 }
 
-/* Bubbles and cards come up. */
+/* State changes: a short fade with a small rise, nothing that bounces or flashes.
+   Bubbles and cards rise 6px; hints, chips and whole views only fade. */
 @keyframes digu-pop {
   from {
-    transform: translateY(6px) scale(0.97);
+    transform: translateY(6px);
     opacity: 0;
   }
   to {
@@ -162,22 +115,78 @@
   }
 }
 .digu-pop {
-  transform-origin: 50% 100%;
-  animation: digu-pop 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: digu-pop 200ms ease-out both;
+}
+@keyframes digu-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.digu-fade {
+  animation: digu-fade 180ms ease-out both;
+}
+
+/* The bubble column scrolls under a soft top edge when the lines do not fit. */
+.digu-bubbles {
+  mask-image: linear-gradient(to bottom, transparent, #000 24px);
+  scrollbar-width: none;
+}
+.digu-bubbles::-webkit-scrollbar {
+  display: none;
+}
+
+/* k1 → k2 (tickets printed → the list): ディグ shrinks to the corner, its line and each ticket
+   glide to their places, the bottom bar comes up last. Names are set in VoiceCounter. */
+::view-transition-group(digu),
+::view-transition-group(digu-line),
+::view-transition-group(digu-ticket-0),
+::view-transition-group(digu-ticket-1),
+::view-transition-group(digu-ticket-2) {
+  /* Long, soft settle: starts at once and eases in slowly at the end. */
+  animation-duration: 640ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+::view-transition-group(digu-ticket-1) {
+  animation-delay: 50ms;
+}
+::view-transition-group(digu-ticket-2) {
+  animation-delay: 100ms;
+}
+/* Everything else (the light behind ディグ, the background) cross-fades at the same pace. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 420ms;
+  animation-timing-function: ease-in-out;
+}
+/* The line changes words on the way: the old one fades out, the new one fades in after it. */
+::view-transition-old(digu-line) {
+  animation: digu-fade 280ms ease-in-out reverse both;
+}
+::view-transition-new(digu-line) {
+  animation: digu-fade 360ms ease-in-out 200ms both;
+}
+@keyframes digu-dock-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+::view-transition-new(digu-dock):only-child {
+  animation: digu-dock-in 460ms cubic-bezier(0.32, 0.72, 0, 1) 280ms both;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .digu-breathe,
   .digu-lean,
   .digu-sniff,
-  .digu-hop,
-  .digu-glow-pulse,
-  .digu-ring,
   .digu-bar,
-  .digu-pop {
+  .digu-pop,
+  .digu-fade {
     animation: none;
-  }
-  .digu-ring {
-    opacity: 0;
   }
 }

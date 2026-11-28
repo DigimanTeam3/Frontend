@@ -158,7 +158,21 @@
   transition: stroke-dashoffset 250ms linear;
 }
 
+/* Switching between the voice and chat counters: a short fade, no movement. */
+@keyframes concierge-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.concierge-fade {
+  animation: concierge-fade 180ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .concierge-fade,
   .concierge-flap,
   .concierge-print,
   .concierge-scatter,

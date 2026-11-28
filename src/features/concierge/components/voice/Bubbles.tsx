@@ -58,7 +58,7 @@ export function DiguBubble({
 export function YouBubble({ text, past = false }: { text: string | null; past?: boolean }) {
   return (
     <div
-      className={`digu-pop digu-tail-down digu-tail-end relative max-w-[min(100%,320px)] self-end rounded-[22px] px-[18px] pt-3.5 pb-4 shadow-[0_6px_9px_rgba(26,28,38,0.1)] ${past ? 'bg-[#8c8e93] text-white/75' : 'bg-[var(--digu-ink)] text-white'}`}
+      className={`digu-pop digu-tail-down digu-tail-end relative max-w-[min(100%,320px)] min-w-[min(100%,200px)] self-end rounded-[22px] px-[18px] pt-3.5 pb-4 shadow-[0_6px_9px_rgba(26,28,38,0.1)] transition-colors duration-200 ease-out motion-reduce:transition-none ${past ? 'bg-[#8c8e93] text-white/75' : 'bg-[var(--digu-ink)] text-white'}`}
     >
       <p className="flex items-center gap-1.5 text-xs leading-[1.5] text-[#d5d8de]">
         <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
