@@ -4,6 +4,7 @@ import type {
   ConciergeReply,
   ConciergeTranscription,
 } from '@/shared/types/concierge'
+import type { Ticket, TicketCreateRequest } from '@/shared/types/ticket'
 
 export function sendConciergeMessage(body: ConciergeMessageRequest) {
   return apiClient<ConciergeReply>('/concierge/messages', {
@@ -17,6 +18,11 @@ export function transcribeAudio(audio: Blob) {
   const extension = audio.type.includes('mp4') ? 'mp4' : 'webm'
   form.append('audio', audio, `question.${extension}`)
   return apiClient<ConciergeTranscription>('/concierge/transcribe', { method: 'POST', body: form })
+}
+
+/** Keeps the conditions as a 予約券 (S17). Needs login. Answers the new ticket (201). */
+export function saveCondition(body: TicketCreateRequest) {
+  return apiClient<Ticket>('/saved-conditions', { method: 'POST', body: JSON.stringify(body) })
 }
 
 export type ConciergeErrorKind =

@@ -44,3 +44,27 @@ export function SpeakerIcon({ active }: { active: boolean }) {
     </svg>
   )
 }
+
+export function CheckIcon() {
+  return (
+    <svg {...base} width={12} height={12} strokeWidth={2.5}>
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  )
+}
+
+export function SparkleIcon() {
+  return (
+    <svg {...base} width={16} height={16} fill="currentColor" stroke="none">
+      <path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4zM18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" />
+    </svg>
+  )
+}
+
+export function BellIcon() {
+  return (
+    <svg {...base} width={16} height={16}>
+      <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0" />
+    </svg>
+  )
+}
