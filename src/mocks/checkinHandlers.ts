@@ -71,7 +71,7 @@ export const checkinHandlers = [
     const event = findJourneyEvent(eventId)
     const detail = eventDetails.find((item) => item.id === eventId)
     if (!event && !detail) return eventNotFound()
-    return HttpResponse.json({ ...detail, ...event, missionCount: countMissions(eventId) })
+    return HttpResponse.json({ ...detail, ...event })
   }),
 
   // Create-or-get: 201 for a new participation, 200 for the one I already have.
