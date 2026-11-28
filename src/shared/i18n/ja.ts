@@ -93,6 +93,8 @@ export const ja = {
     askAi: 'AIに聞く',
     categories: 'カテゴリ',
     all: 'すべて',
+    // Tab and ticket label for pop-up stores (the API sends them as exhibitions).
+    popup: 'ポップアップ',
     empty: 'いま行けるイベントはありません。',
     emptyCategory: 'この種類のイベントはいまありません。',
     showAll: 'すべてのイベントを見る',
@@ -101,7 +103,12 @@ export const ja = {
   },
   // Event ticket card (S02 home). English codes are printed decoration, hidden from screen readers.
   ticket: {
-    categoryCode: { festival: 'FESTIVAL', exhibition: 'EXHIBIT', performance: 'STAGE' },
+    categoryCode: {
+      festival: 'FESTIVAL',
+      exhibition: 'EXHIBIT',
+      performance: 'STAGE',
+      popup: 'POPUP',
+    },
     date: 'DATE',
     venue: 'VENUE',
     fare: 'FARE',

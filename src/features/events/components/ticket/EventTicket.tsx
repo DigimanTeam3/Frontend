@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { TicketTitle } from '@/features/events/components/ticket/TicketTitle'
 import { PaperGrain, Perforation, PunchHole } from '@/features/events/components/ticket/ticketParts'
-import { categoryLabel, preferJa } from '@/features/events/lib/eventText'
+import { preferJa } from '@/features/events/lib/eventText'
+import { homeCategoryLabel, ticketCategory } from '@/features/events/lib/popup'
 import { ticketDate, ticketNumber } from '@/features/events/lib/ticketText'
 import { TICKET_COLORS } from '@/features/events/lib/ticketStyle'
 import { ja } from '@/shared/i18n/ja'
@@ -66,7 +67,8 @@ export interface EventTicketProps {
 // Home card printed as a train ticket (Figma: Concept 切符 / S02-k4 読める切符).
 export function EventTicket({ event }: EventTicketProps) {
   const t = ja.ticket
-  const color = TICKET_COLORS[event.category]
+  const kind = ticketCategory(event)
+  const color = TICKET_COLORS[kind]
   const [ref, seen] = useSeenOnce<HTMLAnchorElement>(0.6)
   const venue = preferJa(event.venueNameJa, event.venueName)
 
@@ -80,17 +82,17 @@ export function EventTicket({ event }: EventTicketProps) {
       <article className="relative flex min-w-0 flex-1 flex-col gap-2 py-3.5 pr-3 pl-4">
         <div className="flex items-center gap-2">
           <p
-            className={`flex items-center gap-1.5 rounded-[2px] py-1 pr-2.5 pl-1.5 leading-[1.4] ${color.text}`}
+            className={`flex shrink-0 items-center gap-1.5 rounded-[2px] py-1 pr-2.5 pl-1.5 leading-[1.4] whitespace-nowrap ${color.text}`}
           >
             <span aria-hidden="true" className={`h-4 w-1 ${color.bar}`} />
-            <span className="text-xs font-bold">{categoryLabel(event.category)}</span>
+            <span className="text-xs font-bold">{homeCategoryLabel(kind)}</span>
             <span aria-hidden="true" className="font-mono text-[9px] tracking-[0.14em]">
-              {t.categoryCode[event.category]}
+              {t.categoryCode[kind]}
             </span>
           </p>
           <span
             aria-hidden="true"
-            className="ml-auto font-mono text-[9px]/[1.4] tracking-[0.1em] text-ink-muted"
+            className="ml-auto truncate font-mono text-[9px]/[1.4] tracking-[0.1em] text-ink-muted"
           >
             No.{ticketNumber(event)}
           </span>

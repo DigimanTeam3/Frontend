@@ -12,6 +12,8 @@ export const queryKeys = {
     detail: (eventId: number) => [...queryKeys.events.all, 'detail', eventId] as const,
     // S04: every event at once for the map
     map: () => [...queryKeys.events.all, 'map'] as const,
+    // S02: every page of some conditions at once (pop-ups are split from exhibitions here)
+    allPages: (params: object) => [...queryKeys.events.all, 'allPages', params] as const,
   },
   companions: {
     all: ['companions'] as const,

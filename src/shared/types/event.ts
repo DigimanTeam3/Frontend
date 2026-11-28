@@ -22,6 +22,8 @@ export interface EventSummary {
   imageUrl: string | null
   isFree: boolean
   companionCount: number
+  /** Where the data comes from. Pop-up stores come as exhibitions with "popup_map_kr". */
+  source?: string | null
 }
 
 /** GET /api/events/{eventId} */
