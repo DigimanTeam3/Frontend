@@ -23,7 +23,11 @@ export function CardDetailScreen() {
     // Checked before the error states: a failed background refetch must not close a card that
     // is already on screen.
     content = <CardDetail key={cardQuery.data.id} card={cardQuery.data} />
-  } else if (cardId === null || apiErrorCode(cardQuery.error) === 'CARD_NOT_FOUND') {
+  } else if (
+    cardId === null ||
+    // FORBIDDEN: the card belongs to another user. Retrying cannot help, so it reads as not found.
+    ['CARD_NOT_FOUND', 'FORBIDDEN'].includes(apiErrorCode(cardQuery.error) ?? '')
+  ) {
     content = (
       <>
         {heading}
