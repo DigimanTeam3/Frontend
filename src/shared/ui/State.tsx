@@ -54,7 +54,7 @@ export function State(props: StateProps) {
     >
       <div
         className={`flex size-16 shrink-0 items-center justify-center rounded-full ${
-          isError ? 'bg-danger/10 text-danger' : 'bg-ink/5 text-ink-muted'
+          isError ? 'bg-danger/10 text-danger' : 'bg-surface-2 text-ink-muted'
         }`}
       >
         {props.icon ?? (isError ? <WifiOffIcon /> : <SearchIcon />)}
