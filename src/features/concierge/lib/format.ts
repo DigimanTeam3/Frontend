@@ -42,7 +42,11 @@ export function conditionLabels(conditions: ConciergeConditions) {
   } else if (dateFrom || dateTo) {
     labels.push(shortDate((dateFrom ?? dateTo) as string))
   }
-  if (conditions.area) labels.push(conditions.area)
+  // Areas come as keys ('gangnam-songpa'): shown by their Japanese name, unknown ones left out.
+  const { areas } = ja.search
+  if (conditions.area && Object.hasOwn(areas, conditions.area)) {
+    labels.push(areas[conditions.area as keyof typeof areas])
+  }
   // Values this screen does not know are left out instead of showing "undefined".
   const { category } = ja.concierge.conditions
   if (conditions.category && Object.hasOwn(category, conditions.category)) {
