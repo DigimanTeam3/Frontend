@@ -2,6 +2,7 @@ import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
 import { companionHandlers } from '@/mocks/companionHandlers'
 import { conciergeHandlers } from '@/mocks/conciergeHandlers'
+import { checkinHandlers } from '@/mocks/checkinHandlers'
 import { uploadHandlers } from '@/mocks/uploadHandlers'
 import {
   MOCK_ACCESS_TOKEN,
@@ -76,6 +77,9 @@ export const handlers = [
   }),
 
   // Events (S02, S03, S04, S05)
+  // Journey mocks (S09–S13). Kept before the event handlers: its GET /api/events/:eventId
+  // answers first, with the event detail plus what the journey screens read.
+  ...checkinHandlers,
   http.get('/api/events', async ({ request }) => {
     await delay(400)
     const url = new URL(request.url)
