@@ -1,5 +1,6 @@
 import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
+import { conciergeHandlers } from '@/mocks/conciergeHandlers'
 import {
   MOCK_ACCESS_TOKEN,
   MOCK_AUTH_CODE,
@@ -68,4 +69,5 @@ export const handlers = [
     const event = events.find((e) => e.id === Number(params.eventId))
     return event ? HttpResponse.json(event) : new HttpResponse(null, { status: 404 })
   }),
+  ...conciergeHandlers,
 ]

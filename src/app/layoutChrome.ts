@@ -12,7 +12,9 @@ export type LayoutChrome =
 const TAB_PATHS = ['/', '/map', '/me']
 
 // Add a path here when its page lays itself out edge to edge and renders its own TopBar.
-const BARE_PATHS: string[] = []
+const BARE_PATHS: string[] = [
+  '/concierge', // S16: counter pinned at the top, input bar at the bottom
+]
 
 // The gate flow is a scene you leave rather than go back from, so it gets a close button.
 const CLOSE_PATHS = [
