@@ -1,4 +1,4 @@
-import { MOCK_USER_ID } from '@/mocks/mockHelpers'
+import { MOCK_USER_ID } from '@/mocks/utils'
 import type { Badge, BadgeType } from '@/shared/types/badge'
 import type { ExperienceCard, ExperienceCardUpdate } from '@/shared/types/card'
 import type { EventBrief, JourneyEvent } from '@/shared/types/eventBrief'

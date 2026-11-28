@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/queryKeys'
-import { apiErrorCode } from '@/shared/lib/apiError'
+import { apiErrorCode } from '@/shared/api/errors'
 import type { ExperienceCard } from '@/shared/types/card'
 import type {
   MissionListResponse,

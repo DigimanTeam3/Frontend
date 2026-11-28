@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw/http'
-import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import type { UploadedImage } from '@/shared/types/upload'
 
 // Image upload mock (C8). Shape follows POST /uploads/images of the backend API spec v2.
@@ -21,7 +21,7 @@ export const uploadHandlers = [
 
     const file = (await request.formData()).get('file')
     if (!(file instanceof File) || file.size === 0) {
-      return errorResponse(400, 'VALIDATION_ERROR', 'file is empty', { field: 'file' })
+      return errorResponse(400, 'VALIDATION_ERROR', 'file is empty', 'file')
     }
     if (!ALLOWED_TYPES.includes(file.type)) {
       return errorResponse(400, 'UNSUPPORTED_IMAGE_TYPE', `${file.type} is not supported`)

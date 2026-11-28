@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw/http'
 import { listMyCompanions, listParticipations, summarize } from '@/mocks/data/journey'
-import { currentUserId, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import { mypageForcedError, mypageLongName } from '@/mocks/mypageMock'
 import type { MyCompanion, MyParticipation, User } from '@/shared/types/me'
 import type { Page } from '@/shared/types/page'

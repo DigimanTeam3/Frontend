@@ -1,4 +1,4 @@
-import { errorResponse } from '@/mocks/mockHelpers'
+import { errorResponse } from '@/mocks/utils'
 
 // Test switches of the My Page mock (S15), kept in sessionStorage so they survive a reload:
 //   key MYPAGE_MOCK_KEY, JSON { "fail": ["badges", ...], "longName": true }

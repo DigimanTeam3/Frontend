@@ -13,7 +13,7 @@ import {
   VERIFY_ERROR_EVENT_ID,
   verifyParticipation,
 } from '@/mocks/data/journey'
-import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import { distanceMeters } from '@/shared/lib/distance'
 import { isCheckedIn } from '@/shared/lib/participationStatus'
 import type { JourneyEvent } from '@/shared/types/eventBrief'
@@ -91,7 +91,7 @@ export const checkinHandlers = [
     const event = findJourneyEvent(eventId)
     if (!event) return eventNotFound()
     if (hasEnded(event)) {
-      return errorResponse(400, 'EVENT_ENDED', 'event has ended', { detail: eventPeriod(event) })
+      return errorResponse(400, 'EVENT_ENDED', 'event has ended', undefined, eventPeriod(event))
     }
 
     const { participation, created } = joinEvent(eventId, userId)
@@ -135,14 +135,18 @@ export const checkinHandlers = [
     }
     const { latitude, longitude, accuracy } = body
     if (typeof latitude !== 'number' || typeof longitude !== 'number') {
-      return errorResponse(400, 'VALIDATION_ERROR', 'latitude and longitude are required', {
-        field: 'latitude',
-      })
+      return errorResponse(
+        400,
+        'VALIDATION_ERROR',
+        'latitude and longitude are required',
+        'latitude',
+      )
     }
 
     if (event.id === LOW_ACCURACY_EVENT_ID) {
-      return errorResponse(400, 'LOW_ACCURACY', 'position is not accurate enough', {
-        detail: { accuracy: accuracy ?? 850, maxAccuracy: MAX_ACCURACY_M },
+      return errorResponse(400, 'LOW_ACCURACY', 'position is not accurate enough', undefined, {
+        accuracy: accuracy ?? 850,
+        maxAccuracy: MAX_ACCURACY_M,
       })
     }
     if (event.id === VERIFY_ERROR_EVENT_ID) return serverError()
@@ -151,19 +155,24 @@ export const checkinHandlers = [
       return errorResponse(409, 'ALREADY_VERIFIED', 'already verified')
     }
     if (hasNotStarted(event)) {
-      return errorResponse(400, 'EVENT_NOT_STARTED', 'event has not started', {
-        detail: eventPeriod(event),
-      })
+      return errorResponse(
+        400,
+        'EVENT_NOT_STARTED',
+        'event has not started',
+        undefined,
+        eventPeriod(event),
+      )
     }
     if (hasEnded(event)) {
-      return errorResponse(400, 'EVENT_ENDED', 'event has ended', { detail: eventPeriod(event) })
+      return errorResponse(400, 'EVENT_ENDED', 'event has ended', undefined, eventPeriod(event))
     }
 
     // The indoor demo has no radius or accuracy limit, so it passes inside a building too.
     const isDemo = event.id === INDOOR_DEMO_EVENT_ID
     if (!isDemo && typeof accuracy === 'number' && accuracy > MAX_ACCURACY_M) {
-      return errorResponse(400, 'LOW_ACCURACY', 'position is not accurate enough', {
-        detail: { accuracy, maxAccuracy: MAX_ACCURACY_M },
+      return errorResponse(400, 'LOW_ACCURACY', 'position is not accurate enough', undefined, {
+        accuracy,
+        maxAccuracy: MAX_ACCURACY_M,
       })
     }
     if (event.lat === null || event.lng === null) {
@@ -175,8 +184,9 @@ export const checkinHandlers = [
     )
     const radius = event.verificationRadius ?? DEFAULT_RADIUS_M
     if (!isDemo && distance > radius) {
-      return errorResponse(400, 'OUT_OF_RANGE', 'outside the venue radius', {
-        detail: { distanceMeters: distance, radiusMeters: radius },
+      return errorResponse(400, 'OUT_OF_RANGE', 'outside the venue radius', undefined, {
+        distanceMeters: distance,
+        radiusMeters: radius,
       })
     }
 

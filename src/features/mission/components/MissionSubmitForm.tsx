@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router'
 import { useSubmitMissionMutation } from '@/features/mission/api'
 import { MissionHeader } from '@/features/mission/components/MissionHeader'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorCode, apiErrorInfo } from '@/shared/lib/apiError'
+import { apiErrorCode, isApiError } from '@/shared/api/errors'
 import { paths } from '@/shared/lib/paths'
 import type { Mission, SubmissionRequest } from '@/shared/types/mission'
 import type { UploadedImage } from '@/shared/types/upload'
@@ -28,7 +28,7 @@ const LABEL = 'text-xs leading-normal font-bold text-ink-muted'
 type ErrorKey = keyof typeof ja.missionSubmit.errors
 
 function errorKeyOf(error: unknown): ErrorKey {
-  const info = apiErrorInfo(error)
+  const info = isApiError(error) ? error.body : null
   if (!info || !Object.hasOwn(ja.missionSubmit.errors, info.code)) return 'UNKNOWN'
   // The validation copy is about the comment: a complaint about another field gets the generic one.
   if (info.code === 'VALIDATION_ERROR' && info.field !== undefined && info.field !== 'text') {

@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw/http'
 import { findCard, listCards, updateCard } from '@/mocks/data/journey'
-import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/utils'
 import { mypageForcedError } from '@/mocks/mypageMock'
 import type { ExperienceCard, ExperienceCardUpdate } from '@/shared/types/card'
 import type { Page } from '@/shared/types/page'
@@ -98,7 +98,7 @@ export const cardHandlers = [
     }
     const changes: ExperienceCardUpdate = {}
     if (body.memo === null) {
-      return errorResponse(400, 'VALIDATION_ERROR', 'memo: must not be null', { field: 'memo' })
+      return errorResponse(400, 'VALIDATION_ERROR', 'memo: must not be null', 'memo')
     }
     if (body.memo !== undefined) {
       if (body.memo === FORCED_NETWORK_MEMO) return HttpResponse.error()
@@ -110,17 +110,13 @@ export const cardHandlers = [
         body.memo.length > MEMO_MAX_LENGTH ||
         body.memo === FORCED_VALIDATION_MEMO
       ) {
-        return errorResponse(400, 'VALIDATION_ERROR', 'memo must be 500 characters or less', {
-          field: 'memo',
-        })
+        return errorResponse(400, 'VALIDATION_ERROR', 'memo must be 500 characters or less', 'memo')
       }
       changes.memo = body.memo
     }
     if (body.userImage !== undefined) {
       if (typeof body.userImage !== 'string' || body.userImage === '') {
-        return errorResponse(400, 'VALIDATION_ERROR', 'userImage must be an image URL', {
-          field: 'userImage',
-        })
+        return errorResponse(400, 'VALIDATION_ERROR', 'userImage must be an image URL', 'userImage')
       }
       changes.userImage = body.userImage
     }
