@@ -10,6 +10,7 @@
   --color-ink-faint: #9a9c9f; /* inactive tabs, decoration only (low contrast) */
   --color-line: #c9bda6;
   --color-danger: #d92d20;
+  --color-line-brand: #06c755;
 
   --font-sans: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
@@ -18,6 +19,17 @@
   /* Mobile layout */
   --spacing-gutter: 24px; /* side margin: 342px content in a 390px screen */
   --container-app: 430px; /* widest phone; wider screens show the app centered */
+}
+
+/* Event category and state colors from the Figma ui variables. Added for S05. */
+@theme {
+  --color-gate: #12a57c;
+  --color-festival: #d0532e;
+  --color-festival-soft: #fbe2d8;
+  --color-exhibit: #2f64a0;
+  --color-exhibit-soft: #dce8f5;
+  --color-warn: #b87c0c;
+  --color-warn-soft: #fbf0d6;
 }
 
 @layer base {
