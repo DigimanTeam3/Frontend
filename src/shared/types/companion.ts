@@ -50,3 +50,35 @@ export interface CompanionListResponse {
   size: number
   total: number
 }
+
+/** Body for POST /events/{eventId}/companions. */
+export interface CreateCompanionBody {
+  meetAt: string
+  capacity: number
+  intro: string
+}
+
+/** Seat on the ticket: the author is 1A, accepted people follow (1B, 1C, 1D). */
+export interface CompanionMember {
+  user: UserSummary
+  seat: string
+  joinedAt: string
+  /** True for the logged-in user's own seat. */
+  isMe: boolean
+}
+
+export interface CompanionRequest {
+  id: number
+  user: UserSummary
+  status: CompanionRequestStatus
+  createdAt: string
+}
+
+export interface CompanionPostDetail extends CompanionPostSummary {
+  event: EventSummary
+  members: CompanionMember[]
+  /** My request on someone else's post (null if none, cancelled, or my own post). */
+  myRequest: Omit<CompanionRequest, 'user'> | null
+  /** Requests on my post; empty for other people's posts. */
+  requests: CompanionRequest[]
+}

@@ -1,8 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
+import { apiErrorCode } from '@/shared/api/errors'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useAuthStore } from '@/shared/stores/authStore'
-import type { CompanionListFilter, CompanionListResponse } from '@/shared/types/companion'
+import type {
+  CompanionListFilter,
+  CompanionListResponse,
+  CompanionPostDetail,
+  CreateCompanionBody,
+} from '@/shared/types/companion'
 
 const LIST_SIZE = 50
 
@@ -17,5 +23,29 @@ export function useCompanionsQuery(eventId: number, filter: CompanionListFilter)
     queryKey: queryKeys.companions.list(eventId, filter, signedIn),
     queryFn: () => getCompanions(eventId, filter),
     enabled: Number.isInteger(eventId) && eventId > 0,
+  })
+}
+
+export function createCompanion(eventId: number, body: CreateCompanionBody) {
+  return apiClient<CompanionPostDetail>(`/events/${eventId}/companions`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function useCreateCompanionMutation(eventId: number) {
+  const queryClient = useQueryClient()
+  // Event queries carry companionCount (S05), so they are refreshed with the lists.
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.companions.lists() })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.events.all })
+  }
+  return useMutation({
+    mutationFn: (body: CreateCompanionBody) => createCompanion(eventId, body),
+    onSuccess: refresh,
+    // Someone (another tab) already posted: refetch so the screen shows the existing post.
+    onError: (error) => {
+      if (apiErrorCode(error) === 'ALREADY_POSTED') refresh()
+    },
   })
 }

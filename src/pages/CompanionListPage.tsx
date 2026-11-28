@@ -2,7 +2,7 @@ import { Link, useParams, useSearchParams } from 'react-router'
 import { useCompanionsQuery } from '@/features/companion/api'
 import { CompanionCard } from '@/features/companion/components/CompanionCard'
 import { EventStrip } from '@/features/companion/components/EventStrip'
-import { apiErrorCode } from '@/features/companion/errors'
+import { apiErrorCode } from '@/shared/api/errors'
 import { ja } from '@/shared/i18n/ja'
 import type { CompanionListFilter } from '@/shared/types/companion'
 
