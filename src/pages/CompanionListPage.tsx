@@ -48,9 +48,9 @@ export function CompanionListPage() {
                 type="button"
                 aria-pressed={filter === value}
                 onClick={() => selectFilter(value)}
-                className={`rounded-full border px-4 py-1.5 text-sm font-bold ${
+                className={`flex h-9 items-center rounded-full border px-3.5 text-[13px] ${
                   filter === value
-                    ? 'border-primary bg-primary text-surface'
+                    ? 'border-ink bg-ink font-bold text-white'
                     : 'border-line bg-surface text-ink'
                 }`}
               >
@@ -98,7 +98,7 @@ export function CompanionListPage() {
                 to={
                   myOpenPost ? `/companions/${myOpenPost.id}` : `/events/${eventId}/companions/new`
                 }
-                className="pointer-events-auto rounded-2xl bg-primary px-5 py-3.5 font-bold text-surface shadow-lg"
+                className="pointer-events-auto flex h-[52px] items-center rounded-full bg-primary px-5 text-[15px] font-bold text-white shadow-float"
               >
                 {myOpenPost ? ja.companion.viewMine : `＋ ${ja.companion.create}`}
               </Link>

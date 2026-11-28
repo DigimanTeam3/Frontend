@@ -62,7 +62,7 @@ export function CompanionDetailPage() {
             <InitialAvatar name={post.author.nickname} />
             <p className="min-w-0 flex-1 truncate font-bold">{post.author.nickname}</p>
             {post.isMine && (
-              <span className="rounded-md border border-primary px-2 py-0.5 text-xs text-primary">
+              <span className="rounded-md border border-gate px-2 py-0.5 text-xs text-gate">
                 {ja.companion.mine}
               </span>
             )}
