@@ -10,6 +10,7 @@
   --color-ink-faint: #9a9c9f; /* inactive tabs, decoration only (low contrast) */
   --color-line: #c9bda6;
   --color-danger: #d92d20;
+  --color-line-brand: #06c755;
 
   --font-sans: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
