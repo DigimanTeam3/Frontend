@@ -60,7 +60,7 @@ export function MissionItem({ mission, locked }: MissionItemProps) {
       </span>
       {!locked && !done && (
         // The icon keeps its 16px stroke weight inside the 20px slot.
-        <span className="text-ink-faint flex size-5 shrink-0 items-center justify-center">
+        <span className="flex size-5 shrink-0 items-center justify-center text-ink-faint">
           <ChevronRightIcon />
         </span>
       )}
