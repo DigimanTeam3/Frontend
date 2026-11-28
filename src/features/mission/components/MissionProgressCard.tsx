@@ -60,7 +60,7 @@ export function MissionProgressCard({
               ) : (
                 <span
                   key={mission.id}
-                  className="border-ink-faint text-ink-faint flex aspect-square w-11 min-w-0 shrink items-center justify-center rounded-full border border-dashed bg-surface font-mono text-[11px] font-medium tracking-[0.08em]"
+                  className="flex aspect-square w-11 min-w-0 shrink items-center justify-center rounded-full border border-dashed border-ink-faint bg-surface font-mono text-[11px] font-medium tracking-[0.08em] text-ink-faint"
                 >
                   {String(index + 1).padStart(2, '0')}
                 </span>
