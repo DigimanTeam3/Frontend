@@ -21,12 +21,14 @@ export interface BadgeEarnedProps {
 const STAMP_RIGHT = 'calc(-1 * min(34.5px, (100vw - 300px) / 2 - 9.5px))'
 
 // Stage "earned" (Figma: S10 参加バッジ獲得): the torn ticket with its punch hole, the stamp on
-// its corner, and the way on to the missions.
+// its corner, and the way on to the missions. An event without missions (`missionCount` 0) has
+// no way on: the buttons lead back to the event and to My Page, where the badge is kept.
 export function BadgeEarned({ event, ticketNumber, earnedAt }: BadgeEarnedProps) {
   const navigate = useNavigate()
   const { participationBadge: copy } = ja
   const date = formatMonthDay(earnedAt)
   const venue = event.venueNameJa ?? event.venueName
+  const hasNoMissions = event.missionCount === 0
 
   return (
     <>
@@ -73,17 +75,34 @@ export function BadgeEarned({ event, ticketNumber, earnedAt }: BadgeEarnedProps)
       </div>
 
       <div className="mt-auto flex flex-col gap-2.5 pt-8">
-        <Button variant="primary" fullWidth onClick={() => navigate(paths.missions(event.id))}>
-          {copy.actions.missions}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          fullWidth
-          onClick={() => navigate(paths.eventDetail(event.id))}
-        >
-          {copy.actions.later}
-        </Button>
+        {hasNoMissions ? (
+          <>
+            <Button
+              variant="primary"
+              fullWidth
+              onClick={() => navigate(paths.eventDetail(event.id))}
+            >
+              {copy.actions.backToEvent}
+            </Button>
+            <Button variant="ghost" size="sm" fullWidth onClick={() => navigate(paths.me())}>
+              {copy.actions.myPage}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button variant="primary" fullWidth onClick={() => navigate(paths.missions(event.id))}>
+              {copy.actions.missions}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              fullWidth
+              onClick={() => navigate(paths.eventDetail(event.id))}
+            >
+              {copy.actions.later}
+            </Button>
+          </>
+        )}
       </div>
     </>
   )

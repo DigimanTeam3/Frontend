@@ -38,9 +38,8 @@ const OTHER_TAG_COLOR = 'bg-ink/5 text-ink-muted'
 const TAG_COLORS: Partial<Record<string, string>> = {
   festival: 'bg-festival-soft text-festival',
   exhibition: 'bg-exhibit-soft text-exhibit',
-  performance: OTHER_TAG_COLOR,
-  // TODO: give pop-ups their own colour once the team adds a token for them.
-  popup: OTHER_TAG_COLOR,
+  performance: 'bg-stage-soft text-stage',
+  popup: 'bg-gate-soft text-gate-ink',
 } satisfies Record<JourneyEventCategory, string>
 const TAG_LABELS: Partial<Record<string, string>> = ja.gateTicket.category
 
