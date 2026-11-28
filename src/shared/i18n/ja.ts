@@ -75,7 +75,10 @@ export const ja = {
       festival: '祭り',
       exhibition: '展示',
       performance: '公演',
+      popup: 'ポップアップ',
     },
+    // A category this app does not know yet.
+    otherCategory: 'イベント',
     number: (monthDay: string, serial: string) => `No.${monthDay}-${serial}`,
     venueLabel: 'VENUE',
     dateLabel: 'DATE',

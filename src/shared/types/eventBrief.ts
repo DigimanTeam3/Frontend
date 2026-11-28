@@ -11,7 +11,9 @@ export interface EventBrief {
   endDate: string
 }
 
-export type JourneyEventCategory = 'festival' | 'exhibition' | 'performance'
+// The contract has the first three. `popup` is proposed by the backend (pop-up stores are sent
+// as `exhibition` until the team decides), so screens must also cope with a name they do not know.
+export type JourneyEventCategory = 'festival' | 'exhibition' | 'performance' | 'popup'
 
 // TEMP: the fields of GET /events/{eventId} (EventDetail, issue #15) that the journey screens
 // (S09–S14) read. Use EventDetail instead once src/shared/types/event.ts has it on main.
