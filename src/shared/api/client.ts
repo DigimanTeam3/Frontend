@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/shared/stores/authStore'
-import { ApiError } from '@/shared/api/errors'
+import { ApiError, parseRetryAfter } from '@/shared/api/errors'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
@@ -19,7 +19,11 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
 
   const response = await fetch(`${BASE_URL}${path}`, { ...init, headers })
   if (!response.ok) {
-    throw new ApiError(response.status, await response.text())
+    throw new ApiError(
+      response.status,
+      await response.text(),
+      parseRetryAfter(response.headers.get('Retry-After')),
+    )
   }
   if (response.status === 204) return undefined as T
   return (await response.json()) as T

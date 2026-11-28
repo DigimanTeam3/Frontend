@@ -8,4 +8,6 @@ export interface ApiErrorBody {
   message: string
   /** Input field the error is about (validation errors only). */
   field?: string
+  /** Extra data for some codes, e.g. OUT_OF_RANGE `{ distanceMeters, radiusMeters }`. */
+  detail?: unknown
 }

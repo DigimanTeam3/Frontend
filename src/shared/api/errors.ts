@@ -1,6 +1,6 @@
 import type { ApiErrorBody } from '@/shared/types/api'
 
-/** Reads `{ code, message, field? }` from an error response. null when the body is not that JSON. */
+/** Reads `{ code, message, field?, detail? }` from an error response. null when the body is not that JSON. */
 export function parseErrorBody(text: string): ApiErrorBody | null {
   let body: unknown
   try {
@@ -9,13 +9,26 @@ export function parseErrorBody(text: string): ApiErrorBody | null {
     return null
   }
   if (!body || typeof body !== 'object') return null
-  const { code, message, field } = body as Record<string, unknown>
+  const { code, message, field, detail } = body as Record<string, unknown>
   if (typeof code !== 'string' || code === '') return null
   return {
     code,
     message: typeof message === 'string' ? message : '',
     ...(typeof field === 'string' ? { field } : {}),
+    ...(detail !== undefined ? { detail } : {}),
   }
+}
+
+/**
+ * Seconds to wait from a `Retry-After` header (429 RATE_LIMITED sends "60"), or null.
+ * An HTTP date is turned into seconds from now.
+ */
+export function parseRetryAfter(value: string | null): number | null {
+  if (!value) return null
+  const seconds = Number(value)
+  if (Number.isFinite(seconds)) return seconds >= 0 ? seconds : null
+  const time = Date.parse(value)
+  return Number.isNaN(time) ? null : Math.max(0, Math.ceil((time - Date.now()) / 1000))
 }
 
 /** Thrown by apiClient for every non-2xx response. Network failures stay as fetch's TypeError. */
@@ -25,12 +38,15 @@ export class ApiError extends Error {
   readonly code: string | null
   /** Parsed error body. null when the body was not `{ code, message }` JSON. */
   readonly body: ApiErrorBody | null
+  /** Seconds from the Retry-After header (e.g. 429), or null. */
+  readonly retryAfter: number | null
 
   /** `responseText` is the raw body. It is kept as `message`, so code that parses it still works. */
-  constructor(status: number, responseText: string) {
+  constructor(status: number, responseText: string, retryAfter: number | null = null) {
     super(responseText)
     this.name = 'ApiError'
     this.status = status
+    this.retryAfter = retryAfter
     this.body = parseErrorBody(responseText)
     this.code = this.body?.code ?? null
   }
