@@ -32,6 +32,16 @@
   --color-warn-soft: #fbf0d6;
 }
 
+/* Ticket category colors from the Figma "Concept 切符" variables (kippu/*). Added for S02. */
+@theme {
+  --color-kippu-festival: #c4532f;
+  --color-kippu-festival-paper: #f7dccb;
+  --color-kippu-exhibit: #2f5f86;
+  --color-kippu-exhibit-paper: #d8e6f0;
+  --color-kippu-stage: #5a7a36;
+  --color-kippu-stage-paper: #dfe9cf;
+}
+
 /* 公演 (performance) print color from Figma kippu/stage and the map paper. Added for C6 maps. */
 @theme {
   --color-stage: #5a7a36;

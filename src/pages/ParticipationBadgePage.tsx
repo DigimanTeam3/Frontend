@@ -1,6 +1,6 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { ParticipationBadgeScreen } from '@/features/badge/ParticipationBadgeScreen'
 
-// S10. Replace the placeholder with the real screen.
+// S10. The screen lives in its feature folder.
 export function ParticipationBadgePage() {
-  return <ScreenPlaceholder screenId="S10" />
+  return <ParticipationBadgeScreen />
 }

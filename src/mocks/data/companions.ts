@@ -1,4 +1,5 @@
 import type {
+  CompanionPostDetail,
   CompanionPostSummary,
   CompanionRequestStatus,
   CompanionStatus,
@@ -157,5 +158,39 @@ export function toSummary(post: MockPost, meId: number | null): CompanionPostSum
     isMine,
     myRequestStatus: myRequest?.status ?? null,
     createdAt: post.createdAt,
+  }
+}
+
+const SEAT_LETTERS = ['A', 'B', 'C', 'D']
+const seatLabel = (index: number) => `1${SEAT_LETTERS[index] ?? index + 1}`
+
+export function toDetail(post: MockPost, meId: number | null): CompanionPostDetail {
+  const summary = toSummary(post, meId)
+  const myRequest =
+    meId !== null && !summary.isMine
+      ? requests.find((r) => r.postId === post.id && r.userId === meId)
+      : undefined
+  return {
+    ...summary,
+    event: toEventSummary(post.eventId)!,
+    members: post.members.map((member, index) => ({
+      user: findUser(member.userId),
+      seat: seatLabel(index),
+      joinedAt: member.joinedAt,
+      isMe: member.userId === meId,
+    })),
+    myRequest: myRequest
+      ? { id: myRequest.id, status: myRequest.status, createdAt: myRequest.createdAt }
+      : null,
+    requests: summary.isMine
+      ? requests
+          .filter((r) => r.postId === post.id && r.status !== 'ACCEPTED')
+          .map((r) => ({
+            id: r.id,
+            user: findUser(r.userId),
+            status: r.status,
+            createdAt: r.createdAt,
+          }))
+      : [],
   }
 }

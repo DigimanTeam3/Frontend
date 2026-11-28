@@ -1,6 +1,6 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { CardDetailScreen } from '@/features/card/CardDetailScreen'
 
-// S14. Replace the placeholder with the real screen.
+// S14. The screen lives in its feature folder.
 export function CardDetailPage() {
-  return <ScreenPlaceholder screenId="S14" />
+  return <CardDetailScreen />
 }

@@ -1,6 +1,6 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { NotificationEventScreen } from '@/features/notification/NotificationEventScreen'
 
-// S18. Replace the placeholder with the real screen.
+// S18. The screen lives in its feature folder.
 export function NotificationEventPage() {
-  return <ScreenPlaceholder screenId="S18" />
+  return <NotificationEventScreen />
 }

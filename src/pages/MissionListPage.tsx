@@ -1,6 +1,6 @@
-import { ScreenPlaceholder } from '@/shared/ui/ScreenPlaceholder'
+import { MissionListScreen } from '@/features/mission/MissionListScreen'
 
-// S11. Replace the placeholder with the real screen.
+// S11. The screen lives in its feature folder.
 export function MissionListPage() {
-  return <ScreenPlaceholder screenId="S11" />
+  return <MissionListScreen />
 }
