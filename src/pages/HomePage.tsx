@@ -7,6 +7,7 @@ import { categoryLabel } from '@/features/events/lib/eventText'
 import { seoulDateString, seoulHeaderDate } from '@/features/events/lib/seoulDate'
 import { useNextPageTrigger } from '@/features/events/lib/useNextPageTrigger'
 import { ja } from '@/shared/i18n/ja'
+import { State } from '@/shared/ui/State'
 import type { EventCategory, EventSummary } from '@/shared/types/event'
 
 const PAGE_SIZE = 10
@@ -117,34 +118,17 @@ function HomeList({ query, events, category, onShowAll }: HomeListProps) {
   }
 
   if (query.isError && events.length === 0) {
-    return (
-      <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="text-sm text-danger">{ja.common.error}</p>
-        <button
-          type="button"
-          onClick={() => void query.refetch()}
-          className="rounded-[14px] bg-ink px-5 py-3 text-[15px] font-bold text-white"
-        >
-          {t.retry}
-        </button>
-      </div>
-    )
+    return <State kind="error" className="py-16" onRetry={() => void query.refetch()} />
   }
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-[10px] border border-dashed border-line px-6 py-12 text-center">
-        <p className="text-sm text-ink-muted">{category ? t.emptyCategory : t.empty}</p>
-        {category && (
-          <button
-            type="button"
-            onClick={onShowAll}
-            className="text-sm font-bold text-ink underline underline-offset-4"
-          >
-            {t.showAll}
-          </button>
-        )}
-      </div>
+      <State
+        kind="empty"
+        className="py-16"
+        title={category ? t.emptyCategory : t.empty}
+        action={category ? { label: t.showAll, onClick: onShowAll } : undefined}
+      />
     )
   }
 

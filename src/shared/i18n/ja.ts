@@ -193,7 +193,6 @@ export const ja = {
     checkIn: '到着チェック',
     notFound: 'イベントが見つかりません',
     notFoundHint: '終了したか、URLが間違っている可能性があります。',
-    retry: 'もう一度試す',
   },
   map: {
     title: '近くのイベント',

@@ -24,6 +24,7 @@ import {
 } from '@/features/events/search/searchConditions'
 import { useSearchPosition } from '@/features/events/search/useSearchPosition'
 import { ja } from '@/shared/i18n/ja'
+import { State } from '@/shared/ui/State'
 import type { EventListItem } from '@/shared/types/event'
 
 const PAGE_SIZE = 20
@@ -329,33 +330,18 @@ function ResultList({ query, events, onReset }: ResultListProps) {
   }
 
   if (query.isError && events.length === 0) {
-    return (
-      <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="text-sm text-danger">{ja.common.error}</p>
-        <button
-          type="button"
-          onClick={() => void query.refetch()}
-          className="rounded-[14px] bg-ink px-5 py-3 text-[15px] font-bold text-white"
-        >
-          {t.retry}
-        </button>
-      </div>
-    )
+    return <State kind="error" className="py-16" onRetry={() => void query.refetch()} />
   }
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-[10px] border border-dashed border-line px-6 py-12 text-center">
-        <p className="text-sm font-bold text-ink">{t.empty}</p>
-        <p className="text-xs text-ink-muted">{t.emptyHint}</p>
-        <button
-          type="button"
-          onClick={onReset}
-          className="mt-2 min-h-11 text-sm font-bold text-ink underline underline-offset-4"
-        >
-          {t.resetAll}
-        </button>
-      </div>
+      <State
+        kind="empty"
+        className="py-16"
+        title={t.empty}
+        body={t.emptyHint}
+        action={{ label: t.resetAll, onClick: onReset }}
+      />
     )
   }
 
