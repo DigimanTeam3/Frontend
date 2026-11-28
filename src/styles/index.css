@@ -21,6 +21,17 @@
   --container-app: 430px; /* widest phone; wider screens show the app centered */
 }
 
+/* Event category and state colors from the Figma ui variables. Added for S05. */
+@theme {
+  --color-gate: #12a57c;
+  --color-festival: #d0532e;
+  --color-festival-soft: #fbe2d8;
+  --color-exhibit: #2f64a0;
+  --color-exhibit-soft: #dce8f5;
+  --color-warn: #b87c0c;
+  --color-warn-soft: #fbf0d6;
+}
+
 @layer base {
   html,
   body {
