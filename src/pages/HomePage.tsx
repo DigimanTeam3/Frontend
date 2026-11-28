@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useEventPagesQuery } from '@/features/events/api'
+import chevronIcon from '@/features/events/assets/chevron.svg'
+import mapEntryIcon from '@/features/events/assets/map-entry.svg'
 import searchIcon from '@/features/events/assets/search.svg'
 import { EventTicket, EventTicketSkeleton } from '@/features/events/components/ticket/EventTicket'
 import { categoryLabel } from '@/features/events/lib/eventText'
@@ -36,7 +38,7 @@ export function HomePage() {
         <p className="font-mono text-[10px]/[1.4] font-medium tracking-[0.14em] whitespace-pre text-ink-muted">
           {`${t.place}  ·  ${seoulHeaderDate()}`}
         </p>
-        <h1 className="text-[22px]/[1.4] font-bold">{t.title}</h1>
+        <h1 className="text-[22px]/[1.4] font-bold">{t.greeting}</h1>
       </header>
 
       {/* Entrances to S03 search and S16 AI desk. Not in Figma yet (proposal). */}
@@ -55,6 +57,23 @@ export function HomePage() {
           {t.askAi}
         </Link>
       </div>
+
+      {/* Entrance to S04 map (Figma: ui / MapEntry). */}
+      <Link
+        to="/map"
+        className="mb-4 flex h-[72px] items-center gap-3 rounded-2xl border border-line bg-surface pr-4 pl-3 transition-colors duration-150 ease-out active:bg-surface-2"
+      >
+        <span className="h-12 w-14 shrink-0 overflow-hidden rounded-[10px] bg-exhibit-soft">
+          <img src={mapEntryIcon} alt="" width={56} height={48} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-[15px]/[1.65] font-bold">{t.mapEntry.title}</span>
+          <span className="truncate text-xs/[1.5] text-ink-muted">{t.mapEntry.body}</span>
+        </span>
+        <img src={chevronIcon} alt="" width={20} height={20} className="shrink-0" />
+      </Link>
+
+      <h2 className="pb-4 text-lg/[1.45] font-bold">{t.title}</h2>
 
       <nav aria-label={t.categories} className="pb-4">
         <ul className="flex gap-2">

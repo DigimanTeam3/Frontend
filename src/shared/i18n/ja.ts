@@ -86,7 +86,9 @@ export const ja = {
   // S02 home
   home: {
     place: 'SEOUL',
+    greeting: 'ソウルで、どこ行こう？',
     title: '今日、行ける切符',
+    mapEntry: { title: '地図で探す', body: '3Dのソウルで、近くの切符を見つける' },
     search: 'イベント名・場所で探す',
     askAi: 'AIに聞く',
     categories: 'カテゴリ',
