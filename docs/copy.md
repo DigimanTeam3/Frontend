@@ -14,7 +14,7 @@
 
 - 다른 화면의 섹션은 고치지 않습니다. 같은 말을 여러 화면이 쓰게 되면 `common`에 더하고, 각 화면이 자기 PR에서 옮깁니다.
 - 숫자·이름이 들어가는 문구는 함수로 만듭니다: `` loggedInAs: (name: string) => `${name}さんとしてログイン中です` ``. 컴포넌트에서 문구 조각을 `+`나 템플릿으로 이어 붙이지 않습니다 (일본어는 어순이 달라 조각을 이으면 어색해짐).
-- 에러 code별 문구는 화면 섹션 안에 `errors: { CODE: '…' }`로 둡니다 (예: `companionDetail.errors.POST_FULL`). 서버 `message`는 화면에 보여 주지 않습니다.
+- 에러 code별 문구는 화면 섹션 안에 `errors: { CODE: '…' }`로 둡니다 (예: `<화면>.errors.EVENT_NOT_FOUND`). 서버 `message`는 화면에 보여 주지 않습니다.
 - `aria-label`, `alt`, 제목(`<title>`)도 화면 문구라서 `ja.ts`에서 가져옵니다.
 
 ## 2. 말투
@@ -62,7 +62,7 @@
 - 원문을 그리는 요소에는 `lang="ko"`를 붙입니다. 화면 낭독기와 글꼴 선택이 한국어로 바뀝니다.
   - `<span lang="ko">{event.title}</span>`
   - 일본어(`titleJa`)가 없어 원문을 대신 보여 줄 때도 `lang="ko"`. 일본어가 있을 때는 붙이지 않습니다.
-- `…Ja`가 null이면 원문 옆에 `ja.common.noTranslation`(`日本語訳なし`)을 작게 붙입니다. 기계 번역이면 `ja.common.autoTranslated`(`自動翻訳`)를 붙입니다.
+- `…Ja`가 null이면 원문 옆에 `ja.common.noTranslation`(`日本語訳なし`)을 작게 붙입니다. `…Ja`를 보여 줄 때 번역문임을 알리려면 `ja.common.autoTranslated`(`自動翻訳`)를 붙입니다 (예: S05 상세).
 
 ## 5. PR 전 체크리스트
 
