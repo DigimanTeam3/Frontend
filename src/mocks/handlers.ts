@@ -1,5 +1,6 @@
 import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
+import { companionHandlers } from '@/mocks/companionHandlers'
 import { conciergeHandlers } from '@/mocks/conciergeHandlers'
 import {
   MOCK_ACCESS_TOKEN,
@@ -102,5 +103,6 @@ export const handlers = [
           status: 404,
         })
   }),
+  ...companionHandlers,
   ...conciergeHandlers,
 ]
