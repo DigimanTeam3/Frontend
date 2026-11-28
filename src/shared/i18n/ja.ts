@@ -747,8 +747,8 @@ export const ja = {
         body: '通信状態を確認して、もう一度お試しください。',
       },
     },
-    // One line under the heading of a section that could not load (the retry button is the
-    // shared state.retry).
+    // One line under the heading of a section that could not load (the retry button is
+    // common.retry).
     sectionError: 'うまく読み込めませんでした。',
     badges: {
       title: 'バッジ',

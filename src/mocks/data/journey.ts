@@ -479,8 +479,8 @@ export function summarize(userId: number): MySummary {
   }
 }
 
-// TODO(api): GET /me/companions is not spelled out in the spec (v2). Fixed sample posts: two I
-// wrote and one I joined. The posts themselves belong to the companion mock (S06–S08), which
+// GET /me/companions as the live server answers it. Fixed sample posts: two I wrote and one I
+// joined. The posts themselves belong to the companion mock (S06–S08), which
 // does not know these ids.
 const myCompanionSeeds: Omit<MyCompanion, 'event'>[] = [
   {

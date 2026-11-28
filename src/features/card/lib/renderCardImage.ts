@@ -85,7 +85,8 @@ async function loadPhoto(url: string, signal?: AbortSignal) {
 
   // Fetched by hand instead of through <img crossorigin>: the browser cache may hold the answer
   // the <img> on screen got without CORS, and reusing that one would taint the canvas.
-  // TODO(api): the image host must send CORS headers (Access-Control-Allow-Origin) or the shared image has no photo
+  // The image host has to send Access-Control-Allow-Origin, or the shared image comes out
+  // without the photo. The upload storage and the event image CDN both do (checked 2026-11-28).
   const controller = new AbortController()
   const abort = () => controller.abort()
   const timer = setTimeout(abort, PHOTO_TIMEOUT_MS)
