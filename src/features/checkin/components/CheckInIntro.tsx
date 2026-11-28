@@ -47,7 +47,7 @@ export function CheckInIntro({ radiusM, busy, onStart }: CheckInIntroProps) {
             <li key={step} className="flex items-center gap-2.5">
               <span
                 aria-hidden="true"
-                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gate/15 text-xs leading-normal font-bold text-gate"
+                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gate-soft text-xs leading-normal font-bold text-gate"
               >
                 {index + 1}
               </span>
