@@ -1,4 +1,4 @@
-import { categoryLabel } from '@/features/events/lib/eventText'
+import { categoryLabel } from '@/shared/lib/eventText'
 import { ja } from '@/shared/i18n/ja'
 import type { EventCategory } from '@/shared/types/event'
 

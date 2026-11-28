@@ -2,7 +2,6 @@ import type { MapRef } from '@vis.gl/react-maplibre'
 import type { PaddingOptions } from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { preferJa } from '@/features/events/lib/eventText'
 import { useMapEventsQuery } from '@/features/map/api'
 import locateIcon from '@/features/map/assets/locate.svg'
 import overviewIcon from '@/features/map/assets/overview.svg'
@@ -26,6 +25,7 @@ import { hasWebGL, prefersReducedMotion } from '@/features/map/lib/maplibre'
 import { sortForMap } from '@/features/map/lib/ticketText'
 import { useCurrentPosition } from '@/features/map/lib/useCurrentPosition'
 import { ja } from '@/shared/i18n/ja'
+import { preferJa } from '@/shared/lib/eventText'
 
 // Keeps the destination in the open part of the map, clear of the top bar and the tickets.
 const CAMERA_PADDING: PaddingOptions = { top: 140, bottom: 170, left: 32, right: 32 }

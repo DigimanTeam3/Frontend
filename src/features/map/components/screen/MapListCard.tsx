@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { preferJa } from '@/features/events/lib/eventText'
+import { preferJa } from '@/shared/lib/eventText'
 import { ja } from '@/shared/i18n/ja'
 import { formatDateRange } from '@/shared/lib/formatDate'
 import type { EventSummary } from '@/shared/types/event'

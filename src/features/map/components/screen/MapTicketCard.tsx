@@ -1,9 +1,10 @@
 import { Link } from 'react-router'
-import { categoryLabel, eventStatus, preferJa } from '@/features/events/lib/eventText'
+import { eventStatus } from '@/features/events/lib/eventText'
 import routeIcon from '@/features/map/assets/route.svg'
 import { DirectionsLink } from '@/features/map/components/DirectionsLink'
 import { ticketNumber, ticketPeriod } from '@/features/map/lib/ticketText'
 import { ja } from '@/shared/i18n/ja'
+import { categoryLabel, preferJa } from '@/shared/lib/eventText'
 import type { EventCategory, EventSummary } from '@/shared/types/event'
 
 // Ticket paper and print color per category (Figma Concept 切符 / kippu).
