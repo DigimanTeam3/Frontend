@@ -1,4 +1,3 @@
-// TODO(api): provisional — no backend API for saved conditions (予約券) yet. Paths and fields are placeholders for the mock only.
 import { http, HttpResponse } from 'msw/http'
 import {
   DELETE_ERROR_TICKET_ID,
@@ -15,7 +14,7 @@ import type { TicketListResponse } from '@/shared/types/ticket'
 //   DELETE of ticket 9002 (the third sample) → 500 INTERNAL_ERROR
 //   list states: see the switch in src/mocks/data/tickets.ts ('empty', 'network', 'server')
 export const ticketHandlers = [
-  http.get('/api/me/tickets', async ({ request }) => {
+  http.get('/api/saved-conditions', async ({ request }) => {
     await mockDelay()
     if (currentUserId(request) === null) return unauthorizedResponse()
 
@@ -27,7 +26,7 @@ export const ticketHandlers = [
     return HttpResponse.json(body)
   }),
 
-  http.delete('/api/me/tickets/:ticketId', async ({ params, request }) => {
+  http.delete('/api/saved-conditions/:ticketId', async ({ params, request }) => {
     await mockDelay()
     if (currentUserId(request) === null) return unauthorizedResponse()
 

@@ -18,7 +18,7 @@ export function CompleteScreen() {
   // The event is only read to tell an unknown event from "no card yet".
   const eventQuery = useJourneyEventQuery(eventId)
   const cardsQuery = useMyCardsQuery(eventId !== null)
-  const card = cardsQuery.data?.items.find((item) => item.event.id === eventId)
+  const card = cardsQuery.data?.items.find((item) => item.eventId === eventId)
   // A list kept from before this visit may be older than the card: while its first refetch
   // runs, "no card yet" is not known, so the screen waits instead of showing the empty state.
   const cardsChecking = cardsQuery.isFetching && !cardsQuery.isFetchedAfterMount

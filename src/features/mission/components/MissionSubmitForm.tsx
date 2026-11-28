@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router'
 import { useSubmitMissionMutation } from '@/features/mission/api'
 import { MissionHeader } from '@/features/mission/components/MissionHeader'
 import { ja } from '@/shared/i18n/ja'
-import { apiErrorCode } from '@/shared/lib/apiError'
+import { apiErrorCode, apiErrorInfo } from '@/shared/lib/apiError'
 import { paths } from '@/shared/lib/paths'
 import type { Mission, SubmissionRequest } from '@/shared/types/mission'
 import type { UploadedImage } from '@/shared/types/upload'
@@ -28,10 +28,13 @@ const LABEL = 'text-xs leading-normal font-bold text-ink-muted'
 type ErrorKey = keyof typeof ja.missionSubmit.errors
 
 function errorKeyOf(error: unknown): ErrorKey {
-  const code = apiErrorCode(error)
-  return code !== null && Object.hasOwn(ja.missionSubmit.errors, code)
-    ? (code as ErrorKey)
-    : 'UNKNOWN'
+  const info = apiErrorInfo(error)
+  if (!info || !Object.hasOwn(ja.missionSubmit.errors, info.code)) return 'UNKNOWN'
+  // The validation copy is about the comment: a complaint about another field gets the generic one.
+  if (info.code === 'VALIDATION_ERROR' && info.field !== undefined && info.field !== 'text') {
+    return 'UNKNOWN'
+  }
+  return info.code as ErrorKey
 }
 
 /** The request body, or null while the form is not complete. */
@@ -41,13 +44,16 @@ function submissionBody(
   text: string,
 ): SubmissionRequest | null {
   const trimmed = text.trim()
-  if (mission.verificationMethod === 'text') return trimmed === '' ? null : { text: trimmed }
-  if (!image) return null
-  return trimmed === '' ? { image: image.url } : { image: image.url, text: trimmed }
+  if (mission.verificationMethod === 'text') {
+    return trimmed === '' ? null : { submissionType: 'text', text: trimmed }
+  }
+  // A photo mission is the photo alone: the server does not keep a comment with it.
+  return image ? { submissionType: 'photo', imageUrl: image.url } : null
 }
 
 // The form of a mission that is still open (Figma: S12 ミッション提出): one photo for a photo
-// mission, the comment (required for a text mission), and the submit button.
+// mission, the text for a text mission, and the submit button. The Figma form has a comment field
+// under the photo too; it is left out because the server keeps no text with a photo.
 export function MissionSubmitForm({
   mission,
   position,
@@ -80,7 +86,9 @@ export function MissionSubmitForm({
     if (!body || uploading || submitting) return
     try {
       const result = await submit.mutateAsync({ missionId: mission.id, body })
-      if (result.experienceCard) {
+      // The server sends the card again with every submission once the required missions are
+      // done, so the card alone does not say that this one finished them.
+      if (mission.required && result.progress.isAllCompleted) {
         // That was the last required mission: on to the completion screen.
         void navigate(paths.complete(mission.eventId), { replace: true })
       } else {
@@ -93,7 +101,8 @@ export function MissionSubmitForm({
       // The message itself comes from submit.error; here only what the form has to do.
       const code = apiErrorCode(error)
       if (code === 'MISSION_NOT_FOUND') onMissionNotFound()
-      if (code === 'INVALID_IMAGE_URL') {
+      // The server did not take the photo: start over with an empty uploader.
+      if (code === 'IMAGE_REQUIRED') {
         setImage(null)
         setUploaderKey((key) => key + 1)
       }
@@ -123,28 +132,30 @@ export function MissionSubmitForm({
         </div>
       )}
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={textId} className={LABEL}>
-          {copy.textLabel}
-        </label>
-        {/* 16px text (Figma: 15px): iOS Safari zooms the page when a focused field is smaller. */}
-        <textarea
-          id={textId}
-          value={text}
-          onChange={(event) => {
-            setText(event.target.value)
-            clearError()
-          }}
-          maxLength={TEXT_MAX_LENGTH}
-          aria-required={!isPhoto}
-          aria-describedby={counterId}
-          readOnly={submitting}
-          className="h-[120px] w-full resize-none rounded-[10px] border-[1.5px] border-line bg-surface px-3.5 py-3 text-base leading-[1.65] text-ink outline-none focus:border-ink"
-        />
-        <p id={counterId} className="text-xs leading-normal text-ink-faint">
-          {copy.counter(text.length, TEXT_MAX_LENGTH)}
-        </p>
-      </div>
+      {!isPhoto && (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={textId} className={LABEL}>
+            {copy.textLabel}
+          </label>
+          {/* 16px text (Figma: 15px): iOS Safari zooms the page when a focused field is smaller. */}
+          <textarea
+            id={textId}
+            value={text}
+            onChange={(event) => {
+              setText(event.target.value)
+              clearError()
+            }}
+            maxLength={TEXT_MAX_LENGTH}
+            aria-required="true"
+            aria-describedby={counterId}
+            readOnly={submitting}
+            className="h-[120px] w-full resize-none rounded-[10px] border-[1.5px] border-line bg-surface px-3.5 py-3 text-base leading-[1.65] text-ink outline-none focus:border-ink"
+          />
+          <p id={counterId} className="text-xs leading-normal text-ink-faint">
+            {copy.counter(text.length, TEXT_MAX_LENGTH)}
+          </p>
+        </div>
+      )}
 
       <div className="mt-auto flex flex-col gap-3 pt-1">
         {errorKey && (

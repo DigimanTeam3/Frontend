@@ -105,19 +105,23 @@ function FailureActions({ event, failure, busy, onRetry }: CheckInFailedProps) {
     case 'OUT_OF_RANGE':
       return (
         <>
-          <a
-            href={directionsUrl(event.lat, event.lng)}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonClassName({ variant: 'outline' })}
-          >
-            {actions.venueMap}
-          </a>
+          {event.lat !== null && event.lng !== null && (
+            <a
+              href={directionsUrl(event.lat, event.lng)}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonClassName({ variant: 'outline' })}
+            >
+              {actions.venueMap}
+            </a>
+          )}
           {retry(actions.retryCheck)}
         </>
       )
     case 'EVENT_ENDED':
     case 'EVENT_NOT_STARTED':
+    // Trying again cannot help: the event itself has no venue position.
+    case 'EVENT_LOCATION_UNAVAILABLE':
       return (
         <Link to={paths.home()} className={`${buttonClassName()} ${PRIMARY}`}>
           {actions.otherEvents}

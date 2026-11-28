@@ -2,12 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   useCreateParticipationMutation,
   useVerifyParticipationMutation,
+  withVerification,
 } from '@/features/checkin/api'
 import {
   failureFromApiError,
   failureFromGeolocation,
   type CheckInFailure,
 } from '@/features/checkin/failure'
+import { isCheckedIn } from '@/shared/lib/participationStatus'
 import { useCurrentPosition } from '@/shared/lib/useCurrentPosition'
 import type { Participation } from '@/shared/types/participation'
 
@@ -36,7 +38,7 @@ interface CheckInState {
 export function useCheckIn(eventId: number, initialParticipation: Participation | null) {
   const [state, setState] = useState<CheckInState>(() => {
     // Already checked in before this visit: there is nothing to verify again.
-    const verified = initialParticipation?.status === 'verified'
+    const verified = isCheckedIn(initialParticipation?.status)
     return {
       stage: verified ? 'failed' : 'intro',
       failure: verified ? { reason: 'ALREADY_VERIFIED' } : null,
@@ -95,14 +97,14 @@ export function useCheckIn(eventId: number, initialParticipation: Participation 
       const { lat, lng, accuracy } = located.position
       const result = await verifyParticipation({
         participationId: participation.id,
-        position: { lat, lng, accuracy },
+        position: { latitude: lat, longitude: lng, accuracy },
       })
       if (!isCurrent()) return
       setState({
         stage: 'ready',
         failure: null,
-        reading: { distanceM: result.distanceM, accuracyM: Math.round(accuracy) },
-        participation: result.participation,
+        reading: { distanceM: result.distanceMeters, accuracyM: Math.round(accuracy) },
+        participation: withVerification(participation, result),
       })
       setBusy(false)
     } catch (error) {

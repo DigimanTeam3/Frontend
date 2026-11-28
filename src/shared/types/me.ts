@@ -1,18 +1,13 @@
 import type { EventBrief } from '@/shared/types/eventBrief'
 import type { Participation } from '@/shared/types/participation'
 
-/** GET /me: the logged-in user. */
+/** GET /me: the logged-in user (the fields My Page reads). */
 export interface User {
   id: number
-  /** How the user logged in: LINE, or the demo account. */
+  /** How the user logged in: LINE, or the demo (guest) account. */
   provider: 'line' | 'demo'
   nickname: string
-  email: string | null
-  language: 'ja' | 'ko'
   profileImage: string | null
-  bio: string | null
-  isAdmin: boolean
-  createdAt: string
 }
 
 /** GET /me/summary: counts for My Page. */
@@ -26,8 +21,6 @@ export interface MySummary {
   recruitmentCount: number
 }
 
-// TODO(api): the backend spec (v2) names GET /me/companions but not its shape. This follows the
-// companion post summary of S06 (#16), plus the event the post belongs to.
 export type MyCompanionStatus = 'OPEN' | 'FULL' | 'CLOSED'
 
 /** One item of GET /me/companions: a companion post I wrote or joined. */
@@ -46,8 +39,15 @@ export interface MyCompanion {
   isMine: boolean
 }
 
+/** My participation as the My Page list carries it. */
+export interface MyParticipationRecord extends Participation {
+  userId: number
+  verificationMethod: string | null
+  createdAt: string
+}
+
 /** One item of GET /me/participations. */
 export interface MyParticipation {
-  participation: Participation
+  participation: MyParticipationRecord
   event: EventBrief
 }

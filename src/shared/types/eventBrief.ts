@@ -11,12 +11,21 @@ export interface EventBrief {
   endDate: string
 }
 
-export type JourneyEventCategory = 'festival' | 'exhibition' | 'performance'
+// The contract has the first three. `popup` is proposed by the backend (pop-up stores are sent
+// as `exhibition` until the team decides), so screens must also cope with a name they do not know.
+export type JourneyEventCategory = 'festival' | 'exhibition' | 'performance' | 'popup'
 
 // TEMP: the fields of GET /events/{eventId} (EventDetail, issue #15) that the journey screens
 // (S09–S14) read. Use EventDetail instead once src/shared/types/event.ts has it on main.
 export interface JourneyEvent extends EventBrief {
   category: JourneyEventCategory
-  lat: number
-  lng: number
+  /** Where the event data comes from, e.g. "popup_map_kr" for pop-up stores. Null when unknown. */
+  source?: string | null
+  /** Venue position; null when the server has none (then nobody can check in). */
+  lat: number | null
+  lng: number | null
+  /** How far from the venue the check-in passes, in meters. */
+  verificationRadius?: number
+  /** Number of published missions of the event. */
+  missionCount?: number
 }

@@ -1,4 +1,3 @@
-// TODO(api): provisional — no backend API for saved conditions (予約券) yet. Paths and fields are placeholders for the mock only.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api/client'
 import { retryUnlessClientError } from '@/shared/api/journey'
@@ -8,7 +7,7 @@ import type { Ticket, TicketListResponse } from '@/shared/types/ticket'
 export function useTicketsQuery() {
   return useQuery({
     queryKey: queryKeys.tickets.list(),
-    queryFn: () => apiClient<TicketListResponse>('/me/tickets'),
+    queryFn: () => apiClient<TicketListResponse>('/saved-conditions'),
     retry: retryUnlessClientError,
   })
 }
@@ -29,8 +28,8 @@ export function useDeleteTicketMutation() {
 
   return useMutation<void, Error, number, DeleteContext>({
     mutationKey: DELETE_TICKET_MUTATION_KEY,
-    // TODO(api): must answer 204 (a 200 with an empty body would be read as a failure)
-    mutationFn: (ticketId) => apiClient<void>(`/me/tickets/${ticketId}`, { method: 'DELETE' }),
+    mutationFn: (ticketId) =>
+      apiClient<void>(`/saved-conditions/${ticketId}`, { method: 'DELETE' }),
     onMutate: async (ticketId) => {
       await queryClient.cancelQueries({ queryKey: listKey })
       const items = queryClient.getQueryData<TicketListResponse>(listKey)?.items ?? []

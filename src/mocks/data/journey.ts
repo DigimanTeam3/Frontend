@@ -4,11 +4,18 @@ import type { ExperienceCard, ExperienceCardUpdate } from '@/shared/types/card'
 import type { EventBrief, JourneyEvent } from '@/shared/types/eventBrief'
 import type {
   Mission,
-  MissionListResponse,
+  MissionListAnswer,
+  MissionProgress,
   Submission,
   SubmissionResult,
 } from '@/shared/types/mission'
-import type { MyCompanion, MyParticipation, MySummary } from '@/shared/types/me'
+import type {
+  MyCompanion,
+  MyParticipation,
+  MyParticipationRecord,
+  MySummary,
+} from '@/shared/types/me'
+import { isCheckedIn } from '@/shared/lib/participationStatus'
 import type { Participation, ParticipationStatus } from '@/shared/types/participation'
 
 // Mock data and state of the journey screens (check-in, badge, missions, card, my page) in one
@@ -22,6 +29,8 @@ export const LOW_ACCURACY_EVENT_ID = 9003
 export const VERIFY_ERROR_EVENT_ID = 9004
 /** Test event that is over and has no seeded participation: joining answers EVENT_ENDED. */
 export const ENDED_EVENT_ID = 9005
+/** Test event whose venue has no position on the server: verify answers EVENT_LOCATION_UNAVAILABLE. */
+export const NO_LOCATION_EVENT_ID = 9006
 
 // Events 1–5 mirror src/mocks/data/events.ts of the event screens (same ids, titles, places).
 export const journeyEvents: JourneyEvent[] = [
@@ -101,8 +110,10 @@ export const journeyEvents: JourneyEvent[] = [
     endDate: '2026-12-31T23:59:59+09:00',
     venueName: 'KOREC',
     venueNameJa: 'KOREC（新村）',
-    lat: 37.5585,
-    lng: 126.9388,
+    // Position and radius of the backend demo seed (demo-korec-shinchon-2026).
+    lat: 37.5582,
+    lng: 126.937,
+    verificationRadius: 500,
     imageUrl: null,
   },
   {
@@ -144,6 +155,19 @@ export const journeyEvents: JourneyEvent[] = [
     venueNameJa: 'テスト会場',
     lat: 37.5585,
     lng: 126.9388,
+    imageUrl: null,
+  },
+  {
+    id: NO_LOCATION_EVENT_ID,
+    title: '테스트: 위치 정보 없음',
+    titleJa: 'テスト：位置情報なし',
+    category: 'festival',
+    startDate: '2026-11-01T00:00:00+09:00',
+    endDate: '2026-12-31T23:59:59+09:00',
+    venueName: '테스트 장소',
+    venueNameJa: 'テスト会場',
+    lat: null,
+    lng: null,
     imageUrl: null,
   },
 ]
@@ -195,8 +219,8 @@ const missionTemplates: MissionTemplate[] = [
     eventId: 1,
     title: '포장마차에서 뭔가 먹어 보기',
     titleJa: '屋台で何か食べてみる',
-    description: '먹은 음식의 사진과 한마디를 보내 주세요.',
-    descriptionJa: '食べたものの写真と、ひとことを送ってください。',
+    description: '먹은 음식의 사진을 보내 주세요.',
+    descriptionJa: '食べたものの写真を送ってください。',
     difficulty: 'normal',
     verificationMethod: 'photo',
     required: true,
@@ -252,6 +276,11 @@ const missionTemplates: MissionTemplate[] = [
   },
 ]
 
+/** Number of missions of an event (`missionCount` of the event detail). */
+export function countMissions(eventId: number) {
+  return missionTemplates.filter((mission) => mission.eventId === eventId).length
+}
+
 export function findJourneyEvent(eventId: number) {
   return journeyEvents.find((event) => event.id === eventId)
 }
@@ -259,6 +288,11 @@ export function findJourneyEvent(eventId: number) {
 export function toEventBrief(event: JourneyEvent): EventBrief {
   const { id, title, titleJa, venueName, venueNameJa, imageUrl, startDate, endDate } = event
   return { id, title, titleJa, venueName, venueNameJa, imageUrl, startDate, endDate }
+}
+
+/** The Seoul day of a time as the card's eventDate carries it ("2026-11-29T00:00:00+09:00"). */
+function dayIso(iso: string) {
+  return `${iso.slice(0, 10)}T00:00:00+09:00`
 }
 
 /** Now as the API writes times: ISO 8601 in Seoul time ("2026-11-29T18:12:00+09:00"). */
@@ -276,7 +310,7 @@ const FIRST_CARD_ID = 3
 interface JourneyState {
   nextParticipationId: number
   nextBadgeId: number
-  participations: Participation[]
+  participations: MyParticipationRecord[]
   badges: Badge[]
   nextSubmissionId: number
   submissions: Submission[]
@@ -334,7 +368,8 @@ function initialState(): JourneyState {
     id: SEED_PARTICIPATION_ID,
     eventId: event.id,
     userId: MOCK_USER_ID,
-    status: 'verified',
+    // The seed has both badges and the card of this event, so it is finished.
+    status: 'completed',
     verificationMethod: 'gps',
     verifiedAt: SEED_VERIFIED_AT,
     createdAt: '2026-11-14T12:00:00+09:00',
@@ -342,8 +377,11 @@ function initialState(): JourneyState {
   state.badges.push(participationBadge, completeBadge)
   state.cards.push({
     id: SEED_CARD_ID,
+    eventId: event.id,
     event: brief,
-    eventDate: SEED_VERIFIED_AT.slice(0, 10),
+    eventTitle: event.title,
+    eventTitleJa: event.titleJa,
+    eventDate: dayIso(SEED_VERIFIED_AT),
     venue: event.venueName,
     venueJa: event.venueNameJa,
     eventImage: event.imageUrl,
@@ -393,6 +431,12 @@ export function clearJourneyMock() {
   saveState()
 }
 
+/** A stored participation as POST / GET /events/{eventId}/participation answer it. */
+export function toParticipation(record: MyParticipationRecord): Participation {
+  const { id, eventId, status, verifiedAt } = record
+  return { id, eventId, status, verifiedAt }
+}
+
 export function findParticipation(eventId: number, userId: number) {
   return state.participations.find((p) => p.eventId === eventId && p.userId === userId)
 }
@@ -427,7 +471,7 @@ export function summarize(userId: number): MySummary {
   const mine = state.participations.filter((p) => p.userId === userId)
   return {
     participatedEventCount: mine.length,
-    verifiedEventCount: mine.filter((p) => p.status === 'verified').length,
+    verifiedEventCount: mine.filter((p) => isCheckedIn(p.status)).length,
     participationBadgeCount: state.badges.filter((b) => b.badgeType === 'participation').length,
     completeBadgeCount: state.badges.filter((b) => b.badgeType === 'complete').length,
     experienceCardCount: state.cards.length,
@@ -479,7 +523,7 @@ export function joinEvent(eventId: number, userId: number) {
   const existing = findParticipation(eventId, userId)
   if (existing) return { participation: existing, created: false }
 
-  const participation: Participation = {
+  const participation: MyParticipationRecord = {
     id: state.nextParticipationId++,
     eventId,
     userId,
@@ -494,7 +538,7 @@ export function joinEvent(eventId: number, userId: number) {
 }
 
 /** Marks the participation verified by GPS and hands out the participation badge. */
-export function verifyParticipation(participation: Participation, event: JourneyEvent) {
+export function verifyParticipation(participation: MyParticipationRecord, event: JourneyEvent) {
   const now = nowIso()
   participation.status = 'verified'
   participation.verificationMethod = 'gps'
@@ -514,8 +558,8 @@ export function verifyParticipation(participation: Participation, event: Journey
 }
 
 /** The missions of an event with my progress. Logged out (userId null): locked, nothing done. */
-export function listMissions(eventId: number, userId: number | null): MissionListResponse {
-  const isVerified = userId !== null && findParticipation(eventId, userId)?.status === 'verified'
+export function listMissions(eventId: number, userId: number | null): MissionListAnswer {
+  const canSubmit = userId !== null && isCheckedIn(findParticipation(eventId, userId)?.status)
   const items: Mission[] = missionTemplates
     .filter((mission) => mission.eventId === eventId)
     .map((mission) => ({
@@ -523,15 +567,17 @@ export function listMissions(eventId: number, userId: number | null): MissionLis
       mySubmission:
         userId === null
           ? null
-          : (state.submissions.find((s) => s.missionId === mission.id && s.userId === userId) ??
-            null),
+          : (state.submissions.find((s) => s.missionId === mission.id) ?? null),
     }))
   const required = items.filter((mission) => mission.required)
   return {
+    eventId,
+    canSubmit,
+    progress: {
+      completedRequired: required.filter((mission) => mission.mySubmission).length,
+      totalRequired: required.length,
+    },
     items,
-    requiredCount: required.length,
-    myCompletedRequiredCount: required.filter((mission) => mission.mySubmission).length,
-    isVerified,
   }
 }
 
@@ -539,11 +585,23 @@ export function findMission(missionId: number) {
   return missionTemplates.find((mission) => mission.id === missionId)
 }
 
-export function findSubmission(missionId: number, userId: number) {
-  return state.submissions.find((s) => s.missionId === missionId && s.userId === userId)
+/** My submission of a mission (the mock has one user, so submissions are not kept per user). */
+export function findSubmission(missionId: number) {
+  return state.submissions.find((s) => s.missionId === missionId)
 }
 
 const NOTHING_EARNED = { completeBadge: null, experienceCard: null }
+
+/** My progress in the required missions of an event. */
+function missionProgress(eventId: number): MissionProgress {
+  const required = missionTemplates.filter((m) => m.eventId === eventId && m.required)
+  const completedRequired = required.filter((m) => findSubmission(m.id)).length
+  return {
+    completedRequired,
+    totalRequired: required.length,
+    isAllCompleted: required.length > 0 && completedRequired === required.length,
+  }
+}
 
 /**
  * Hands out the complete badge and the experience card when every required mission of the
@@ -554,17 +612,16 @@ function completeEvent(
   userId: number,
 ): Pick<SubmissionResult, 'completeBadge' | 'experienceCard'> {
   const event = findJourneyEvent(eventId)
-  const verifiedAt = findParticipation(eventId, userId)?.verifiedAt
+  const participation = findParticipation(eventId, userId)
+  const verifiedAt = participation?.verifiedAt
   const participationBadge = state.badges.find(
     (badge) => badge.eventId === eventId && badge.badgeType === 'participation',
   )
-  if (!event || !verifiedAt || !participationBadge) return NOTHING_EARNED
-  if (state.cards.some((card) => card.event.id === eventId)) return NOTHING_EARNED
+  if (!event || !participation || !verifiedAt || !participationBadge) return NOTHING_EARNED
+  if (state.cards.some((card) => card.eventId === eventId)) return NOTHING_EARNED
 
   const required = missionTemplates.filter((m) => m.eventId === eventId && m.required)
-  const mine = state.submissions.filter(
-    (s) => s.userId === userId && findMission(s.missionId)?.eventId === eventId,
-  )
+  const mine = state.submissions.filter((s) => findMission(s.missionId)?.eventId === eventId)
   if (!required.every((m) => mine.some((s) => s.missionId === m.id))) return NOTHING_EARNED
 
   const now = nowIso()
@@ -578,21 +635,25 @@ function completeEvent(
   }
   const experienceCard: ExperienceCard = {
     id: state.nextCardId++,
+    eventId,
     event: toEventBrief(event),
+    eventTitle: event.title,
+    eventTitleJa: event.titleJa,
     // verifiedAt is written in Seoul time, so its first ten characters are the Seoul day.
-    eventDate: verifiedAt.slice(0, 10),
+    eventDate: dayIso(verifiedAt),
     venue: event.venueName,
     venueJa: event.venueNameJa,
     eventImage: event.imageUrl,
     // My first photo of this event.
     userImage: mine.find((s) => s.image !== null)?.image ?? null,
-    memo: null,
+    memo: '',
     participationBadge,
     completeBadge,
     createdAt: now,
   }
   state.badges.push(completeBadge)
   state.cards.push(experienceCard)
+  participation.status = 'completed'
   return { completeBadge, experienceCard }
 }
 
@@ -603,18 +664,23 @@ function completeEvent(
 export function submitMission(
   mission: Pick<Mission, 'id' | 'eventId' | 'required' | 'verificationMethod'>,
   userId: number,
-  input: { image?: string; text?: string },
+  input: { imageUrl?: string; text?: string },
 ): SubmissionResult {
-  const existing = findSubmission(mission.id, userId)
-  if (existing) return { submission: existing, ...NOTHING_EARNED }
+  const existing = findSubmission(mission.id)
+  if (existing) {
+    return {
+      submission: existing,
+      progress: missionProgress(mission.eventId),
+      ...NOTHING_EARNED,
+    }
+  }
 
   const submission: Submission = {
     id: state.nextSubmissionId++,
     missionId: mission.id,
-    userId,
     submissionType: mission.verificationMethod,
     text: input.text ?? null,
-    image: input.image ?? null,
+    image: input.imageUrl ?? null,
     verificationStatus: 'approved',
     submittedAt: nowIso(),
   }
@@ -622,7 +688,7 @@ export function submitMission(
   // Optional missions never lead to the card.
   const earned = mission.required ? completeEvent(mission.eventId, userId) : NOTHING_EARNED
   saveState()
-  return { submission, ...earned }
+  return { submission, progress: missionProgress(mission.eventId), ...earned }
 }
 
 /** My experience cards, newest first; every card belongs to the one mock user. */
@@ -665,13 +731,16 @@ export function addDemoCards(count: number) {
     state.badges.push(participationBadge, completeBadge)
     state.cards.push({
       id: state.nextCardId++,
+      eventId: event.id,
       event: brief,
-      eventDate: now.slice(0, 10),
+      eventTitle: event.title,
+      eventTitleJa: event.titleJa,
+      eventDate: dayIso(now),
       venue: event.venueName,
       venueJa: event.venueNameJa,
       eventImage: event.imageUrl,
       userImage: null,
-      memo: null,
+      memo: '',
       participationBadge,
       completeBadge,
       createdAt: now,

@@ -20,7 +20,7 @@ export function CardThumbnail({ card }: CardThumbnailProps) {
   return (
     <Link
       to={paths.cardDetail(card.id)}
-      aria-label={ja.myPage.cards.cardName(card.event.titleJa ?? card.event.title)}
+      aria-label={ja.myPage.cards.cardName(polaroidCardText(card).title)}
       className="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gate"
     >
       <PolaroidCard {...polaroidCardText(card)}>

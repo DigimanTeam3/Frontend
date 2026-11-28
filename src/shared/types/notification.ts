@@ -1,13 +1,12 @@
 import type { EventBrief } from '@/shared/types/eventBrief'
 
-// TODO(api): provisional — no backend API for notifications yet (LINE alert for saved conditions). Path and fields are placeholders for the mock only.
-
 /** GET /notifications/{notificationId}: a new event that matched a saved condition (予約券). */
 export interface EventNotification {
   id: number
   /** ISO 8601 `+09:00`. */
   createdAt: string
-  /** The saved condition text that matched, e.g. "週末・屋内・一人でも". */
-  condition: string
-  event: EventBrief
+  /** The saved condition that matched ("週末・屋内・一人でも"); null once that condition is deleted. */
+  condition: string | null
+  /** The matched event; null when the event no longer exists. */
+  event: EventBrief | null
 }

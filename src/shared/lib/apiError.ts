@@ -10,7 +10,7 @@ export interface ApiErrorInfo {
   code: string
   /** Input field a validation error points at. */
   field?: string
-  /** Extra values some errors carry, e.g. `{ distanceM, radiusM }` for OUT_OF_RANGE. */
+  /** Extra values some errors carry, e.g. the distance to the venue for OUT_OF_RANGE. */
   detail?: unknown
 }
 

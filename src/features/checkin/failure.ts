@@ -5,9 +5,14 @@ import type { GeolocationErrorCode } from '@/shared/lib/geolocation'
 import { formatMonthDay } from '@/shared/lib/seoulDate'
 import type { JourneyEvent } from '@/shared/types/eventBrief'
 
-// TODO(api): the venue radius belongs to the server and is not in the event shape. Until the
-// event carries it, the intro step and the short out-of-range text use the planned 300m.
-export const DEFAULT_RADIUS_M = 300
+// Used only while the event does not carry `verificationRadius` (the mock events of the event
+// screens, until S05 lands).
+const DEFAULT_RADIUS_M = 300
+
+/** How far from the venue the check-in passes, in meters. The server judges; this is for the texts. */
+export function venueRadiusM(event: JourneyEvent) {
+  return event.verificationRadius ?? DEFAULT_RADIUS_M
+}
 
 /** Why a check-in did not pass. One reason = one row of the Figma failure sheet (S09). */
 export type CheckInFailureReason =
@@ -19,6 +24,8 @@ export type CheckInFailureReason =
   | 'EVENT_ENDED'
   | 'EVENT_NOT_STARTED'
   | 'ALREADY_VERIFIED'
+  /** The event has no venue position on the server, so nobody can check in. */
+  | 'EVENT_LOCATION_UNAVAILABLE'
   /** No answer, a server error, or a code this screen does not know. */
   | 'NETWORK'
 
@@ -49,15 +56,21 @@ export function failureFromApiError(error: unknown): CheckInFailure {
   const code = info?.code
   switch (code) {
     case 'OUT_OF_RANGE': {
-      const { distanceM, radiusM } = (info?.detail ?? {}) as Record<string, unknown>
-      return typeof distanceM === 'number' && typeof radiusM === 'number'
-        ? { reason: 'OUT_OF_RANGE', distanceM, radiusM }
-        : { reason: 'OUT_OF_RANGE' }
+      // detail: { distanceMeters, radiusMeters }
+      const detail = (info?.detail ?? {}) as Record<string, unknown>
+      const distanceM = detail.distanceMeters
+      const radiusM = detail.radiusMeters
+      return {
+        reason: 'OUT_OF_RANGE',
+        distanceM: typeof distanceM === 'number' ? distanceM : undefined,
+        radiusM: typeof radiusM === 'number' ? radiusM : undefined,
+      }
     }
     case 'LOW_ACCURACY':
     case 'EVENT_ENDED':
     case 'EVENT_NOT_STARTED':
     case 'ALREADY_VERIFIED':
+    case 'EVENT_LOCATION_UNAVAILABLE':
       return { reason: code }
     default:
       return { reason: 'NETWORK' }
@@ -75,18 +88,18 @@ export type FailureParagraph =
 export function failureBody(failure: CheckInFailure, event: JourneyEvent): FailureParagraph[] {
   const copy = ja.checkIn.failureBody
   switch (failure.reason) {
-    case 'OUT_OF_RANGE':
-      if (failure.distanceM === undefined || failure.radiusM === undefined) {
-        return [copy.outOfRange(DEFAULT_RADIUS_M)]
-      }
+    case 'OUT_OF_RANGE': {
+      const radiusM = failure.radiusM ?? venueRadiusM(event)
+      if (failure.distanceM === undefined) return [copy.outOfRange(radiusM)]
       return [
         copy.outOfRangeDistance(formatDistance(failure.distanceM)),
         {
-          ...copy.outOfRangeRetry(failure.radiusM),
+          ...copy.outOfRangeRetry(radiusM),
           venue: event.venueNameJa ?? event.venueName,
           venueLang: event.venueNameJa === null ? 'ko' : undefined,
         },
       ]
+    }
     case 'EVENT_ENDED':
     case 'EVENT_NOT_STARTED':
       return [copy.period(formatMonthDay(event.startDate), formatMonthDay(event.endDate))]

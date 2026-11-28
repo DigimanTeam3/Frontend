@@ -8,8 +8,10 @@ import {
   submitMission,
 } from '@/mocks/data/journey'
 import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
+import { isCheckedIn } from '@/shared/lib/participationStatus'
 
-// Mission mock (S11 list, S12 submission). Shapes follow the backend API spec v0.3, in camelCase.
+// Mission mock (S11 list, S12 submission). The submission follows the backend API spec v2
+// (Supabase, 2026-11-27); the list keeps the v0.3 shape in camelCase until v2 spells its fields out.
 // The progress (isVerified, mySubmission, counts) comes from the journey state of the logged-in
 // mock user.
 //
@@ -23,7 +25,7 @@ import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@
 //
 // Test hook of the submission: a text (ひとこと) that is "!" + a code forces that answer on any
 // mission, e.g. "!NOT_VERIFIED":
-//   !NOT_VERIFIED  !MISSION_NOT_FOUND  !IMAGE_REQUIRED  !TEXT_REQUIRED  !INVALID_IMAGE_URL
+//   !NOT_VERIFIED  !MISSION_NOT_FOUND  !IMAGE_REQUIRED  !VALIDATION_ERROR
 //   !ALREADY_SUBMITTED  (also records the submission, as if it was sent from another device)
 //   !INTERNAL_ERROR     (500)
 //   !NETWORK            (no answer at all)
@@ -35,18 +37,19 @@ const SUBMIT_ERRORS = {
   NOT_VERIFIED: { status: 403 },
   MISSION_NOT_FOUND: { status: 404 },
   ALREADY_SUBMITTED: { status: 409 },
-  IMAGE_REQUIRED: { status: 422, field: 'image' },
-  TEXT_REQUIRED: { status: 422, field: 'text' },
-  INVALID_IMAGE_URL: { status: 422, field: 'image' },
+  IMAGE_REQUIRED: { status: 400, field: 'imageUrl' },
+  VALIDATION_ERROR: { status: 400, field: 'text' },
   INTERNAL_ERROR: { status: 500 },
 } as const
 
 type SubmitErrorCode = keyof typeof SUBMIT_ERRORS
 
-function submitError(code: SubmitErrorCode) {
+function submitError(code: SubmitErrorCode, field?: string) {
   const { status, ...extra } = SUBMIT_ERRORS[code]
-  return errorResponse(status, code, `mock: ${code}`, extra)
+  return errorResponse(status, code, `mock: ${code}`, field ? { ...extra, field } : extra)
 }
+
+const TEXT_MAX_LENGTH = 200
 
 const FORCED_ERROR_PREFIX = '!'
 
@@ -76,13 +79,13 @@ export const missionHandlers = [
     const mission = findMission(Number(params.missionId))
     if (!mission) return submitError('MISSION_NOT_FOUND')
 
-    let body: { image?: unknown; text?: unknown }
+    let body: { submissionType?: unknown; imageUrl?: unknown; text?: unknown }
     try {
       body = (await request.json()) as typeof body
     } catch {
       body = {}
     }
-    const { image } = body
+    const { imageUrl } = body
     const text = typeof body.text === 'string' ? body.text.trim() : ''
 
     if (text.startsWith(FORCED_ERROR_PREFIX)) {
@@ -92,21 +95,25 @@ export const missionHandlers = [
       if (Object.hasOwn(SUBMIT_ERRORS, forced)) return submitError(forced as SubmitErrorCode)
     }
 
-    if (findParticipation(mission.eventId, userId)?.status !== 'verified') {
+    if (!isCheckedIn(findParticipation(mission.eventId, userId)?.status)) {
       return submitError('NOT_VERIFIED')
     }
-    if (findSubmission(mission.id, userId)) return submitError('ALREADY_SUBMITTED')
+    if (findSubmission(mission.id)) return submitError('ALREADY_SUBMITTED')
 
+    if (body.submissionType !== mission.verificationMethod) {
+      return submitError('VALIDATION_ERROR', 'submissionType')
+    }
+    if (text.length > TEXT_MAX_LENGTH) return submitError('VALIDATION_ERROR')
     if (mission.verificationMethod === 'text') {
-      if (text === '') return submitError('TEXT_REQUIRED')
+      if (text === '') return submitError('VALIDATION_ERROR')
       return HttpResponse.json(submitMission(mission, userId, { text }), { status: 201 })
     }
-    if (image === undefined || image === null || image === '') return submitError('IMAGE_REQUIRED')
     // The upload mock hands out blob: URLs; the real server an http(s) URL.
-    if (typeof image !== 'string' || !/^(blob:|http)/.test(image)) {
-      return submitError('INVALID_IMAGE_URL')
+    if (typeof imageUrl !== 'string' || !/^(blob:|http)/.test(imageUrl)) {
+      return submitError('IMAGE_REQUIRED')
     }
-    const result = submitMission(mission, userId, { image, text: text === '' ? undefined : text })
+    // Like the server, a photo submission keeps no text.
+    const result = submitMission(mission, userId, { imageUrl })
     return HttpResponse.json(result, { status: 201 })
   }),
 ]

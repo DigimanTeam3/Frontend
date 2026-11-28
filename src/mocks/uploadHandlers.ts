@@ -2,10 +2,17 @@ import { http, HttpResponse } from 'msw/http'
 import { currentUserId, errorResponse, mockDelay, unauthorizedResponse } from '@/mocks/mockHelpers'
 import type { UploadedImage } from '@/shared/types/upload'
 
-// Image upload mock (C8). Shape follows POST /uploads/images of the backend API spec, in camelCase.
+// Image upload mock (C8). Shape follows POST /uploads/images of the backend API spec v2.
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+]
 
 export const uploadHandlers = [
   http.post('/api/uploads/images', async ({ request }) => {
@@ -14,7 +21,7 @@ export const uploadHandlers = [
 
     const file = (await request.formData()).get('file')
     if (!(file instanceof File) || file.size === 0) {
-      return errorResponse(400, 'EMPTY_FILE', 'file is empty')
+      return errorResponse(400, 'VALIDATION_ERROR', 'file is empty', { field: 'file' })
     }
     if (!ALLOWED_TYPES.includes(file.type)) {
       return errorResponse(400, 'UNSUPPORTED_IMAGE_TYPE', `${file.type} is not supported`)
@@ -24,11 +31,7 @@ export const uploadHandlers = [
     }
 
     // The mock keeps the photo in this tab only: a blob URL shows the picked photo until a reload.
-    const body: UploadedImage = {
-      url: URL.createObjectURL(file),
-      contentType: file.type,
-      size: file.size,
-    }
+    const body: UploadedImage = { url: URL.createObjectURL(file) }
     return HttpResponse.json(body, { status: 201 })
   }),
 ]

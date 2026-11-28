@@ -30,12 +30,7 @@ export const mypageHandlers = [
       id: userId,
       provider: 'line',
       nickname: mypageLongName() ? LONG_NICKNAME : 'ゆい',
-      email: null,
-      language: 'ja',
       profileImage: null,
-      bio: null,
-      isAdmin: false,
-      createdAt: '2026-11-01T10:00:00+09:00',
     }
     return HttpResponse.json(user)
   }),
@@ -64,7 +59,9 @@ export const mypageHandlers = [
 
     const all = listParticipations(
       userId,
-      status === 'joined' || status === 'verified' ? (status as ParticipationStatus) : undefined,
+      status === 'joined' || status === 'verified' || status === 'completed'
+        ? (status as ParticipationStatus)
+        : undefined,
     )
     const body: Page<MyParticipation> = {
       items: all.slice((page - 1) * size, page * size),

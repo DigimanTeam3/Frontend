@@ -62,7 +62,11 @@ export function BadgeSection() {
               <li key={badge.id} className="shrink-0">
                 <span
                   role="img"
-                  aria-label={copy.name[badge.badgeType](badge.event.titleJa ?? badge.event.title)}
+                  aria-label={
+                    badge.event
+                      ? copy.name[badge.badgeType](badge.event.titleJa ?? badge.event.title)
+                      : copy.nameOnly[badge.badgeType]
+                  }
                   className={`${STAMP_BASE} ${STAMP_LOOK[badge.badgeType]}`}
                 >
                   {copy.label[badge.badgeType]}

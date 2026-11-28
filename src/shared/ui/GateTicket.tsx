@@ -10,7 +10,7 @@ export type GateTicketLook = 'plain' | 'glowing' | 'dimmed'
 export interface GateTicketProps {
   event: Pick<
     JourneyEvent,
-    'title' | 'titleJa' | 'venueName' | 'venueNameJa' | 'imageUrl' | 'category'
+    'title' | 'titleJa' | 'venueName' | 'venueNameJa' | 'imageUrl' | 'category' | 'source'
   >
   /** Participation id, printed as "No.1129-0042" and on the stub. null: no number yet. */
   ticketNumber: number | null
@@ -33,11 +33,16 @@ export interface GateTicketProps {
 const LABEL = 'font-mono text-[11px] leading-[1.4] font-medium tracking-[0.08em] text-ink-faint'
 const VALUE = 'text-[15px] leading-[1.65] font-bold break-words text-ink'
 
-const TAG_COLORS: Record<JourneyEventCategory, string> = {
+// Looked up by the name the server sends, so a category added later still gets a tag.
+const OTHER_TAG_COLOR = 'bg-ink/5 text-ink-muted'
+const TAG_COLORS: Partial<Record<string, string>> = {
   festival: 'bg-festival-soft text-festival',
   exhibition: 'bg-exhibit-soft text-exhibit',
-  performance: 'bg-ink/5 text-ink-muted',
-}
+  performance: OTHER_TAG_COLOR,
+  // TODO: give pop-ups their own colour once the team adds a token for them.
+  popup: OTHER_TAG_COLOR,
+} satisfies Record<JourneyEventCategory, string>
+const TAG_LABELS: Partial<Record<string, string>> = ja.gateTicket.category
 
 // Paper ticket of an event (Figma: S09 / S10 "ticket"). Shared because the check-in (S09) shows
 // it with its stub and the participation badge screen (S10) shows it after the stub is torn off.
@@ -53,6 +58,9 @@ export function GateTicket({
 }: GateTicketProps) {
   // A photo URL that does not load falls back to the lantern picture too.
   const [photoFailed, setPhotoFailed] = useState(false)
+  // Until the contract has a pop-up category, pop-up stores arrive as "exhibition" and are told
+  // apart by their source (backend note of 11/28).
+  const tag = event.source === 'popup_map_kr' ? 'popup' : event.category
   const photo = event.imageUrl && !photoFailed ? event.imageUrl : lanternPhoto
 
   const { month, day, weekday } = seoulDateParts(visitDate)
@@ -93,10 +101,10 @@ export function GateTicket({
         <div className="flex flex-col gap-2.5 px-5 pt-4 pb-[18px]">
           <div className="flex items-start gap-1.5">
             <span
-              className={`inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${TAG_COLORS[event.category]}`}
+              className={`inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-[3px] text-xs leading-normal font-bold ${TAG_COLORS[tag] ?? OTHER_TAG_COLOR}`}
             >
               <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
-              {ja.gateTicket.category[event.category]}
+              {TAG_LABELS[tag] ?? ja.gateTicket.otherCategory}
             </span>
             {serial && (
               <span className={`${LABEL} ml-auto text-right`}>

@@ -1,4 +1,3 @@
-// TODO(api): provisional — no backend API for saved conditions (予約券) yet. Paths and fields are placeholders for the mock only.
 import { useState } from 'react'
 import { useDeleteTicketMutation, useTicketsQuery } from '@/features/ticket/api'
 import { TicketCard } from '@/features/ticket/components/TicketCard'
@@ -7,8 +6,9 @@ import { apiErrorCode } from '@/shared/lib/apiError'
 import { State } from '@/shared/ui/State'
 import { Toast } from '@/shared/ui/Toast'
 
-// S17 saved conditions (/me/tickets, Figma: S17 切符入れ（予約券）): the search conditions saved
-// from the AI concierge, with delete. The swipe gesture of the design is a plain button for now.
+// S17 saved conditions (page /me/tickets, API /saved-conditions, Figma: S17 切符入れ（予約券）):
+// the search conditions saved from the AI concierge, with delete. The swipe gesture of the design
+// is a plain button for now.
 export function TicketsScreen() {
   const { reservationTicket: copy } = ja
   const ticketsQuery = useTicketsQuery()

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import { CheckInFailed } from '@/features/checkin/components/CheckInFailed'
 import { CheckInIntro } from '@/features/checkin/components/CheckInIntro'
 import { CheckInReady } from '@/features/checkin/components/CheckInReady'
+import { venueRadiusM } from '@/features/checkin/failure'
 import { useCheckIn } from '@/features/checkin/useCheckIn'
 import { useJourneyEventQuery, useParticipationQuery } from '@/shared/api/journey'
 import { ja } from '@/shared/i18n/ja'
@@ -107,5 +108,5 @@ function CheckInFlow({ event, initialParticipation }: CheckInFlowProps) {
       />
     )
   }
-  return <CheckInIntro busy={busy} onStart={start} />
+  return <CheckInIntro radiusM={venueRadiusM(event)} busy={busy} onStart={start} />
 }

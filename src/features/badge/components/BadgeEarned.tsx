@@ -60,7 +60,7 @@ export function BadgeEarned({ event, ticketNumber, earnedAt }: BadgeEarnedProps)
           {copy.title}
         </p>
         <p className="text-[15px] leading-[1.65] text-ink-muted">
-          {copy.body.map((line) => (
+          {copy.body(event.missionCount).map((line) => (
             <span key={line} className="block">
               {line}
             </span>

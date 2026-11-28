@@ -27,7 +27,7 @@ export function useCardQuery(cardId: number | null) {
   })
 }
 
-/** Only the given fields change. `memo: null` removes the memo. */
+/** Only the given fields change. An empty `memo` removes the memo. */
 export function updateCard(cardId: number, changes: ExperienceCardUpdate) {
   return apiClient<ExperienceCard>(`/experience-cards/${cardId}`, {
     method: 'PATCH',
