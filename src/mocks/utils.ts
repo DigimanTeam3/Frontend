@@ -10,9 +10,17 @@ export function mockDelay(ms = MOCK_DELAY_MS) {
   return delay(ms)
 }
 
-/** Error answer in the shared body shape `{ code, message, field? }`. */
-export function errorResponse(status: number, code: string, message: string, field?: string) {
-  const body: ApiErrorBody = field === undefined ? { code, message } : { code, message, field }
+/** Error answer in the shared body shape `{ code, message, field?, detail? }`. */
+export function errorResponse(
+  status: number,
+  code: string,
+  message: string,
+  field?: string,
+  detail?: unknown,
+) {
+  const body: ApiErrorBody = { code, message }
+  if (field !== undefined) body.field = field
+  if (detail !== undefined) body.detail = detail
   return HttpResponse.json(body, { status })
 }
 
@@ -38,6 +46,15 @@ export function currentUserId(request: Request): number | null {
   return request.headers.get('Authorization') === `Bearer ${MOCK_ACCESS_TOKEN}`
     ? MOCK_USER_ID
     : null
+}
+
+/** 429 answer with Retry-After, like the AI concierge limit (10 per minute). */
+export function rateLimitedResponse(retryAfterSeconds = 60) {
+  const body: ApiErrorBody = { code: 'RATE_LIMITED', message: 'Too many requests' }
+  return HttpResponse.json(body, {
+    status: 429,
+    headers: { 'Retry-After': String(retryAfterSeconds) },
+  })
 }
 
 /** 401 answer for APIs that need login. */
