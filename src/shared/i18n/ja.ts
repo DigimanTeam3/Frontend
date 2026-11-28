@@ -822,6 +822,10 @@ export const ja = {
     savingMemo: '保存中…',
     cancelMemo: 'キャンセル',
     memoSaved: 'メモを保存しました。',
+    // Links under the actions: the ways out of the card.
+    exitsLabel: 'ほかの画面へ',
+    toHome: 'ホームへ',
+    toMyPage: '切符入れを見る',
     // Keys are API error codes of PATCH /experience-cards/{cardId}, plus UNKNOWN (network,
     // server and every other error).
     memoErrors: {

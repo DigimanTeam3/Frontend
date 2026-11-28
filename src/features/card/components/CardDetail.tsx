@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
+import { Link } from 'react-router'
 import { CardInfo } from '@/features/card/components/CardInfo'
 import { ShareImagePreview } from '@/features/card/components/ShareImagePreview'
 import { CardStickers } from '@/shared/ui/CardStickers'
@@ -7,6 +8,7 @@ import { detailStickers } from '@/shared/lib/stickers'
 import { useStickerStore } from '@/shared/stores/stickerStore'
 import { useShareCard } from '@/features/card/useShareCard'
 import { ja } from '@/shared/i18n/ja'
+import { paths } from '@/shared/lib/paths'
 import { polaroidCardText } from '@/shared/lib/polaroidCardText'
 import type { ExperienceCard } from '@/shared/types/card'
 import { buttonClassName } from '@/shared/ui/buttonStyles'
@@ -21,8 +23,13 @@ export interface CardDetailProps {
 // shared 52px / 15px size classes whatever their order in the stylesheet.
 const ACTION_SIZE = 'h-[54px]! flex-1 text-base!'
 
+// Plain links under the actions: the ways out of the card. After a card is made, the back
+// button leads into the mission screens again, so the home and My Page are one tap away here.
+const EXIT_LINK =
+  'py-2 text-[13px] leading-normal font-bold text-ink-muted underline underline-offset-4'
+
 // The loaded screen (Figma: S14 カード詳細): the saved card with its badge stickers, the info
-// list with the memo, and the actions.
+// list with the memo, the actions, and the ways out.
 export function CardDetail({ card }: CardDetailProps) {
   const { cardDetail: copy } = ja
   // What was arranged on the completion screen in this session, else the Figma places.
@@ -95,6 +102,16 @@ export function CardDetail({ card }: CardDetailProps) {
             {preparing ? copy.sharePreparing : copy.share}
           </button>
         </div>
+      )}
+      {!editing && (
+        <nav aria-label={copy.exitsLabel} className="mt-2 flex flex-wrap justify-center gap-x-6">
+          <Link to={paths.home()} className={EXIT_LINK}>
+            {copy.toHome}
+          </Link>
+          <Link to={paths.me()} className={EXIT_LINK}>
+            {copy.toMyPage}
+          </Link>
+        </nav>
       )}
 
       {previewUrl && <ShareImagePreview imageUrl={previewUrl} onClose={closeSharePreview} />}
