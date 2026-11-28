@@ -54,6 +54,6 @@ src/
 
 ## 배포
 
-프론트는 Vercel에 배포합니다. `/api`는 Vercel rewrites로 백엔드에 넘깁니다. 자세한 내용은 [docs/deploy.md](docs/deploy.md)를 봅니다.
+프론트는 Vercel에 배포합니다 (운영 주소: https://digiman-frontend.vercel.app). `/api`는 Vercel rewrites로 백엔드에 넘깁니다. 자세한 내용은 [docs/deploy.md](docs/deploy.md)를 봅니다.
 
 작업 규칙은 [CONTRIBUTING.md](CONTRIBUTING.md)를 봅니다.
