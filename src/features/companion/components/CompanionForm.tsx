@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useCreateCompanionMutation } from '@/features/companion/api'
 import { EventStrip } from '@/features/companion/components/EventStrip'
 import { meetingTimeOptions, toSeoulIso } from '@/features/companion/seoulDate'
@@ -13,7 +13,7 @@ import {
   type CompanionFormErrors,
   type CompanionFormValues,
 } from '@/features/companion/validation'
-import { apiErrorCode, apiErrorField, isApiError } from '@/shared/api/errors'
+import { apiErrorCode, apiErrorField } from '@/shared/api/errors'
 import { ja } from '@/shared/i18n/ja'
 import type { EventSummary } from '@/shared/types/companion'
 
@@ -32,7 +32,6 @@ const fieldBox =
 
 export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
   const navigate = useNavigate()
-  const location = useLocation()
   const mutation = useCreateCompanionMutation(event.id)
   const range = selectableDayRange(event)
   const eventEnded = range.min > range.max
@@ -60,13 +59,8 @@ export function CompanionForm({ event, myOpenPostId }: CompanionFormProps) {
     setFormError(null)
   }
 
+  // 401 needs nothing here: apiClient logs out and RequireAuth sends the user to login.
   const showServerError = (error: unknown) => {
-    if (isApiError(error, 401)) {
-      navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`, {
-        replace: true,
-      })
-      return
-    }
     switch (apiErrorCode(error)) {
       case 'CONTACT_INFO_NOT_ALLOWED':
         setServerErrors({ intro: text.errors.contactInfo })
